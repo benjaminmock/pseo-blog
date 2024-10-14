@@ -25,3 +25,8 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Show the menu when the checkbox is checked */
+#menu-toggle:checked ~ #mobile-menu {
+  display: flex;
+}
