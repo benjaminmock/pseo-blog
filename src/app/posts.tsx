@@ -1,4 +1,4 @@
-const db = require("../../db");
+import db from "../../db";
 // const remark = require("remark");
 // const html = require("remark-html");
 
@@ -19,10 +19,10 @@ export async function getAllPosts(page = 1, limit = 10) {
 }
 
 // Define the Post type
-type Post = {
-  title: string;
-  content: string;
-};
+// type Post = {
+//   title: string;
+//   content: string;
+// };
 
 // Fetch a single post by slug
 export async function getPostBySlug(
