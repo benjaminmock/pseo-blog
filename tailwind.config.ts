@@ -19,7 +19,7 @@ const config: Config = {
       fontFamily: {
         sans: ['"Inter"', "sans-serif"],
       },
-      typography: (theme) => ({
+      typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {
           css: {
             color: theme("colors.foreground"),
