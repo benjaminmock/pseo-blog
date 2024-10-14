@@ -25,7 +25,7 @@ export default async function PaginatedPage({
         {posts.map((post) => (
           <li key={post.slug} className="mb-4">
             <Link
-              href={`/posts/${post.slug}`}
+              href={`/p/${post.slug}`}
               className="text-blue-500 hover:underline"
             >
               {post.title}

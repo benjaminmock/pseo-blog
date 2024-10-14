@@ -11,7 +11,7 @@ function generateSiteMap(posts: { slug: string }[]) {
         .map((post) => {
           return `
             <url>
-              <loc>${BASE_URL}/posts/${post.slug}</loc>
+              <loc>${BASE_URL}/p/${post.slug}</loc>
               <changefreq>weekly</changefreq>
               <priority>0.8</priority>
             </url>
