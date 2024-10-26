@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { metadata as configMetadata } from "@/config";
+import { metadata as configMetadata, icon } from "@/config";
 
 import "./globals.css";
 
@@ -21,9 +21,13 @@ export default function RootLayout({
       <body
         className={`antialiased bg-white text-gray-900  dark:text-gray-700`}
       >
-        <header className="text-black py-4">
+        <header className="text-black py-4 bg-gray-50 border-b mb-8">
           <nav className="container mx-auto flex justify-between items-center">
-            <a href="/" className="text-2xl font-bold">
+            <a
+              href="/"
+              className="flex items-center space-x-2 text-2xl font-bold"
+            >
+              {icon}
               {configMetadata.title}
             </a>
             {/*
@@ -71,11 +75,11 @@ export default function RootLayout({
         </header>
 
         {/* Main content */}
-        <main className="container mx-auto p-4">{children}</main>
+        <main className="container mx-auto p-4 min-h-screen">{children}</main>
 
         {/* Footer */}
-        <footer className="text-black py-4">
-          <div className="container mx-auto flex justify-between items-center">
+        <footer className="text-black py-4 bg-gray-50 border-t">
+          <div className="container mx-auto flex justify-between items-center mx-auto px-5">
             <p>
               &copy; {new Date().getFullYear()} {configMetadata.title}
             </p>
