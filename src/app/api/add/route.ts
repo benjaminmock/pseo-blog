@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-const Database = require("better-sqlite3");
+import Database from "better-sqlite3";
 
 // Create a connection to your SQLite database
 const db = new Database("./yoga.db");
