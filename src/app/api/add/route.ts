@@ -64,7 +64,7 @@ import { NextResponse } from "next/server";
 //   }
 // }
 
-export async function POST(req) {
+export async function POST() {
   return NextResponse.json(
     { message: "Trainer and course added successfully" },
     { status: 201 }
