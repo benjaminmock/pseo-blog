@@ -1,10 +1,11 @@
-import { getAllPosts } from "../posts";
+import { getAllPosts, getAllTopics } from "../posts";
 import { NextResponse } from "next/server";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 // Helper function to generate sitemap XML
 function generateSiteMap(posts: { slug: string }[]) {
+  console.log("---------->", posts);
   return `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${posts
@@ -22,12 +23,11 @@ function generateSiteMap(posts: { slug: string }[]) {
   `;
 }
 
-// The Next.js route handler for sitemap.xml
 export async function GET() {
-  const posts = await getAllPosts();
-  const sitemap = generateSiteMap(posts);
+  const posts = await getAllPosts(1, 10000);
+  const topics = await getAllTopics();
+  const sitemap = generateSiteMap([...topics, ...posts]);
 
-  // Return the generated sitemap with the correct content type
   return new NextResponse(sitemap, {
     headers: {
       "Content-Type": "application/xml",
