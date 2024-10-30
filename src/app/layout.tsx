@@ -18,76 +18,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body
-        className={`antialiased bg-white text-gray-900  dark:text-gray-700`}
-      >
-        <header className="text-black py-4 bg-gray-50 border-b mb-8">
-          <nav className="container mx-auto flex justify-between items-center">
+      <body className="antialiased bg-gray-50 text-gray-900 dark:text-gray-200">
+        {/* Header */}
+        <header className="bg-white shadow border-b">
+          <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
             <a
               href="/"
-              className="flex items-center space-x-2 text-2xl font-bold"
+              className="flex items-center text-xl font-semibold text-zinc-800 hover:text-zinc-600 transition"
             >
               {icon}
               {configMetadata.title}
             </a>
-            {/*
-            <div className="hidden md:flex space-x-6">
-              <a href="/about" className="hover:underline">
-                About
-              </a>
-              <a href="/contact" className="hover:underline">
-                Contact
-              </a>
-            </div>
-            <div className="md:hidden">
-              <input type="checkbox" id="menu-toggle" className="hidden" />
-              <label htmlFor="menu-toggle" className="cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6h16M4 12h16m-7 6h7"
-                  />
-                </svg>
-              </label>
-
-              <div
-                className="hidden flex-col space-y-4 px-6 py-4 bg-gray-700 text-white"
-                id="mobile-menu"
-              >
-                <a href="/about" className="hover:underline">
-                  About
-                </a>
-                <a href="/contact" className="hover:underline">
-                  Contact
-                </a>
-              </div>
-            </div>
-  */}
           </nav>
         </header>
 
-        {/* Main content */}
-        <main className="container mx-auto p-4 min-h-screen">{children}</main>
+        <main className="container mx-auto p-6 min-h-screen">{children}</main>
 
-        {/* Footer */}
-        <footer className="text-black py-4 bg-gray-50 border-t">
-          <div className="container mx-auto flex justify-between items-center mx-auto px-5">
-            <p>
+        <footer className="bg-white shadow border-t py-6">
+          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center px-4 text-sm text-gray-600">
+            <p className="mb-4 md:mb-0">
               &copy; {new Date().getFullYear()} {configMetadata.title}
             </p>
             <div>
-              {/* <a href="/privacy" className="mr-6 hover:underline">
-                Privacy Policy
-              </a> */}
-              <a href="/impressum" className="hover:underline">
+              <a href="/impressum" className="hover:text-gray-800 transition">
                 Impressum
               </a>
             </div>

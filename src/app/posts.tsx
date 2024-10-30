@@ -152,3 +152,13 @@ export async function getTopicBySlug(
 
   return undefined;
 }
+
+export async function getEntriesByCitySlug(city_slug) {
+  const stmt = db.prepare(`
+    SELECT id, name, url, description
+    FROM entries
+    WHERE city_slug = ?
+  `);
+  const entries = stmt.all(city_slug);
+  return entries;
+}

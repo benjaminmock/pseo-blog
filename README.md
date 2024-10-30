@@ -37,6 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 # IMPROTANT
 
-`.env.local` contains the `NEXT_PUBLIC_BASE_URL` which has to be adjusted for each domain / installation.
-
-The remaining config can be found in src/config/index.tsx
+1. `.env.local` contains the `NEXT_PUBLIC_BASE_URL` which has to be adjusted for each domain / installation.
+2. The remaining config can be found in src/config/index.tsx
+3. The port has to be adjusted in the package.json on the start script `PORT=300x`.

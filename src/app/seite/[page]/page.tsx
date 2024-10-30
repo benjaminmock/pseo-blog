@@ -2,7 +2,6 @@ import { metadata, faqs } from "@/config";
 import { getAllPosts, getMarkdownContent, getAllTopics } from "../../posts";
 import Link from "next/link";
 
-// Define the Post type
 type Post = {
   title: string;
   slug: string;
@@ -27,26 +26,24 @@ export default async function PaginatedPage({
   const content = await getMarkdownContent("./src/config/index.md");
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* <h1 className="text-4xl font-bold mb-6">{metadata.indexPageH1}</h1> */}
+    <div className="max-w-3xl mx-auto">
       <article className="prose lg:prose-xl mb-8">
-        {/* <h1 className="font-bold">{post.title}</h1> */}
         <div dangerouslySetInnerHTML={{ __html: content }} />
       </article>
 
       {topics.length > 0 && (
         <>
-          <h2 className="text-2xl font-bold text-black mt-12 mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800 mt-12 mb-6">
             {metadata.indexPageTopicsHeadline}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {topics.map((topic) => (
               <Link
                 key={topic.slug}
                 href={`/t/${topic.slug}`}
-                className="block p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="block p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
-                <h2 className="text-xl font-bold text-blue-600 hover:underline">
+                <h2 className="text-xl font-bold text-blue-600 hover:underline mb-2">
                   {topic.title}
                 </h2>
                 <p className="text-gray-600">{topic.meta_description}</p>
@@ -56,15 +53,15 @@ export default async function PaginatedPage({
         </>
       )}
 
-      <h2 className="text-2xl font-bold text-black mb-6 mt-12">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6 mt-12">
         {metadata.indexPageNearYouHeadline}
       </h2>
-      <ul className="leading-loose text-lg">
+      <ul className="space-y-4">
         {posts.map((post) => (
-          <li key={post.slug} className="mb-4">
+          <li key={post.slug}>
             <Link
               href={`/p/${post.slug}`}
-              className="text-blue-600 font-medium hover:text-blue-800 hover:underline"
+              className="text-blue-600 text-lg font-medium hover:text-blue-800 hover:underline transition"
             >
               {post.title}
             </Link>
@@ -75,15 +72,15 @@ export default async function PaginatedPage({
         {pageNumber > 1 && (
           <Link
             href={`/seite/${pageNumber - 1}`}
-            className="px-6 py-3 bg-gray-100 rounded-full hover:bg-gray-200 shadow-md transition"
+            className="text-gray-600 px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition"
           >
             &larr; Vorherige
           </Link>
         )}
-        {posts.length > POSTS_PER_PAGE && (
+        {posts.length >= POSTS_PER_PAGE && (
           <Link
             href={`/seite/${pageNumber + 1}`}
-            className="px-6 py-3 bg-gray-100 rounded-full hover:bg-gray-200 shadow-md transition"
+            className="text-gray-600 px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition"
           >
             Nächste &rarr;
           </Link>
@@ -92,16 +89,16 @@ export default async function PaginatedPage({
 
       {faqs.length > 0 && (
         <>
-          <h2 className="text-2xl font-bold text-black mt-16 mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800 mt-16 mb-6">
             Fragen & Antworten
           </h2>
           <div className="space-y-4">
             {faqs.map((faq, index) => (
               <details
                 key={index}
-                className="group border-b border-gray-200 pb-4"
+                className="group border border-gray-200 rounded-lg p-4"
               >
-                <summary className="flex justify-between w-full py-2 text-left font-semibold text-lg cursor-pointer">
+                <summary className="flex justify-between w-full text-lg font-semibold text-gray-800 cursor-pointer">
                   {faq.title}
                   <span className="ml-2 group-open:rotate-45 transition-transform">
                     +
