@@ -153,7 +153,7 @@ export async function getTopicBySlug(
   return undefined;
 }
 
-export async function getEntriesByCitySlug(city_slug) {
+export async function getEntriesByCitySlug(city_slug: string) {
   const stmt = db.prepare(`
     SELECT id, name, url, description
     FROM entries
