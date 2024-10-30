@@ -5,15 +5,7 @@ import {
 } from "../../posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  Key,
-  ReactElement,
-  JSXElementConstructor,
-  ReactNode,
-  ReactPortal,
-  AwaitedReactNode,
-} from "react";
-import { UrlObject } from "url";
+import { Key } from "react";
 
 type PostPageProps = {
   params: {
