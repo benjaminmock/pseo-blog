@@ -1,15 +1,20 @@
+import { useEffect } from "react";
 import type { Metadata } from "next";
-import { metadata as configMetadata, icon } from "@/config";
+import { initConfig, metadata, icon } from "@/config";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: configMetadata.titleTag,
-  description: configMetadata.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { metadata, icon } = await initConfig();
+
+  return {
+    title: metadata?.titleTag,
+    description: metadata?.description,
+    icons: {
+      icon: "/favicon.ico",
+    },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -27,7 +32,7 @@ export default function RootLayout({
               className="flex items-center text-xl font-semibold text-zinc-800 hover:text-zinc-600 transition"
             >
               {icon}
-              {configMetadata.title}
+              {metadata?.title}
             </a>
           </nav>
         </header>
@@ -37,7 +42,7 @@ export default function RootLayout({
         <footer className="bg-white shadow border-t py-6">
           <div className="container mx-auto flex flex-col md:flex-row justify-between items-center px-4 text-sm text-gray-600">
             <p className="mb-4 md:mb-0">
-              &copy; {new Date().getFullYear()} {configMetadata.title}
+              &copy; {new Date().getFullYear()} {metadata?.title}
             </p>
             <div>
               <a href="/impressum" className="hover:text-gray-800 transition">

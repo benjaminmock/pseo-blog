@@ -6,6 +6,8 @@ import {
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Key } from "react";
+import Image from "next/image";
+import { hasHeroImages } from "@/config";
 
 type PostPageProps = {
   params: {
@@ -41,11 +43,26 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
+  const heroImageUrl = `/api/hero-image/${slug}`; // API route for the hero image
+  const sanitizedContent = post.content.replace(/<h1[^>]*>.*?<\/h1>/i, "");
+
   return (
     <main className="max-w-2xl mx-auto">
       <article className="prose lg:prose-xl mb-8">
-        {/* <h1 className="font-bold text-3xl">{post.title}</h1> */}
-        <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        <h1 className="font-bold text-3xl">{post.title}</h1>
+        {heroImageUrl && (
+          <div className="my-6">
+            <Image
+              src={heroImageUrl}
+              alt={`${post.title} hero image`}
+              width={600}
+              height={300}
+              className="w-full h-auto rounded-lg shadow-lg"
+              priority
+            />
+          </div>
+        )}
+        <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
       </article>
 
       {/* Related Pages Section */}

@@ -1,4 +1,4 @@
-import db from "../../db";
+import { db } from "@/config";
 // const remark = require("remark");
 // const html = require("remark-html");
 import fs from "fs";

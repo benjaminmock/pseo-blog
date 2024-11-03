@@ -1,4 +1,4 @@
-import { metadata, faqs } from "@/config";
+import { metadata, faqs, ACTIVE_CONFIGURATION } from "@/config";
 import { getAllPosts, getMarkdownContent, getAllTopics } from "../../posts";
 import Link from "next/link";
 
@@ -23,7 +23,9 @@ export default async function PaginatedPage({
   const pageNumber = parseInt(params.page, 10) || 1;
   const posts: Post[] = await getAllPosts(pageNumber, POSTS_PER_PAGE);
   const topics: Topic[] = await getAllTopics();
-  const content = await getMarkdownContent("./src/config/index.md");
+  const content = await getMarkdownContent(
+    `./src/config/${ACTIVE_CONFIGURATION}/index.md`
+  );
 
   return (
     <div className="max-w-3xl mx-auto">

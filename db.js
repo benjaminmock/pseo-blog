@@ -1,3 +1,4 @@
+// TODO remove this file
 const Database = require("better-sqlite3");
 const db = new Database("content.db");
 
