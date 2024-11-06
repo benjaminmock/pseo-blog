@@ -55,17 +55,17 @@ export async function GET(
 
   // Build the SVG with multi-line text
   const lineHeight = 30;
-  const publishDate = new Date(post?.date || Date.now()).toLocaleDateString(
-    "en-US",
-    {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }
-  );
+  // const publishDate = new Date(post?.date || Date.now()).toLocaleDateString(
+  //   "en-US",
+  //   {
+  //     month: "long",
+  //     day: "numeric",
+  //     year: "numeric",
+  //   }
+  // );
 
-  const subtitle = "Find expert tips and local recommendations"; // Adjust as needed
-  const callToAction = "Discover the best insights now!";
+  // const subtitle = "Find expert tips and local recommendations"; // Adjust as needed
+  // const callToAction = "Discover the best insights now!";
 
   const svgText = `
     <svg width="${width}" height="${height}">

@@ -1,18 +1,22 @@
-import { useEffect } from "react";
-import type { Metadata } from "next";
-import { initConfig, metadata, icon } from "@/config";
+import { initConfig, metadata, icon, ConfigModule } from "@/config";
 
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { metadata, icon } = await initConfig();
+let config: ConfigModule | undefined;
+
+async function initializeConfig() {
+  if (!config) config = await initConfig();
+}
+
+initializeConfig();
+
+export async function generateMetadata() {
+  await initializeConfig();
 
   return {
-    title: metadata?.titleTag,
-    description: metadata?.description,
-    icons: {
-      icon: "/favicon.ico",
-    },
+    title: config?.metadata.titleTag,
+    description: config?.metadata.description,
+    icons: { icon: "/favicon.ico" },
   };
 }
 

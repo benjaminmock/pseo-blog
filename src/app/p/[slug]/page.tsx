@@ -2,12 +2,14 @@ import {
   getPostBySlug,
   getNearbyCitiesBySlug,
   getEntriesByCitySlug,
-} from "../../posts";
+  getAllCategories,
+} from "@/app/posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Key } from "react";
 import Image from "next/image";
 import { hasHeroImages } from "@/config";
+import { Entry } from "./[category]/page";
 
 type PostPageProps = {
   params: {
@@ -37,7 +39,8 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const post = await getPostBySlug(slug);
   const nearbyCities = await getNearbyCitiesBySlug(slug, 5);
-  const entries = await getEntriesByCitySlug(slug);
+  const entries: Entry[] = await getEntriesByCitySlug(slug);
+  const categories = await getAllCategories();
 
   if (!post) {
     notFound();
@@ -48,9 +51,27 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <main className="max-w-2xl mx-auto">
+      {/* Categories Section */}
+      {categories.length > 0 && (
+        <section className="categories mt-8 mb-8">
+          <h2 className="text-2xl font-bold text-black mb-6">Kategorien</h2>
+          <div className="flex flex-wrap gap-4">
+            {categories.map((category) => (
+              <Link
+                key={category.slug}
+                href={`/p/${slug}/${category.slug}`}
+                className="px-4 py-2 bg-gray-200 rounded-md text-black hover:bg-gray-300 transition-colors"
+              >
+                {category.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <article className="prose lg:prose-xl mb-8">
         <h1 className="font-bold text-3xl">{post.title}</h1>
-        {heroImageUrl && (
+        {hasHeroImages && heroImageUrl && (
           <div className="my-6">
             <Image
               src={heroImageUrl}

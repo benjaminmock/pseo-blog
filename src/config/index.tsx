@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import Database from "better-sqlite3";
 import { ReactElement } from "react";
 
 // Define the type for the configuration module
-interface ConfigModule {
-  metadata: Record<string, any>;
+export interface ConfigModule {
+  metadata: Record<string, string>;
   icon: ReactElement;
   faqs: { title: string; content: string }[];
+  hasHeroImages: boolean;
 }
 
 // Define a cache for the loaded configuration
 const configCache: Record<string, ConfigModule> = {};
 
 // Set the active configuration
-export const ACTIVE_CONFIGURATION = "yoga";
+export const ACTIVE_CONFIGURATION = "money";
 
 // Initialize the database connection
 export const db = new Database(`${ACTIVE_CONFIGURATION}.db`);
@@ -20,8 +22,15 @@ export const db = new Database(`${ACTIVE_CONFIGURATION}.db`);
 // Map configuration names to module paths
 const configMap: Record<string, () => ConfigModule> = {
   yoga: () => require("@/config/yoga") as ConfigModule,
+  money: () => require("@/config/money") as ConfigModule,
   // configB: () => require("@/config/configB") as ConfigModule,
 };
+
+// const configMap: Record<string, () => Promise<ConfigModule>> = {
+//   yoga: () => import("@/config/yoga") as Promise<ConfigModule>,
+//   money: () => import("@/config/money") as Promise<ConfigModule>,
+//   // configB: () => import("@/config/configB") as Promise<ConfigModule>,
+// };
 
 // Function to synchronously load the configuration module
 function loadConfigSync(configName: string): ConfigModule {
@@ -59,6 +68,8 @@ export function initConfig(): ConfigModule {
   metadata = config.metadata;
   icon = config.icon;
   faqs = config.faqs;
+
+  hasHeroImages = config.hasHeroImages;
 
   return config;
 }

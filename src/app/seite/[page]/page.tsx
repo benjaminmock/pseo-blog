@@ -2,16 +2,16 @@ import { metadata, faqs, ACTIVE_CONFIGURATION } from "@/config";
 import { getAllPosts, getMarkdownContent, getAllTopics } from "../../posts";
 import Link from "next/link";
 
-type Post = {
-  title: string;
-  slug: string;
-};
+// type Post = {
+//   title: string;
+//   slug: string;
+// };
 
-type Topic = {
-  title: string;
-  slug: string;
-  meta_description: string;
-};
+// type Topic = {
+//   title: string;
+//   slug: string;
+//   meta_description: string;
+// };
 
 const POSTS_PER_PAGE = 10;
 
@@ -21,8 +21,8 @@ export default async function PaginatedPage({
   params: { page: string };
 }) {
   const pageNumber = parseInt(params.page, 10) || 1;
-  const posts: Post[] = await getAllPosts(pageNumber, POSTS_PER_PAGE);
-  const topics: Topic[] = await getAllTopics();
+  const posts = await getAllPosts(pageNumber, POSTS_PER_PAGE);
+  const topics = await getAllTopics();
   const content = await getMarkdownContent(
     `./src/config/${ACTIVE_CONFIGURATION}/index.md`
   );
