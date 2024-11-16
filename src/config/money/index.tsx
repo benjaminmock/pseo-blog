@@ -107,3 +107,9 @@ export const icon = (
     <path d="M12 2v20M4 7h16M7 7L4 15h6L7 7zM17 7l3 8h-6l3-8zM12 2a5 5 0 0 0 5 5M12 2a5 5 0 0 1-5 5"></path>
   </svg>
 );
+
+export const favicon = `data:image/svg+xml,${encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-balance-scale" width="20" style="margin-right:8px">
+    <path d="M12 2v20M4 7h16M7 7L4 15h6L7 7zM17 7l3 8h-6l3-8zM12 2a5 5 0 0 0 5 5M12 2a5 5 0 0 1-5 5"></path>
+  </svg>
+`)}`;

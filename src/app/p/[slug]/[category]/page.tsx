@@ -1,10 +1,13 @@
 import {
   getPostBySlugAndCategory,
   getEntriesByCityAndCategorySlug,
+  getPostBySlug,
 } from "@/app/posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Key } from "react";
+import WaitListModal from "./_components/WaitListModal";
+import CourseAddModal from "./_components/CourseAddModal";
 
 type PostPageProps = {
   params: {
@@ -13,7 +16,6 @@ type PostPageProps = {
   };
 };
 
-// Define the type for an entry
 export type Entry = {
   id: Key;
   url: string;
@@ -23,9 +25,9 @@ export type Entry = {
 
 export default async function CategoryPage({ params }: PostPageProps) {
   const { slug, category } = params;
-
-  // Fetch post by slug and category
   const post = await getPostBySlugAndCategory(slug, category);
+  const city = await getPostBySlug(slug);
+
   const entries: Entry[] = await getEntriesByCityAndCategorySlug(
     slug,
     category
@@ -37,7 +39,6 @@ export default async function CategoryPage({ params }: PostPageProps) {
 
   return (
     <main className="max-w-2xl mx-auto">
-      {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="mb-4">
         <ol className="flex items-center space-x-2 text-sm text-gray-600">
           <li>
@@ -48,7 +49,7 @@ export default async function CategoryPage({ params }: PostPageProps) {
           <li className="mx-1">/</li>
           <li>
             <Link href={`/p/${slug}`} className="hover:underline">
-              {slug}
+              {city?.city.toLowerCase()}
             </Link>
           </li>
           <li className="mx-1">/</li>
@@ -56,11 +57,16 @@ export default async function CategoryPage({ params }: PostPageProps) {
         </ol>
       </nav>
 
+      {/* Add Course/Training Button and Modal */}
+      <CourseAddModal slug={slug} category={category} />
+
       <article className="prose lg:prose-xl mb-8">
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </article>
 
-      {/* Entries Section for the Specified Category */}
+      {/* Waitlist Button and Modal */}
+      <WaitListModal slug={slug} city={city?.city || ""} category={category} />
+
       {entries.length > 0 && (
         <section className="category-entries mt-8">
           <h2 className="text-2xl font-bold text-black mb-6">
@@ -70,7 +76,7 @@ export default async function CategoryPage({ params }: PostPageProps) {
             {entries.map((entry) => (
               <li
                 key={entry.id}
-                className="py-4 px-4 flex flex-col space-y-2 transition-all duration-200 hover:bg-gray-100 hover:shadow-md rounded-lg"
+                className="py-4 px-4 flex flex-col space-y-2 hover:bg-gray-100 hover:shadow-md rounded-lg"
               >
                 <Link href={entry.url} className="space-y-1">
                   <p className="text-lg font-semibold text-blue-600 hover:underline">

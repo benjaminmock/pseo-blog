@@ -1,0 +1,2 @@
+- waitlist (nothing found in your city)
+- add yourself (trainer/etc ...) trainer=company, course=service

@@ -16,7 +16,8 @@ export async function generateMetadata() {
   return {
     title: config?.metadata.titleTag,
     description: config?.metadata.description,
-    icons: { icon: "/favicon.ico" },
+    icons: { icon: config?.favicon },
+    // icons: { icon: "/favicon.ico" },
   };
 }
 
@@ -38,6 +39,21 @@ export default function RootLayout({
               {icon}
               {metadata?.title}
             </a>
+            {/* Search Field */}
+            <form action="/suche" method="POST" className="flex items-center">
+              <input
+                type="text"
+                name="query"
+                placeholder="Suche..."
+                className="border rounded-l px-4 py-2"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-gray-800 text-white rounded-r"
+              >
+                Suche
+              </button>
+            </form>
           </nav>
         </header>
 

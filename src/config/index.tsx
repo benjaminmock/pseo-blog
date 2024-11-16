@@ -6,6 +6,7 @@ import { ReactElement } from "react";
 export interface ConfigModule {
   metadata: Record<string, string>;
   icon: ReactElement;
+  favicon: string;
   faqs: { title: string; content: string }[];
   hasHeroImages: boolean;
 }
@@ -14,7 +15,7 @@ export interface ConfigModule {
 const configCache: Record<string, ConfigModule> = {};
 
 // Set the active configuration
-export const ACTIVE_CONFIGURATION = "money";
+export const ACTIVE_CONFIGURATION = "yoga";
 
 // Initialize the database connection
 export const db = new Database(`${ACTIVE_CONFIGURATION}.db`);
@@ -45,6 +46,7 @@ function loadConfigSync(configName: string): ConfigModule {
 export let metadata: ConfigModule["metadata"];
 export let icon: ConfigModule["icon"];
 export let faqs: ConfigModule["faqs"];
+export let favicon: ConfigModule["favicon"];
 
 export let hasHeroImages = false;
 
@@ -57,6 +59,7 @@ export function initConfig(): ConfigModule {
     metadata = config.metadata;
     icon = config.icon;
     faqs = config.faqs;
+    favicon = config.favicon;
     return config;
   }
 
@@ -67,6 +70,7 @@ export function initConfig(): ConfigModule {
   // Set module-level exports
   metadata = config.metadata;
   icon = config.icon;
+  favicon = config.favicon;
   faqs = config.faqs;
 
   hasHeroImages = config.hasHeroImages;

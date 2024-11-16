@@ -89,7 +89,7 @@ export default async function PaginatedPage({
         )}
       </div>
 
-      {faqs.length > 0 && (
+      {faqs && faqs.length > 0 && (
         <>
           <h2 className="text-2xl font-semibold text-gray-800 mt-16 mb-6">
             Fragen & Antworten

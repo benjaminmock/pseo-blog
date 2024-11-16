@@ -35,6 +35,7 @@ export async function getAllTopics() {
 }
 
 export type Post = {
+  city: string;
   title: string;
   content: string;
   slug: string;
@@ -44,7 +45,7 @@ export type Post = {
 // Fetch a single post by slug
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
   const stmt = db.prepare(
-    "SELECT title, content, meta_description, slug FROM cities WHERE slug = ?"
+    "SELECT title, content, meta_description, slug, city FROM cities WHERE slug = ?"
   );
   const post = stmt.get(slug) as Post;
 
@@ -61,6 +62,7 @@ export async function getPostBySlug(slug: string): Promise<Post | undefined> {
 
     // Return the title, processed HTML content, and meta description
     return {
+      city: post.city,
       title: data.title || post.title, // Use front matter title if available
       content: processedContent.toString(),
       meta_description: data.meta_description || post.meta_description, // Use front matter meta description if available
@@ -178,6 +180,16 @@ export type Category = {
 export async function getAllCategories(): Promise<Array<Category>> {
   const stmt = db.prepare(`SELECT title, slug FROM categories`);
   const categories = stmt.all() as Category[];
+  return categories;
+}
+
+export async function getCategoriesForSlug(
+  city_slug: string
+): Promise<Array<Category>> {
+  const stmt = db.prepare(
+    `SELECT DISTINCT c.title, c.slug FROM categories c, posts p WHERE p.city_slug = ? AND c.slug = p.category_slug`
+  );
+  const categories = stmt.all(city_slug) as Category[];
   return categories;
 }
 

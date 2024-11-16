@@ -2,7 +2,7 @@ import {
   getPostBySlug,
   getNearbyCitiesBySlug,
   getEntriesByCitySlug,
-  getAllCategories,
+  getCategoriesForSlug,
 } from "@/app/posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -40,7 +40,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const post = await getPostBySlug(slug);
   const nearbyCities = await getNearbyCitiesBySlug(slug, 5);
   const entries: Entry[] = await getEntriesByCitySlug(slug);
-  const categories = await getAllCategories();
+  const categories = await getCategoriesForSlug(slug);
 
   if (!post) {
     notFound();

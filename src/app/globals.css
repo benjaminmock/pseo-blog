@@ -30,3 +30,9 @@ body {
 #menu-toggle:checked ~ #mobile-menu {
   display: flex;
 }
+
+h1 {
+  font-size: 31px !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+  line-height: 1.2 !important;
+}

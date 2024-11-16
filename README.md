@@ -37,6 +37,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 # IMPROTANT
 
+0. `npm i`
 1. `.env.local` contains the `NEXT_PUBLIC_BASE_URL` which has to be adjusted for each domain / installation.
-2. The remaining config can be found in src/config/index.tsx
-3. The port has to be adjusted in the package.json on the start script `PORT=300x`.
+2. Which configuration will be used is set in src/config/index.tsx as `ACTIVE_CONFIGURATION`
+3. The remaining config can be found in src/config/keyword/index.tsx
+4. The port has to be adjusted in the package.json on the start script `PORT=300x`.
+5. `npm run build`
+6. start with `pm2 start npm --name "monetera_de" -- run start`
