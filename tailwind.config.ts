@@ -9,15 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#f8fafc", // Light background
-        foreground: "#1f2937", // Dark foreground
-        accent: "#2563eb", // Accent color for links
+        background: "#f5f8f7", // Soft mint background
+        foreground: "#2d3748", // Calm dark gray for text
+        accent: "#8ca1a5", // Muted teal for accents
+        secondary: "#edf6f9", // Light teal for secondary areas
+        highlight: "#f4e3cf", // Subtle beige for highlights
         // Dark mode adjustments
-        "background-dark": "#1e293b",
-        "foreground-dark": "#e2e8f0",
+        "background-dark": "#1a202c", // Deep dark gray
+        "foreground-dark": "#d1d5db", // Soft gray for dark mode text
+        "accent-dark": "#4fd1c5", // Bright teal for dark mode accents
       },
       fontFamily: {
-        sans: ['"Inter"', "sans-serif"],
+        sans: ['"Poppins"', "sans-serif"], // Softer, modern sans-serif font
+        serif: ['"Playfair Display"', "serif"], // Elegant serif for titles
       },
       typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {
@@ -27,6 +31,7 @@ const config: Config = {
               color: theme("colors.accent"),
               "&:hover": {
                 textDecoration: "underline",
+                color: theme("colors.highlight"),
               },
             },
             h1: {
@@ -57,7 +62,7 @@ const config: Config = {
           css: {
             color: theme("colors.foreground-dark"),
             a: {
-              color: theme("colors.accent"),
+              color: theme("colors.accent-dark"),
             },
             h1: {
               color: theme("colors.foreground-dark"),

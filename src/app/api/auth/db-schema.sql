@@ -1,0 +1,20 @@
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT,
+  role TEXT DEFAULT 'user',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sessions table for handling user sessions
+CREATE TABLE IF NOT EXISTS sessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
