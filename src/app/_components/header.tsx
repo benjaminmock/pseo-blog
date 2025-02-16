@@ -20,12 +20,33 @@ const Header = ({ metadata, user }: Props) => {
             href="/"
             className="flex items-center text-xl font-semibold text-zinc-800 hover:text-zinc-600 transition"
           >
-            {icon}
-            <span className="ml-2">{metadata?.title}</span>
+            {/* {icon} */}
+            {/* <span className="ml-2">{metadata?.title}</span> */}
+            <span className="mr-10">kursio.de</span>
           </a>
+          <nav className="hidden md:flex space-x-6">
+            <a
+              href="/launches"
+              className="text-gray-700 hover:text-gray-900 transition"
+            >
+              Kurse
+            </a>
+            <a
+              href="/products"
+              className="text-gray-700 hover:text-gray-900 transition"
+            >
+              Lehrer
+            </a>
+            <a
+              href="/news"
+              className="text-gray-700 hover:text-gray-900 transition"
+            >
+              Studios
+            </a>
+          </nav>
 
           {/* Search Field */}
-          <form
+          {/* <form
             action="/suche"
             method="POST"
             className="flex items-center flex-1 mx-6 max-w-xl"
@@ -42,57 +63,45 @@ const Header = ({ metadata, user }: Props) => {
             >
               Suchen
             </button>
+          </form> */}
+          <form
+            action="/suche"
+            method="POST"
+            className="flex items-center flex-1 mx-6 max-w-xl"
+          >
+            <input
+              type="text"
+              name="query"
+              placeholder="Suchen nach Kursen, Lehrern ..."
+              className="flex-1 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-100 placeholder-gray-500 text-gray-600"
+            />
           </form>
 
-          <AuthNav user={user} />
+          {/* <AuthNav user={user} /> */}
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex space-x-6">
-            <a
-              href="/launches"
-              className="text-gray-700 hover:text-gray-900 transition"
-            >
-              Launches
-            </a>
-            <a
-              href="/products"
-              className="text-gray-700 hover:text-gray-900 transition"
-            >
-              Products
-            </a>
-            <a
-              href="/news"
-              className="text-gray-700 hover:text-gray-900 transition"
-            >
-              News
-            </a>
+          {/* <nav className="hidden md:flex space-x-6">
             <a
               href="/community"
               className="text-gray-700 hover:text-gray-900 transition"
             >
-              Community
+              Blog
             </a>
-            <a
-              href="/advertise"
-              className="text-gray-700 hover:text-gray-900 transition"
-            >
-              Advertise
-            </a>
-          </nav>
+          </nav> */}
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-4">
             <a
-              href="/subscribe"
-              className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              href="/register"
+              className="px-4 py-2 border border-gray-600 text-gray-600 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              Subscribe
+              Registrieren
             </a>
             <a
-              href="/signin"
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+              href="/login"
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
-              Sign in
+              Einloggen
             </a>
           </div>
         </div>

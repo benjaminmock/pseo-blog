@@ -1,2 +1,25 @@
-- waitlist (nothing found in your city)
-- add yourself (trainer/etc ...) trainer=company, course=service
+# TODO
+
+## ??
+
+- [ ] add yourself (trainer/etc ...) trainer=company, course=service
+
+## Prio 1
+
+- [ ] connect user und trainer (ist trainer das Profil des Users)
+- [ ] split course/add page (erstelle nur einen Kurs und lege nicht noch einen Trainer an), erweitere Kurs Tabelle?
+
+- [ ] ~Landing Page~ optimiere stattdessen die HomePage!
+- [ ] Registration Flow
+- [ ] Profile Page
+  - [ ] Edit
+  - [ ] View
+- [ ] Kurs Seite
+  - [ ] Add
+  - [ ] Edit
+  - [ ] View
+
+## Prio 2
+
+- [ ] city pages include courses, schedules and links to teachers
+- [ ] waitlist (nothing found in your city)

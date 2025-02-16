@@ -44,3 +44,74 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 4. The port has to be adjusted in the package.json on the start script `PORT=300x`.
 5. `npm run build`
 6. start with `pm2 start npm --name "monetera_de" -- run start`
+
+# LOGIN
+
+mail@benjaminmock.de
+test
+
+# URLs
+
+## Pages
+
+/ Home
+
+/seite/[page]
+
+/t/[slug] Thema
+
+/p/[slug] Stadt Seite
+/p/[slug]/[category] Kategorie in Stadt
+/p/[slug]/[category]/add Kurs hinzufügen
+/p/[slug]/[category]/add/success Kurs erfolgreich hinzugefügt
+
+/suche
+
+### AUTH
+
+/login
+/register
+
+### LEGAL
+
+/impressum
+
+## API Routes
+
+/api/add
+/api/auth/login
+/api/auth/logout
+/api/auth/register
+/api/hero-image/[slug]
+/api/search
+/api/waitlist
+
+---
+
+# DB
+
+## Commands
+
+.tables
+.schema table_name
+
+## Tables
+
+cities | Stadt und Inhalte für Stadt
+nearby_cities | Städte in der Nähe einer Stadt (für Cross Linking)
+nearby_city_distances | Entfernungen zwischen Städten
+
+categories | Kategories, die es für auf der Seite gibt (Yoga, Pilates, etc)
+
+posts | Inhalte für Stadt -> Kategorie (linked via slugs)
+entries | Link Einträge mit URL und Title (linked zu city und category via slugs)
+
+topics | allein stehende Themen / Blogposts
+
+Trainers | Trainer / Profil
+Courses | Kurse mit Fremdschlüssel auf Trainer
+
+waitlist |
+
+users |
+sessions |

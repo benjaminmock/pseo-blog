@@ -36,21 +36,24 @@ const config: Config = {
             },
             h1: {
               color: theme("colors.foreground"),
-              fontWeight: "700",
-              fontSize: "2.5rem",
+              fontWeight: "200",
+              fontSize: "2rem",
               marginBottom: "1.5rem",
             },
             h2: {
               color: theme("colors.foreground"),
-              fontWeight: "600",
-              fontSize: "2rem",
+              fontWeight: "200",
+              fontSize: "1.2rem",
               marginBottom: "1rem",
             },
             p: {
               color: theme("colors.foreground"),
               lineHeight: "1.75rem",
               marginBottom: "1rem",
-              fontSize: "1.125rem",
+              fontSize: "1rem",
+            },
+            li: {
+              fontSize: "1rem",
             },
             "h1,h2,h3,h4": {
               marginTop: "2rem",

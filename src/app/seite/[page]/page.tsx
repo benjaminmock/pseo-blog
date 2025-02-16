@@ -35,7 +35,7 @@ export default async function PaginatedPage({
 
       {topics.length > 0 && (
         <>
-          <h2 className="text-2xl font-semibold text-gray-800 mt-12 mb-6">
+          <h2 className="text-2xl font-light text-gray-800 mt-12 mb-6">
             {metadata.indexPageTopicsHeadline}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -43,19 +43,21 @@ export default async function PaginatedPage({
               <Link
                 key={topic.slug}
                 href={`/t/${topic.slug}`}
-                className="block p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="block p-6 bg-white rounded-lg shadow-sm"
               >
-                <h2 className="text-xl font-bold text-blue-600 hover:underline mb-2">
+                <h2 className="text-xl font-light text-slate-700 text-lg hover:underline mb-2">
                   {topic.title}
                 </h2>
-                <p className="text-gray-600">{topic.meta_description}</p>
+                <p className="text-gray-600 text-sm">
+                  {topic.meta_description}
+                </p>
               </Link>
             ))}
           </div>
         </>
       )}
 
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6 mt-12">
+      <h2 className="text-2xl font-light text-gray-800 mb-6 mt-12">
         {metadata.indexPageNearYouHeadline}
       </h2>
       <ul className="space-y-4">
@@ -63,7 +65,7 @@ export default async function PaginatedPage({
           <li key={post.slug}>
             <Link
               href={`/p/${post.slug}`}
-              className="text-blue-600 text-lg font-medium hover:text-blue-800 hover:underline transition"
+              className="text-slate-700 text-lg font-medium hover:text-blue-800 hover:underline transition text-base"
             >
               {post.title}
             </Link>
@@ -91,7 +93,7 @@ export default async function PaginatedPage({
 
       {faqs && faqs.length > 0 && (
         <>
-          <h2 className="text-2xl font-semibold text-gray-800 mt-16 mb-6">
+          <h2 className="text-2xl font-light text-gray-800 mt-16 mb-6">
             Fragen & Antworten
           </h2>
           <div className="space-y-4">
@@ -100,7 +102,7 @@ export default async function PaginatedPage({
                 key={index}
                 className="group border border-gray-200 rounded-lg p-4"
               >
-                <summary className="flex justify-between w-full text-lg font-semibold text-gray-800 cursor-pointer">
+                <summary className="flex justify-between w-full text-lg font-light text-gray-800 cursor-pointer">
                   {faq.title}
                   <span className="ml-2 group-open:rotate-45 transition-transform">
                     +

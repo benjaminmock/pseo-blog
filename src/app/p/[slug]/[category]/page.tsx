@@ -79,7 +79,7 @@ export default async function CategoryPage({ params }: PostPageProps) {
                 className="py-4 px-4 flex flex-col space-y-2 hover:bg-gray-100 hover:shadow-md rounded-lg"
               >
                 <Link href={entry.url} className="space-y-1">
-                  <p className="text-lg font-semibold text-blue-600 hover:underline">
+                  <p className="text-lg font-semibold text-slate-700 hover:underline">
                     {entry.name}
                   </p>
                   <p className="text-gray-500 text-sm">{entry.url}</p>

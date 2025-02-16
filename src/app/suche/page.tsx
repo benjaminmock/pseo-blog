@@ -52,7 +52,7 @@ export default async function SearchPage({
               <li key={result.id} className="py-2 border-b">
                 <a
                   href={`/p/${result.slug}`}
-                  className="text-blue-600 hover:text-blue-800 transition"
+                  className="text-slate-700 hover:text-blue-800 transition"
                 >
                   {result.city}
                 </a>
