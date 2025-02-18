@@ -6,6 +6,8 @@
 
 ## Prio 1
 
+- [ ] focus on yoga only - skip categories
+
 - [ ] connect user und trainer (ist trainer das Profil des Users)
 - [ ] split course/add page (erstelle nur einen Kurs und lege nicht noch einen Trainer an), erweitere Kurs Tabelle?
 
@@ -17,9 +19,10 @@
 - [ ] Kurs Seite
   - [ ] Add
   - [ ] Edit
-  - [ ] View
+  - [ ] View http://localhost:3000/kurse/test
 
 ## Prio 2
 
 - [ ] city pages include courses, schedules and links to teachers
 - [ ] waitlist (nothing found in your city)
+- [ ] footer

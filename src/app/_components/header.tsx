@@ -26,19 +26,19 @@ const Header = ({ metadata, user }: Props) => {
           </a>
           <nav className="hidden md:flex space-x-6">
             <a
-              href="/launches"
+              href="/kurse"
               className="text-gray-700 hover:text-gray-900 transition"
             >
               Kurse
             </a>
             <a
-              href="/products"
+              href="/trainer"
               className="text-gray-700 hover:text-gray-900 transition"
             >
               Lehrer
             </a>
             <a
-              href="/news"
+              href="/studios"
               className="text-gray-700 hover:text-gray-900 transition"
             >
               Studios
@@ -77,8 +77,6 @@ const Header = ({ metadata, user }: Props) => {
             />
           </form>
 
-          {/* <AuthNav user={user} /> */}
-
           {/* Navigation Links */}
           {/* <nav className="hidden md:flex space-x-6">
             <a
@@ -90,19 +88,9 @@ const Header = ({ metadata, user }: Props) => {
           </nav> */}
 
           {/* Action Buttons */}
+
           <div className="flex items-center space-x-4">
-            <a
-              href="/register"
-              className="px-4 py-2 border border-gray-600 text-gray-600 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              Registrieren
-            </a>
-            <a
-              href="/login"
-              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400"
-            >
-              Einloggen
-            </a>
+            <AuthNav user={user} />
           </div>
         </div>
       </div>
