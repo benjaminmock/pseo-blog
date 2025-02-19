@@ -19,7 +19,7 @@
 - [ ] Kurs Seite
   - [ ] Add
   - [ ] Edit
-  - [ ] View http://localhost:3000/kurse/test
+  - [x] View http://localhost:3000/kurse/test
 
 ## Prio 2
 

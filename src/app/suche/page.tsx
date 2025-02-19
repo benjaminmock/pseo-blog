@@ -1,21 +1,37 @@
+import { headers } from "next/headers";
+
 type SearchResult = {
   id: number;
   slug: string;
   city: string;
+  title: string;
+  state: string;
+  zip: string;
 };
 
 // Fetch search results by making a POST request to the API route
 async function fetchSearchResults(query: string): Promise<SearchResult[]> {
-  const res = await fetch("/api/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  });
-  if (!res.ok) throw new Error("Failed to fetch data");
-  const data = await res.json();
-  return data.results as SearchResult[];
+  try {
+    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+    const host = headers().get("host") || "localhost:3000";
+    const res = await fetch(`${protocol}://${host}/api/search`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Search failed: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data.results as SearchResult[];
+  } catch (error) {
+    console.error("Search error:", error);
+    throw new Error("Failed to fetch search results. Please try again.");
+  }
 }
 
 export default async function SearchPage({
@@ -23,9 +39,19 @@ export default async function SearchPage({
 }: {
   searchParams: { query?: string };
 }) {
+  let results: SearchResult[] = [];
+  let error: string | null = null;
+
   // Fetch results if a query exists
   const query = searchParams.query || "";
-  const results = query ? await fetchSearchResults(query) : [];
+
+  if (query) {
+    try {
+      results = await fetchSearchResults(query);
+    } catch (e) {
+      error = e instanceof Error ? e.message : "An unexpected error occurred";
+    }
+  }
 
   return (
     <div className="container mx-auto p-4 bg-background light:bg-background-light">
@@ -37,31 +63,49 @@ export default async function SearchPage({
             name="query"
             defaultValue={query}
             placeholder="Suche..."
-            className="border border-gray-300 rounded-l px-4 py-2 text-gray-700"
+            className="border border-gray-300 rounded-l px-4 py-2 text-gray-700 flex-grow"
+            minLength={2}
+            required
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-gray-900 text-white rounded-r hover:bg-gray-800 transition"
           >
             Suche
           </button>
         </form>
-        {results.length > 0 ? (
-          <ul>
+
+        {error ? (
+          <div className="text-red-600 mb-4" role="alert">
+            {error}
+          </div>
+        ) : results.length > 0 ? (
+          <ul className="space-y-4">
             {results.map((result) => (
-              <li key={result.id} className="py-2 border-b">
+              <li
+                key={result.id}
+                className="p-4 border rounded-lg hover:bg-gray-50 transition"
+              >
                 <a
                   href={`/p/${result.slug}`}
-                  className="text-slate-700 hover:text-blue-800 transition"
+                  className="block text-slate-700 hover:text-blue-800"
                 >
-                  {result.city}
+                  <div className="font-semibold">{result.city}</div>
+                  <div className="text-sm text-gray-600">
+                    {result.state} • {result.zip}
+                  </div>
+                  {result.title && result.title !== result.city && (
+                    <div className="text-sm mt-1">{result.title}</div>
+                  )}
                 </a>
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-gray-500">Keine Ergebnisse gefunden.</p>
-        )}
+        ) : query ? (
+          <p className="text-gray-500">
+            Keine Ergebnisse gefunden für "{query}".
+          </p>
+        ) : null}
       </article>
     </div>
   );
