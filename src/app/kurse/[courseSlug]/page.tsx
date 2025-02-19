@@ -1,5 +1,6 @@
 import { db } from "@/config";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type CoursePageProps = {
   params: {
@@ -11,27 +12,57 @@ type Course = {
   course_id: number;
   course_name: string;
   trainer_id: number;
-  description: string;
+  description: string | null;
   start_date: string;
   end_date: string | null;
-  city_slug: string;
-  slug: string;
-  trainer_name?: string;
+  city_slug: string | null;
+  slug: string | null;
+  trainer: {
+    first_name: string;
+    last_name: string;
+    bio: string | null;
+    link: string | null;
+  };
 };
 
-async function getCourseBySlug(slug: string): Promise<Course | undefined> {
+async function getCourseById(id: string): Promise<Course | undefined> {
   const stmt = db.prepare(`
-    SELECT c.*, t.first_name || ' '  || t.last_name as trainer_name
+    SELECT 
+      c.*,
+      t.first_name,
+      t.last_name,
+      t.bio,
+      t.link
     FROM Courses c
     LEFT JOIN Trainers t ON c.trainer_id = t.trainer_id
-    WHERE c.slug = ?
+    WHERE c.course_id = ?
   `);
-  return stmt.get(slug) as Course | undefined;
+
+  const result = stmt.get(id) as
+    | (Course & {
+        first_name: string;
+        last_name: string;
+        bio: string | null;
+        link: string | null;
+      })
+    | undefined;
+
+  if (!result) return undefined;
+
+  return {
+    ...result,
+    trainer: {
+      first_name: result.first_name,
+      last_name: result.last_name,
+      bio: result.bio,
+      link: result.link,
+    },
+  };
 }
 
 export async function generateMetadata({ params }: CoursePageProps) {
   const { courseSlug } = params;
-  const course = await getCourseBySlug(courseSlug);
+  const course = await getCourseById(courseSlug);
 
   if (!course) {
     return {
@@ -42,74 +73,92 @@ export async function generateMetadata({ params }: CoursePageProps) {
 
   return {
     title: course.course_name,
-    description: course.description,
+    description:
+      course.description ||
+      `Yoga Kurs mit ${course.trainer.first_name} ${course.trainer.last_name}`,
   };
 }
 
-export default async function CoursePage({ params }) {
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+export default async function CoursePage({ params }: CoursePageProps) {
   const { courseSlug } = params;
-  const course = await getCourseBySlug(courseSlug);
+  const course = await getCourseById(courseSlug);
 
   if (!course) {
     notFound();
   }
 
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   return (
-    <div className=" flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl w-full flex bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-900">
+    <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl w-full flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="md:w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
+          <h1 className="text-2xl font-bold text-gray-900 text-center">
             {course.course_name}
-          </h2>
-          {/* <div className="text-6xl mt-4">🧘‍♀️</div> */}
+          </h1>
         </div>
-        <div className="w-1/2 p-8">
-          {/* <h2 className="text-3xl font-bold text-gray-900 mb-4"></h2> */}
-          <div className="space-y-4">
+        <div className="md:w-1/2 p-8">
+          <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-medium text-gray-500 text-sm">
-                Trainer:in / Lehrer:in
-              </h3>
-              <p className="text-gray-700">{course.trainer_name}</p>
+              <h2 className="text-lg font-medium text-gray-500 text-sm">
+                Trainer:in
+              </h2>
+              <Link
+                href={`/t/${course.trainer.first_name.toLowerCase()}-${course.trainer.last_name.toLowerCase()}`}
+                className="text-gray-900 hover:text-indigo-600 transition-colors"
+              >
+                {course.trainer.first_name} {course.trainer.last_name}
+              </Link>
+              {course.trainer.bio && (
+                <p className="text-gray-600 text-sm mt-2 line-clamp-3">
+                  {course.trainer.bio}
+                </p>
+              )}
             </div>
             <div>
-              <h3 className="text-lg font-medium text-gray-500 text-sm">
-                Startdatum
-              </h3>
-              <p className="text-gray-700">{formatDate(course.start_date)}</p>
+              <h2 className="text-lg font-medium text-gray-500 text-sm">
+                Zeitraum
+              </h2>
+              <p className="text-gray-900">
+                {formatDate(course.start_date)}
+                {course.end_date && ` - ${formatDate(course.end_date)}`}
+              </p>
             </div>
-            {course.end_date && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-500 text-sm">
-                  Enddatum
-                </h3>
-                <p className="text-gray-700">{formatDate(course.end_date)}</p>
-              </div>
-            )}
             {course.city_slug && (
               <div>
-                <h3 className="text-lg font-medium text-gray-500 text-sm">
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
                   Ort
-                </h3>
-                <p className="text-gray-700 capitalize">
+                </h2>
+                <p className="text-gray-900 capitalize">
                   {course.city_slug.replace("-", " ")}
                 </p>
               </div>
             )}
-            <div>
-              <h3 className="text-lg font-medium text-gray-500 text-sm">
-                Beschreibung
-              </h3>
-              <p className="text-gray-700">{course.description}</p>
-            </div>
+            {course.description && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Beschreibung
+                </h2>
+                <p className="text-gray-900 whitespace-pre-line">
+                  {course.description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8">
+            <Link
+              href="/kurse"
+              className="text-indigo-600 hover:text-indigo-800 transition-colors"
+            >
+              ← Zurück zur Kursübersicht
+            </Link>
           </div>
         </div>
       </div>
