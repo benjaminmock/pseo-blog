@@ -1,9 +1,10 @@
-import { initConfig, metadata, icon, ConfigModule } from "@/config";
+import { initConfig, metadata, icon, favicon, ConfigModule } from "@/config";
 import { getSession } from "@/lib/session";
 import AuthNav from "@/components/AuthNav";
 
 import "./globals.css";
 import Header from "./_components/header";
+import Footer from "./_components/footer";
 
 let config: ConfigModule | undefined;
 
@@ -17,9 +18,9 @@ async function initializeConfig() {
 export async function generateMetadata() {
   await initializeConfig();
   return {
-    title: config?.title || "Yoga Blog",
-    description: config?.description || "Ein Blog über Yoga und Wellness",
-    icons: { icon: config?.favicon },
+    title: metadata?.title || "Yoga Blog",
+    description: metadata?.description || "Ein Blog über Yoga und Wellness",
+    icons: { icon: favicon },
   };
 }
 
@@ -33,9 +34,20 @@ export default async function RootLayout({
 
   return (
     <html lang="de">
-      <body className="antialiased bg-gray-50 text-gray-900 dark:text-gray-200">
-        <Header metadata={metadata} user={user} />
-        <main className="container mx-auto px-4 py-8">{children}</main>
+      <body className="antialiased bg-gray-50 text-gray-900 dark:text-gray-200 min-h-screen flex flex-col">
+        <Header
+          metadata={{
+            title: metadata?.title || "Yoga Blog",
+            description:
+              metadata?.description || "Ein Blog über Yoga und Wellness",
+            icons: { icon: favicon },
+          }}
+          user={user}
+        />
+        <main className="container mx-auto px-4 py-8 flex-grow">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

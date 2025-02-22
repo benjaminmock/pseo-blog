@@ -62,7 +62,7 @@ export default async function TrainersPage({ searchParams }: PageProps) {
         {trainers.map((trainer) => (
           <Link
             key={trainer.trainer_id}
-            href={`/t/${getTrainerSlug(trainer)}`}
+            href={`/trainer/${getTrainerSlug(trainer)}`}
             className="block p-6 bg-white rounded-lg  hover:shadow-sm transition-shadow"
           >
             <h2 className="text-xl font-medium mb-2 text-gray-900">
