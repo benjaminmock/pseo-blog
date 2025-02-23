@@ -45,10 +45,47 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 5. `npm run build`
 6. start with `pm2 start npm --name "monetera_de" -- run start`
 
-# LOGIN
+# Authentication Setup
+
+## Local Authentication
 
 mail@benjaminmock.de
 test
+
+## Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the Google OAuth API:
+
+   - Go to "APIs & Services" > "Library"
+   - Search for "Google OAuth2 API"
+   - Click "Enable"
+
+4. Configure OAuth consent screen:
+
+   - Go to "APIs & Services" > "OAuth consent screen"
+   - Select "External" user type
+   - Fill in the required information (app name, user support email, etc.)
+   - Add authorized domains including your development and production domains
+
+5. Create OAuth 2.0 Client ID:
+
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth 2.0 Client ID"
+   - Select "Web application"
+   - Add authorized redirect URIs:
+     - Development: http://localhost:3000/api/auth/callback/google
+     - Production: https://yourdomain.com/api/auth/callback/google
+
+6. Copy credentials to .env.local:
+
+   ```
+   GOOGLE_CLIENT_ID=your_client_id
+   GOOGLE_CLIENT_SECRET=your_client_secret
+   ```
+
+7. Ensure NEXTAUTH_SECRET is set in .env.local (generate with `openssl rand -base64 32`)
 
 # URLs
 
@@ -120,3 +157,7 @@ sessions |
 
 - https://www.awwwards.com/
 - https://buycycle.de
+
+### Auth
+
+https://console.cloud.google.com/auth/clients/262795971488-n89glr1hlkhbqjs0hrkohs5oi49di9is.apps.googleusercontent.com?hl=de&inv=1&invt=AbqUuA&project=kursio-451808

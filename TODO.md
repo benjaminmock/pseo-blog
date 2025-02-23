@@ -11,7 +11,7 @@
 - [ ] connect user und trainer (ist trainer das Profil des Users)
 - [ ] split course/add page (erstelle nur einen Kurs und lege nicht noch einen Trainer an), erweitere Kurs Tabelle?
 
-- [ ] ~Landing Page~ optimiere stattdessen die HomePage!
+- [x] ~Landing Page~ optimiere stattdessen die HomePage!
 - [ ] Registration Flow
 - [ ] Profile Page
   - [ ] Edit

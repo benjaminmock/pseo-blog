@@ -7,14 +7,9 @@ type Props = {
     description: string;
     icons: { icon: string };
   };
-  user?: {
-    name: string;
-    email: string;
-    role: string;
-  } | null;
 };
 
-const Header = ({ metadata, user }: Props) => {
+const Header = ({ metadata }: Props) => {
   return (
     <header className="bg-white shadow border-b">
       <div className="container mx-auto px-4 py-4">
@@ -105,7 +100,7 @@ const Header = ({ metadata, user }: Props) => {
 
           {/* Action Buttons */}
           <div className="flex items-center">
-            <AuthNav user={user} />
+            <AuthNav />
           </div>
         </div>
 
