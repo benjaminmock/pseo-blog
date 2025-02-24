@@ -16,8 +16,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  // Get session token
-  const sessionToken = request.cookies.get("session_token");
+  // Get session token from NextAuth.js
+  const sessionToken = request.cookies.get("next-auth.session-token");
 
   // If user is logged in and tries to access auth routes, redirect to home
   if (isAuthRoute && sessionToken) {
@@ -42,7 +42,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - api/auth/callback (auth callback routes)
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|api/auth/callback).*)",
   ],
 };

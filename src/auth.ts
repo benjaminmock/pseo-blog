@@ -41,6 +41,17 @@ export const authOptions: AuthOptions = {
         },
       };
     },
+    async redirect({ url, baseUrl }) {
+      // Always redirect to /intern after sign in
+      if (url.includes("/api/auth/signin") || url.includes("callback")) {
+        return `${baseUrl}/intern`;
+      }
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   pages: {
     signIn: "/login",

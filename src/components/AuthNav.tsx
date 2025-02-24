@@ -14,16 +14,22 @@ export default function AuthNav() {
   };
 
   const handleGoogleSignIn = async () => {
-    await signIn("google", { callbackUrl: "/" });
+    await signIn("google", {
+      callbackUrl: window.location.href,
+      redirect: true,
+    });
   };
 
   return (
     <div className="flex items-center space-x-4">
       {session?.user ? (
         <>
-          <span className="text-gray-700 text-sm">
+          <Link
+            href="/intern"
+            className="text-gray-700 hover:text-gray-900 text-sm transition-colors duration-200"
+          >
             Willkommen, {session.user.name}
-          </span>
+          </Link>
           <button
             onClick={handleLogout}
             className="text-sm font-medium text-slate-800 hover:text-slate-600 transition-colors duration-200"
