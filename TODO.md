@@ -26,3 +26,10 @@
 - [ ] city pages include courses, schedules and links to teachers
 - [ ] waitlist (nothing found in your city)
 - [ ] footer
+
+## Email Setup
+
+Note: To complete the setup, you'll need to configure the following environment variables in your .env.local file:
+
+EMAIL_SERVER (e.g., "smtp://user:pass@smtp.example.com:587")
+EMAIL_FROM (e.g., "noreply@example.com")

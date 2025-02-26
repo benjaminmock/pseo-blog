@@ -11,6 +11,8 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@tailwindcss/typography": "^0.5.15",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "better-sqlite3": "^11.8.1",
     "fs": "^0.0.1-security",
     "gray-matter": "^4.0.3",
