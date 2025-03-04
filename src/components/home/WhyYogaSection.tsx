@@ -62,7 +62,7 @@ export default function WhyYogaSection() {
           {healthBenefits.map((category) => (
             <div
               key={category.title}
-              className="bg-white rounded-xl shadow-md p-6"
+              className="bg-white rounded-xl shadow-md p-6 text-gray-800"
             >
               <h3 className="text-xl font-semibold mb-4">{category.title}</h3>
               <ul className="space-y-3">
@@ -98,7 +98,7 @@ export default function WhyYogaSection() {
             {yogaStyles.map((style) => (
               <div
                 key={style.name}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
+                className="bg-white text-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
               >
                 <h4 className="text-xl font-semibold mb-2">{style.name}</h4>
                 <p className="text-gray-600">{style.description}</p>

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-[90vh] min-h-[600px] -mt-8 flex items-center">
+    <section className="relative h-[90vh] min-h-[600px] flex items-center w-full">
       {/* Background Image with Enhanced Gradient */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -20,8 +20,8 @@ export default function HeroSection() {
       </div>
 
       {/* Content with Enhanced Typography */}
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl">
+      <div className="w-full relative z-10 px-4">
+        <div className="max-w-3xl mx-auto">
           {/* <span className="inline-block bg-purple-500/30 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
             Verwandle deine Praxis
           </span> */}
