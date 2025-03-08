@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -17,7 +15,7 @@ export default function LoginPage() {
       setIsLoading(true);
       setError("");
       await signIn("google", { callbackUrl: "/" });
-    } catch (err) {
+    } catch {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
       );
@@ -42,7 +40,7 @@ export default function LoginPage() {
       } else {
         setEmailSent(true);
       }
-    } catch (err) {
+    } catch {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
       );

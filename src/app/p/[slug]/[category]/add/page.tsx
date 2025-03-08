@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { Metadata } from "next/types";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   first_name: string;
@@ -38,9 +37,7 @@ type AddPageProps = {
 
 export default function AddTrainerAndCourse({ params }: AddPageProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  // const slug = pathname.split("/")[2]; // Extract the slug from the URL
-  const { slug, category } = params;
+  const { slug } = params;
 
   const [formData, setFormData] = useState<FormData>({
     first_name: "",

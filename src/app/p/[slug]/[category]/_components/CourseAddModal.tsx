@@ -22,10 +22,7 @@ interface CourseAddModalProps {
   category: string;
 }
 
-export default function CourseAddModal({
-  slug,
-  category,
-}: CourseAddModalProps) {
+export default function CourseAddModal({ slug }: CourseAddModalProps) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     first_name: "",

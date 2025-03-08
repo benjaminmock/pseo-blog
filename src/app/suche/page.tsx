@@ -103,7 +103,7 @@ export default async function SearchPage({
           </ul>
         ) : query ? (
           <p className="text-gray-500">
-            Keine Ergebnisse gefunden für "{query}".
+            Keine Ergebnisse gefunden für &quot;{query}&quot;.
           </p>
         ) : null}
       </article>

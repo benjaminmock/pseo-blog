@@ -5,8 +5,9 @@
  * and should not be used in new code.
  */
 
-import { auth, signIn, signOut } from "@/auth";
-import { type Session } from "@auth/core";
+import { signIn, signOut } from "next-auth/react";
+import { type Session } from "next-auth";
+import { auth } from "@/auth";
 
 /**
  * Get the current session using Auth.js

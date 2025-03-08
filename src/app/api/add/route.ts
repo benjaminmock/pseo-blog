@@ -67,21 +67,23 @@ export async function POST(req: Request) {
     // Send Discord notification
     await sendDiscordNotification(
       `🎉 New Course/Trainer Added\n` +
-      `Trainer: ${first_name} ${last_name}\n` +
-      `Course: ${course_name}\n` +
-      `City: ${city_slug}\n` +
-      `Dates: ${start_date} - ${end_date}\n` +
-      `Contact: ${email}${phone_number ? ` / ${phone_number}` : ''}`
+        `Trainer: ${first_name} ${last_name}\n` +
+        `Course: ${course_name}\n` +
+        `City: ${city_slug}\n` +
+        `Dates: ${start_date} - ${end_date}\n` +
+        `Contact: ${email}${phone_number ? ` / ${phone_number}` : ""}`
     );
 
     return NextResponse.json(
       { message: "Trainer and course added successfully" },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Add course/trainer error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
-      { message: "Error adding trainer and course", error: error.message },
+      { message: "Error adding trainer and course", error: errorMessage },
       { status: 500 }
     );
   }

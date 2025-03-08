@@ -1,15 +1,6 @@
 import AuthNav from "@/components/AuthNav";
-import { icon } from "@/config";
 
-type Props = {
-  metadata: {
-    title: string;
-    description: string;
-    icons: { icon: string };
-  };
-};
-
-const Header = ({ metadata }: Props) => {
+const Header = () => {
   return (
     <header className="bg-white shadow border-b">
       <div className="container mx-auto px-4 py-4">

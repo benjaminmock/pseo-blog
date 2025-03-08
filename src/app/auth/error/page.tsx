@@ -1,11 +1,13 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function AuthErrorPage() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  // const searchParams = useSearchParams();
+  // const error = searchParams.get("error");
+
+  const error = "AccessDenied";
 
   const getErrorMessage = (errorCode: string | null) => {
     switch (errorCode) {

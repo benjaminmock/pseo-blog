@@ -28,7 +28,3 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 }
-
-export async function methodNotAllowed(): Promise<NextResponse> {
-  return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
-}

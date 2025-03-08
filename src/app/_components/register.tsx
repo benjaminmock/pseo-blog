@@ -1,18 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 
-export default function RegisterModal({ isOpen, onClose }) {
-  const [formData, setFormData] = useState({
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+export default function RegisterModal({ isOpen, onClose }: Props) {
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const validateForm = () => {
-    let newErrors = {};
+    const newErrors: FormErrors = {};
     if (formData.username.length < 3)
       newErrors.username = "Username muss mindestens 3 Zeichen lang sein";
     if (!formData.email.includes("@"))
@@ -25,14 +44,14 @@ export default function RegisterModal({ isOpen, onClose }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (validateForm()) {
       console.log("Registrierungsdaten:", formData);
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 

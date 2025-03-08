@@ -1,6 +1,5 @@
 import { db } from "@/config";
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
 import EditTrainerForm from "./_components/EditTrainerForm";
 import Link from "next/link";
 
@@ -48,16 +47,15 @@ export async function generateMetadata({ params }: TrainerPageProps) {
   };
 }
 
-export default async function TrainerPage({ params }) {
+export default async function TrainerPage({ params }: TrainerPageProps) {
   const { slug } = params;
   const trainer = await getTrainerBySlug(slug);
-  const currentUser = await getCurrentUser();
 
   if (!trainer) {
     notFound();
   }
 
-  const isOwnProfile = true; //currentUser?.email === trainer.email;
+  const isOwnProfile = true; // TODO: Implement user authentication check
 
   return (
     <div>

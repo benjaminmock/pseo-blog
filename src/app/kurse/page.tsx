@@ -74,7 +74,7 @@ function formatDate(dateStr: string) {
 
 export default async function CoursesPage({ searchParams }: PageProps) {
   const currentPage = Number(searchParams.page) || 1;
-  const { courses, hasMore, totalPages } = await getCourses(currentPage, 9);
+  const { courses, totalPages } = await getCourses(currentPage, 9);
 
   return (
     <main className="max-w-4xl mx-auto p-6">

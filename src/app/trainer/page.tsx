@@ -1,6 +1,5 @@
 import { db } from "@/config";
 import Link from "next/link";
-import { Suspense } from "react";
 
 type Trainer = {
   trainer_id: number;
@@ -50,7 +49,7 @@ function getTrainerSlug(trainer: Trainer) {
 
 export default async function TrainersPage({ searchParams }: PageProps) {
   const currentPage = Number(searchParams.page) || 1;
-  const { trainers, hasMore, totalPages } = await getTrainers(currentPage, 9);
+  const { trainers, totalPages } = await getTrainers(currentPage, 9);
 
   return (
     <main className="max-w-4xl mx-auto p-6">
