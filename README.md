@@ -158,6 +158,19 @@ sessions |
 - https://www.awwwards.com/
 - https://buycycle.de
 
-### Auth
+## Auth
+
+### Google
 
 https://console.cloud.google.com/auth/clients/262795971488-n89glr1hlkhbqjs0hrkohs5oi49di9is.apps.googleusercontent.com?hl=de&inv=1&invt=AbqUuA&project=kursio-451808
+
+### LinkedIn
+
+https://www.linkedin.com/developers/apps
+https://www.linkedin.com/company/106534618/admin/dashboard/ -> Page
+https://www.linkedin.com/developers/apps/222078555/products -> App
+https://www.linkedin.com/mypreferences/d/data-sharing-for-permitted-services -> permitted services
+
+## Marketing
+
+- Linkedin: https://www.linkedin.com/search/results/people/?geoUrn=%5B%22101282230%22%5D&keywords=yoga&origin=FACETED_SEARCH&sid=-RB

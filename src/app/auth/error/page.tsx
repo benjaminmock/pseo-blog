@@ -1,13 +1,11 @@
 "use client";
 
-// import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function AuthErrorPage() {
-  // const searchParams = useSearchParams();
-  // const error = searchParams.get("error");
-
-  const error = "AccessDenied";
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   const getErrorMessage = (errorCode: string | null) => {
     switch (errorCode) {
@@ -17,6 +15,8 @@ export default function AuthErrorPage() {
         return "Der Zugriff wurde verweigert.";
       case "Verification":
         return "Der Verifizierungslink ist ungültig oder abgelaufen.";
+      case "OAuthCallback":
+        return "Es gab ein Problem bei der Anmeldung mit LinkedIn. Bitte versuchen Sie es erneut.";
       default:
         return "Ein unerwarteter Fehler ist aufgetreten.";
     }

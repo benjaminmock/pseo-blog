@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import Google from "next-auth/providers/google";
+import LinkedIn from "next-auth/providers/linkedin";
 import EmailProvider from "next-auth/providers/email";
 import { prisma } from "./lib/prisma";
 import { type User as PrismaUser } from "@prisma/client";
@@ -31,6 +32,97 @@ export const authOptions: AuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    // LinkedIn({
+    //   clientId: process.env.LINKEDIN_CLIENT_ID!,
+    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    //   authorization: {
+    //     params: {
+    //       scope: "profile email openid",
+    //     },
+    //   },
+    //   userinfo: {
+    //     url: "https://api.linkedin.com/v2/userinfo",
+    //   },
+    //   profile(profile) {
+    //     return {
+    //       id: profile.sub,
+    //       name: profile.name,
+    //       email: profile.email,
+    //       image: profile.picture,
+    //       role: "user",
+    //     };
+    //   },
+    // }),
+    // LinkedIn({
+    //   clientId: process.env.LINKEDIN_CLIENT_ID!,
+    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    //   authorization: {
+    //     params: {
+    //       scope: "profile email openid",
+    //     },
+    //   },
+    //   idToken: false, // Disable ID token validation
+    //   userinfo: {
+    //     url: "https://api.linkedin.com/v2/me", // Correct LinkedIn user info endpoint
+    //   },
+    //   profile(profile) {
+    //     return {
+    //       id: profile.id, // LinkedIn uses 'id' instead of 'sub'
+    //       name: profile.localizedFirstName + " " + profile.localizedLastName,
+    //       email: profile.emailAddress || null,
+    //       image:
+    //         profile.profilePicture?.["displayImage~"]?.elements[0]
+    //           ?.identifiers[0]?.identifier || null,
+    //       role: "user",
+    //     };
+    //   },
+    // }),
+    // LinkedIn({
+    //   clientId: process.env.LINKEDIN_CLIENT_ID!,
+    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    //   authorization: {
+    //     params: {
+    //       scope: "profile email", // Removed 'openid' to avoid OpenID Connect handling
+    //     },
+    //   },
+    // }),
+    LinkedIn({
+      clientId: process.env.LINKEDIN_CLIENT_ID!,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "profile email", // ❌ Removed "openid" to avoid OpenID validation errors
+        },
+      },
+      idToken: false, // ✅ Explicitly disable ID token handling
+      userinfo: {
+        url: "https://api.linkedin.com/v2/me", // Correct LinkedIn API endpoint
+      },
+      async profile(profile, tokens) {
+        const emailRes = await fetch(
+          "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          }
+        );
+        const emailData = await emailRes.json();
+        const email =
+          emailData.elements?.[0]?.["handle~"]?.emailAddress || null;
+
+        return {
+          id: profile.id, // LinkedIn uses 'id', not 'sub'
+          name: `${profile.localizedFirstName} ${profile.localizedLastName}`,
+          email,
+          image:
+            profile.profilePicture?.["displayImage~"]?.elements[0]
+              ?.identifiers[0]?.identifier || null,
+          role: "user",
+        };
+      },
+    }),
+
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
@@ -68,11 +160,16 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/login",
+    error: "/auth/error",
   },
   session: {
     strategy: "database",
   },
+  debug: process.env.NODE_ENV === "development",
 };
 
 // Helper function to get the session on the server side
-export const auth = () => getServerSession(authOptions);
+export const getServerAuthSession = () => getServerSession(authOptions);
+
+// For backward compatibility
+export { getServerAuthSession as auth };
