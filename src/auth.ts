@@ -86,41 +86,41 @@ export const authOptions: AuthOptions = {
     //     },
     //   },
     // }),
+
     LinkedIn({
       clientId: process.env.LINKEDIN_CLIENT_ID!,
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
       authorization: {
+        url: "https://www.linkedin.com/oauth/v2/authorization",
+        params: { scope: "openid profile email" },
+      },
+      token: "https://www.linkedin.com/oauth/v2/accessToken",
+      client: {
+        token_endpoint_auth_method: "client_secret_post",
+      },
+      userinfo: {
+        url: "https://api.linkedin.com/v2/me",
         params: {
-          scope: "profile email", // ❌ Removed "openid" to avoid OpenID validation errors
+          projection: `(id,localizedFirstName,localizedLastName,profilePicture(displayImage~digitalmediaAsset:playableStreams))`,
         },
       },
-      idToken: false, // ✅ Explicitly disable ID token handling
-      userinfo: {
-        url: "https://api.linkedin.com/v2/me", // Correct LinkedIn API endpoint
-      },
       async profile(profile, tokens) {
-        const emailRes = await fetch(
+        const emailResponse = await fetch(
           "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
-          {
-            headers: {
-              Authorization: `Bearer ${tokens.access_token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${tokens.access_token}` } }
         );
-        const emailData = await emailRes.json();
-        const email =
-          emailData.elements?.[0]?.["handle~"]?.emailAddress || null;
-
+        const emailData = await emailResponse.json();
         return {
-          id: profile.id, // LinkedIn uses 'id', not 'sub'
+          id: profile.id,
           name: `${profile.localizedFirstName} ${profile.localizedLastName}`,
-          email,
+          email: emailData?.elements?.[0]?.["handle~"]?.emailAddress,
           image:
-            profile.profilePicture?.["displayImage~"]?.elements[0]
-              ?.identifiers[0]?.identifier || null,
+            profile.profilePicture?.["displayImage~"]?.elements?.[0]
+              ?.identifiers?.[0]?.identifier,
           role: "user",
         };
       },
+      style: { logo: "/linkedin.svg", bg: "#069", text: "#fff" },
     }),
 
     EmailProvider({
@@ -147,16 +147,23 @@ export const authOptions: AuthOptions = {
       };
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to /intern after sign in
-      if (url.includes("/api/auth/signin") || url.includes("callback")) {
-        return `${baseUrl}/intern`;
-      }
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        console.log("LinkedIn Access Token:", token.accessToken);
+      }
+      return token;
+    },
+    // async session({ session, token }) {
+    //   session.accessToken = token.accessToken;
+    //   return session;
+    // },
   },
   pages: {
     signIn: "/login",
@@ -165,7 +172,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "database",
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Enable debug logs
 };
 
 // Helper function to get the session on the server side
