@@ -9,12 +9,19 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [userRole, setUserRole] = useState<"student" | "teacher">("student");
 
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
       setError("");
-      await signIn("google", { callbackUrl: "/" });
+
+      // Store the selected role in localStorage before initiating the OAuth flow
+      localStorage.setItem("selectedUserRole", userRole);
+
+      await signIn("google", {
+        callbackUrl: "/intern", // Redirect to intern page after login
+      });
     } catch {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
@@ -28,7 +35,13 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       setError("");
-      await signIn("linkedin", { callbackUrl: "/" });
+
+      // Store the selected role in localStorage before initiating the OAuth flow
+      localStorage.setItem("selectedUserRole", userRole);
+
+      await signIn("linkedin", {
+        callbackUrl: "/intern", // Redirect to intern page after login
+      });
     } catch {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
@@ -43,10 +56,15 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       setError("");
+
+      // Store the selected role in localStorage before initiating the email sign-in
+      localStorage.setItem("selectedUserRole", userRole);
+
       const result = await signIn("email", {
         email,
         redirect: false,
       });
+
       if (result?.error) {
         setError(
           "Ungültige E-Mail-Adresse. Bitte überprüfen Sie Ihre Eingabe."
@@ -99,6 +117,38 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
+            {/* User Role Selection */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ich bin ein:
+              </label>
+              <div className="flex space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="userRole"
+                    value="student"
+                    checked={userRole === "student"}
+                    onChange={() => setUserRole("student")}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-gray-700">Student</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="userRole"
+                    value="teacher"
+                    checked={userRole === "teacher"}
+                    onChange={() => setUserRole("teacher")}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-gray-700">Lehrer</span>
+                </label>
+              </div>
+            </div>
+
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}

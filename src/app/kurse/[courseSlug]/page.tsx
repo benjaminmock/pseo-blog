@@ -16,6 +16,7 @@ type Course = {
   start_date: string;
   end_date: string | null;
   city_slug: string | null;
+  city_name: string | null;
   slug: string | null;
   trainer: {
     first_name: string;
@@ -27,15 +28,17 @@ type Course = {
 
 async function getCourseById(id: string): Promise<Course | undefined> {
   const stmt = db.prepare(`
-    SELECT 
+    SELECT
       c.*,
       t.first_name,
       t.last_name,
       t.bio,
-      t.link
+      t.link,
+      city.city as city_name
     FROM Courses c
     LEFT JOIN Trainers t ON c.trainer_id = t.trainer_id
-    WHERE c.course_id = ?
+    LEFT JOIN cities city ON c.city_slug = city.slug
+    WHERE c.course_id = ? AND c.active = 1
   `);
 
   const result = stmt.get(id) as
@@ -44,6 +47,7 @@ async function getCourseById(id: string): Promise<Course | undefined> {
         last_name: string;
         bio: string | null;
         link: string | null;
+        city_name: string | null;
       })
     | undefined;
 
@@ -130,13 +134,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 {course.end_date && ` - ${formatDate(course.end_date)}`}
               </p>
             </div>
-            {course.city_slug && (
+            {(course.city_name || course.city_slug) && (
               <div>
                 <h2 className="text-lg font-medium text-gray-500 text-sm">
                   Ort
                 </h2>
                 <p className="text-gray-900 capitalize">
-                  {course.city_slug.replace("-", " ")}
+                  {course.city_name || course.city_slug?.replace("-", " ")}
                 </p>
               </div>
             )}

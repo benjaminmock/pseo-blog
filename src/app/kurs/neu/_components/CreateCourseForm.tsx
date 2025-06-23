@@ -2,18 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-type Trainer = {
-  trainer_id: number;
-  first_name: string;
-  last_name: string;
-};
+import CityCombobox from "@/components/CityCombobox";
 
 type Props = {
-  trainers: Trainer[];
+  trainerId: number | undefined;
 };
 
-export default function CreateCourseForm({ trainers }: Props) {
+export default function CreateCourseForm({ trainerId }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,11 +21,12 @@ export default function CreateCourseForm({ trainers }: Props) {
     const formData = new FormData(event.currentTarget);
     const data = {
       course_name: formData.get("course_name"),
-      trainer_id: Number(formData.get("trainer_id")),
+      trainer_id: trainerId,
       description: formData.get("description"),
       start_date: formData.get("start_date"),
       end_date: formData.get("end_date") || null,
       city_slug: formData.get("city_slug") || null,
+      city_id: formData.get("city_id") || null,
     };
 
     try {
@@ -83,28 +79,6 @@ export default function CreateCourseForm({ trainers }: Props) {
 
       <div>
         <label
-          htmlFor="trainer_id"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Trainer *
-        </label>
-        <select
-          id="trainer_id"
-          name="trainer_id"
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Trainer auswählen</option>
-          {trainers.map((trainer) => (
-            <option key={trainer.trainer_id} value={trainer.trainer_id}>
-              {trainer.first_name} {trainer.last_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label
           htmlFor="description"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
@@ -151,17 +125,16 @@ export default function CreateCourseForm({ trainers }: Props) {
 
       <div>
         <label
-          htmlFor="city_slug"
+          htmlFor="city_combobox"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Stadt
         </label>
-        <input
-          type="text"
-          id="city_slug"
-          name="city_slug"
-          placeholder="z.B. hamburg"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <CityCombobox
+          onSelect={(city) => {
+            // This is handled by the hidden input in the CityCombobox component
+            console.log("Selected city:", city);
+          }}
         />
       </div>
 
@@ -169,7 +142,7 @@ export default function CreateCourseForm({ trainers }: Props) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white rounded-lg hover:bg-gray-900"
         >
           {isSubmitting ? "Wird erstellt..." : "Kurs erstellen"}
         </button>

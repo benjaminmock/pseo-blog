@@ -18,12 +18,21 @@ export async function POST(request: NextRequest) {
       start_date,
       end_date,
       city_slug,
+      city_id,
     } = data;
 
     // Validate required fields
-    if (!course_name || !trainer_id || !start_date) {
+    if (!course_name || !start_date) {
       return NextResponse.json(
-        { error: "Kursname, Trainer und Startdatum sind erforderlich" },
+        { error: "Kursname und Startdatum sind erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    // Ensure trainer_id is valid
+    if (!trainer_id) {
+      return NextResponse.json(
+        { error: "Trainer-ID konnte nicht ermittelt werden" },
         { status: 400 }
       );
     }
@@ -43,9 +52,11 @@ export async function POST(request: NextRequest) {
         start_date,
         end_date,
         city_slug,
-        slug
+        slug,
+        city_id,
+        active
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING course_id
     `);
 
@@ -56,7 +67,9 @@ export async function POST(request: NextRequest) {
       start_date,
       end_date,
       city_slug,
-      slug
+      slug,
+      city_id,
+      1 // Set new courses as active by default
     ) as { course_id: number };
 
     return NextResponse.json({ course_id: result.course_id }, { status: 201 });

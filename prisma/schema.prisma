@@ -16,7 +16,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          String    @default("user")
+  role          String    @default("student") // Changed default to "student", can be "student" or "teacher"
   accounts      Account[]
   sessions      Session[]
   password_hash String?

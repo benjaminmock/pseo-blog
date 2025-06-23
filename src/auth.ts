@@ -31,6 +31,15 @@ export const authOptions: AuthOptions = {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          role: "student", // Default role, will be overridden if provided
+        };
+      },
     }),
     LinkedIn({
       clientId: process.env.LINKEDIN_CLIENT_ID || "",
@@ -42,7 +51,7 @@ export const authOptions: AuthOptions = {
         name: profile.name,
         email: profile.email,
         image: profile.picture,
-        role: "user",
+        role: "student", // Default role, will be overridden if provided
       }),
       wellKnown:
         "https://www.linkedin.com/oauth/.well-known/openid-configuration",
@@ -89,6 +98,78 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
+    async signIn({ user, account, profile, email, credentials }) {
+      try {
+        // Get the role from the appropriate source based on the provider
+        let role: string | undefined;
+
+        if (account?.provider === "email" && email) {
+          role = (email as any).role;
+        } else if (credentials) {
+          role = (credentials as any).role;
+        } else if (
+          account?.provider === "google" ||
+          account?.provider === "linkedin"
+        ) {
+          // For OAuth providers, the role is passed in the callbackUrl's state parameter
+          // Extract it from the account state if available
+          if (account.state && typeof account.state === "string") {
+            try {
+              // The state might be a JSON string or have the role as a URL parameter
+              if (account.state.includes("role=")) {
+                const stateParams = new URLSearchParams(account.state);
+                const roleValue = stateParams.get("role");
+                if (roleValue) {
+                  role = roleValue;
+                }
+              } else {
+                // Try parsing as JSON
+                const stateObj = JSON.parse(account.state);
+                if (
+                  stateObj &&
+                  typeof stateObj === "object" &&
+                  "role" in stateObj
+                ) {
+                  role = stateObj.role;
+                }
+              }
+            } catch (e) {
+              console.error("Error parsing state:", e);
+            }
+          }
+        }
+
+        // If a valid role is provided, update the user's role
+        if (role && ["student", "teacher"].includes(role)) {
+          // Update the user's role in the database
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { role },
+          });
+          // Update the user object for this session
+          user.role = role;
+        } else {
+          // If no valid role is provided, ensure the user has a default role
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+          });
+
+          if (!dbUser?.role || dbUser.role === "user" || dbUser.role === "") {
+            // Update to default role "student"
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: "student" },
+            });
+            user.role = "student";
+          }
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return true; // Still allow sign in even if role update fails
+      }
+    },
   },
   pages: {
     signIn: "/login",
@@ -97,7 +178,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "database",
   },
-  debug: false, // Enable debug logs
+  debug: true, // Enable debug logs
 };
 
 // Helper function to get the session on the server side

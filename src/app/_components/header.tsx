@@ -40,6 +40,12 @@ const Header = () => {
               Kurse
             </a>
             <a
+              href="/events"
+              className="text-gray-700 hover:text-gray-900 transition"
+            >
+              Events
+            </a>
+            <a
               href="/trainer"
               className="text-gray-700 hover:text-gray-900 transition"
             >
@@ -150,6 +156,12 @@ const Header = () => {
               className="block text-gray-700 hover:text-gray-900 transition"
             >
               Kurse
+            </a>
+            <a
+              href="/events"
+              className="block text-gray-700 hover:text-gray-900 transition"
+            >
+              Events
             </a>
             <a
               href="/trainer"

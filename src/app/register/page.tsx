@@ -13,6 +13,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "student" as "student" | "teacher",
   });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -34,6 +35,7 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          role: formData.role,
         }),
       });
 
@@ -57,7 +59,6 @@ export default function RegisterPage() {
       <div className="max-w-4xl w-full flex bg-white shadow-md rounded-lg overflow-hidden">
         <div className="w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
           <h2 className="text-2xl font-bold text-gray-900">Welcome!</h2>
-          {/* <div className="text-6xl mt-4">😊</div> */}
           <div className="text-6xl mt-4">🧘‍♀️</div>
         </div>
         <div className="w-1/2 p-8">
@@ -123,6 +124,42 @@ export default function RegisterPage() {
                 placeholder="Passwort bestätigen"
               />
             </div>
+
+            {/* User Role Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Ich bin ein:
+              </label>
+              <div className="flex space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="student"
+                    checked={formData.role === "student"}
+                    onChange={() =>
+                      setFormData({ ...formData, role: "student" })
+                    }
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-gray-700">Student</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="teacher"
+                    checked={formData.role === "teacher"}
+                    onChange={() =>
+                      setFormData({ ...formData, role: "teacher" })
+                    }
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-gray-700">Lehrer</span>
+                </label>
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}

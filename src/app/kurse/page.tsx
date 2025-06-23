@@ -23,14 +23,15 @@ type PageProps = {
 async function getCourses(page = 1, limit = 10) {
   const offset = (page - 1) * limit;
 
-  // Get courses with trainer information
+  // Get courses with trainer information (only active courses)
   const stmt = db.prepare(`
-    SELECT 
+    SELECT
       c.*,
       t.first_name,
       t.last_name
     FROM Courses c
     JOIN Trainers t ON c.trainer_id = t.trainer_id
+    WHERE c.active = 1
     ORDER BY c.start_date DESC
     LIMIT ? OFFSET ?
   `);
@@ -48,8 +49,10 @@ async function getCourses(page = 1, limit = 10) {
     },
   })) as Course[];
 
-  // Get total count
-  const countStmt = db.prepare("SELECT COUNT(*) as count FROM Courses");
+  // Get total count (only active courses)
+  const countStmt = db.prepare(
+    "SELECT COUNT(*) as count FROM Courses WHERE active = 1"
+  );
   const { count } = countStmt.get() as { count: number };
 
   const hasMore = transformedCourses.length > limit;
