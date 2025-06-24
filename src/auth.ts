@@ -45,7 +45,6 @@ export const authOptions: AuthOptions = {
       clientId: process.env.LINKEDIN_CLIENT_ID || "",
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET || "",
       client: { token_endpoint_auth_method: "client_secret_post" },
-      issuer: "https://www.linkedin.com",
       profile: (profile: LinkedInProfile) => ({
         id: profile.sub,
         name: profile.name,
@@ -74,15 +73,23 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-          role: (user as PrismaUser).role,
-        },
-      };
+    async session({ session, token }) {
+      if (token?.sub) {
+        // Fetch user data from database to get the latest role
+        const prismaUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+        });
+
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: token.sub,
+            role: prismaUser?.role || "student",
+          },
+        };
+      }
+      return session;
     },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
@@ -91,11 +98,17 @@ export const authOptions: AuthOptions = {
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       if (account) {
         token.accessToken = account.access_token;
-        console.log("LinkedIn Access Token:", token.accessToken);
+        console.log("OAuth Access Token:", token.accessToken);
       }
+
+      // Include user ID in token for session callback
+      if (user) {
+        token.sub = user.id;
+      }
+
       return token;
     },
     async signIn({ user, account, profile, email, credentials }) {
@@ -176,7 +189,7 @@ export const authOptions: AuthOptions = {
     error: "/auth/error",
   },
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   debug: true, // Enable debug logs
 };
