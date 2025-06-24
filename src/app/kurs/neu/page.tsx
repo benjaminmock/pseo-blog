@@ -15,7 +15,7 @@ async function getTrainerIdByEmail(email: string) {
 }
 
 // Check if user has teacher role
-function isTeacher(user: any) {
+function isTeacher(user: { role?: string } | null) {
   return user?.role === "teacher";
 }
 
@@ -44,7 +44,7 @@ export default async function CreateCoursePage() {
         <div className="bg-white rounded-lg p-6">
           <p className="text-red-600 mb-4">
             Sie haben nicht die Berechtigung, Kurse zu erstellen. Nur Nutzer mit
-            der Rolle "Lehrer" können Kurse erstellen.
+            der Rolle &quot;Lehrer&quot; können Kurse erstellen.
           </p>
           <Link
             href="/profil"
@@ -67,9 +67,9 @@ export default async function CreateCoursePage() {
 
         <div className="bg-white rounded-lg p-6">
           <p className="text-amber-600 mb-4">
-            Sie haben die Rolle "Lehrer", aber es wurde kein Trainer-Profil für
-            Sie gefunden. Dies ist ungewöhnlich, da Trainer-Profile automatisch
-            erstellt werden sollten.
+            Sie haben die Rolle &quot;Lehrer&quot;, aber es wurde kein
+            Trainer-Profil für Sie gefunden. Dies ist ungewöhnlich, da
+            Trainer-Profile automatisch erstellt werden sollten.
           </p>
           <p className="text-gray-600 mb-4">
             Bitte kontaktieren Sie den Administrator, um dieses Problem zu

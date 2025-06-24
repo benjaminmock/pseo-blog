@@ -12,16 +12,8 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const {
-      userId,
-      name,
-      trainer_id,
-      first_name,
-      last_name,
-      phone_number,
-      bio,
-      link,
-    } = data;
+    const { userId, name, first_name, last_name, phone_number, bio, link } =
+      data;
 
     // Verify the user is updating their own profile
     if (userId !== currentUser.id) {

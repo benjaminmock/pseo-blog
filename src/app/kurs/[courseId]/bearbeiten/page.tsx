@@ -29,11 +29,23 @@ async function getCourseById(courseId: number, trainerId: number) {
     FROM Courses c
     WHERE c.course_id = ? AND c.trainer_id = ?
   `);
-  return stmt.get(courseId, trainerId) as any;
+  return stmt.get(courseId, trainerId) as
+    | {
+        course_id: number;
+        course_name: string;
+        description: string;
+        start_date: string;
+        end_date: string | null;
+        city_slug: string | null;
+        slug: string | null;
+        city_id: number | null;
+        trainer_id: number;
+      }
+    | undefined;
 }
 
 // Check if user has teacher role
-function isTeacher(user: any) {
+function isTeacher(user: { role?: string } | null) {
   return user?.role === "teacher";
 }
 

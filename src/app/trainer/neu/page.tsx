@@ -50,7 +50,8 @@ export default async function CreateTrainerPage() {
         <div className="bg-white rounded-lg p-6">
           <p className="text-red-600 mb-4">
             Sie haben nicht die Berechtigung, ein Trainer-Profil zu erstellen.
-            Nur Nutzer mit der Rolle "Lehrer" können Trainer-Profile erstellen.
+            Nur Nutzer mit der Rolle &quot;Lehrer&quot; können Trainer-Profile
+            erstellen.
           </p>
           <a
             href="/profil"

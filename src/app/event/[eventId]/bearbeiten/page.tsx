@@ -38,11 +38,30 @@ async function getEventById(eventId: number, trainerId: number) {
     WHERE e.event_id = ? AND e.trainer_id = ?
   `);
 
-  return stmt.get(eventId, trainerId) as any;
+  return stmt.get(eventId, trainerId) as
+    | {
+        event_id: number;
+        event_name: string;
+        description: string;
+        start_date: string;
+        end_date: string;
+        start_time: string;
+        end_time: string;
+        city_slug: string;
+        slug: string;
+        city_id: number;
+        active: number;
+        max_participants: number;
+        price: number;
+        trainer_id: number;
+        first_name: string;
+        last_name: string;
+      }
+    | undefined;
 }
 
 // Check if user has teacher role
-function isTeacher(user: any) {
+function isTeacher(user: { role?: string } | null) {
   return user?.role === "teacher";
 }
 
@@ -76,8 +95,8 @@ export default async function EditEventPage({
 
         <div className="bg-white rounded-lg p-6">
           <p className="text-amber-600 mb-4">
-            Sie haben die Rolle "Lehrer", aber es wurde kein Trainer-Profil für
-            Sie gefunden.
+            Sie haben die Rolle &quot;Lehrer&quot;, aber es wurde kein
+            Trainer-Profil für Sie gefunden.
           </p>
           <Link
             href="/profil"

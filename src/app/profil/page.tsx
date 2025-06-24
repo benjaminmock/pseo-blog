@@ -10,7 +10,17 @@ async function getTrainerByEmail(email: string) {
     SELECT * FROM Trainers
     WHERE email = ?
   `);
-  return stmt.get(email) as any;
+  return stmt.get(email) as
+    | {
+        trainer_id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone_number: string | null;
+        bio: string | null;
+        link: string | null;
+      }
+    | undefined;
 }
 
 // Function to get user data from Prisma
@@ -32,7 +42,7 @@ export default async function ProfilePage() {
   // Get trainer data from yoga.db
   let trainerData = null;
   if (user.email) {
-    trainerData = await getTrainerByEmail(user.email);
+    trainerData = (await getTrainerByEmail(user.email)) || null;
   }
 
   return (

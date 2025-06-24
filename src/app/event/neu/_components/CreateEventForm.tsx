@@ -49,7 +49,7 @@ export default function CreateEventForm({ trainerId }: Props) {
         throw new Error(errorData.error || "Ein Fehler ist aufgetreten");
       }
 
-      const result = await response.json();
+      await response.json();
       router.push("/intern");
       router.refresh();
     } catch (err) {

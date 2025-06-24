@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 interface Course {
   course_id: number;
@@ -35,8 +34,12 @@ interface Event {
 
 export default function InternPage() {
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<any>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [user, setUser] = useState<{
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    role?: string;
+  } | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
@@ -156,8 +159,6 @@ export default function InternPage() {
 
   const updateUserRole = async (role: string) => {
     try {
-      setIsUpdating(true);
-
       // Call an API endpoint to update the user's role
       const response = await fetch("/api/auth/update-role", {
         method: "POST",
@@ -169,12 +170,10 @@ export default function InternPage() {
 
       if (response.ok) {
         const updatedUser = await response.json();
-        setUser((prev: any) => ({ ...prev, role: updatedUser.role }));
+        setUser((prev) => (prev ? { ...prev, role: updatedUser.role } : null));
       }
     } catch (error) {
       console.error("Error updating user role:", error);
-    } finally {
-      setIsUpdating(false);
     }
   };
 

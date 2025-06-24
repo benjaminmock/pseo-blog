@@ -6,7 +6,6 @@ import Google from "next-auth/providers/google";
 import LinkedIn, { LinkedInProfile } from "next-auth/providers/linkedin";
 import EmailProvider from "next-auth/providers/email";
 import { prisma } from "./lib/prisma";
-import { type User as PrismaUser } from "@prisma/client";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -111,15 +110,15 @@ export const authOptions: AuthOptions = {
 
       return token;
     },
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account, email, credentials }) {
       try {
         // Get the role from the appropriate source based on the provider
         let role: string | undefined;
 
         if (account?.provider === "email" && email) {
-          role = (email as any).role;
+          role = (email as { role?: string }).role;
         } else if (credentials) {
-          role = (credentials as any).role;
+          role = (credentials as { role?: string }).role;
         } else if (
           account?.provider === "google" ||
           account?.provider === "linkedin"
