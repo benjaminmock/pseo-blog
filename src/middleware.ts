@@ -16,8 +16,10 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  // Get session token from NextAuth.js
-  const sessionToken = request.cookies.get("next-auth.session-token");
+  // Get session token from NextAuth.js - check both development and production cookie names
+  const sessionToken =
+    request.cookies.get("next-auth.session-token") || // Development
+    request.cookies.get("__Secure-next-auth.session-token"); // Production
 
   // If user is logged in and tries to access auth routes, redirect to home
   if (isAuthRoute && sessionToken) {
