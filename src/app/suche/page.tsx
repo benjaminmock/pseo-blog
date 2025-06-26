@@ -7,6 +7,8 @@ type SearchResult = {
   title: string;
   state: string;
   zip: string;
+  type: "city" | "course" | "event";
+  sort_priority: number;
 };
 
 // Fetch search results by making a POST request to the API route
@@ -81,25 +83,66 @@ export default async function SearchPage({
           </div>
         ) : results.length > 0 ? (
           <ul className="space-y-4">
-            {results.map((result) => (
-              <li
-                key={result.id}
-                className="p-4 border rounded-lg hover:bg-gray-50 transition"
-              >
-                <a
-                  href={`/p/${result.slug}`}
-                  className="block text-slate-700 hover:text-blue-800"
+            {results.map((result) => {
+              // Determine the appropriate link based on result type
+              let href = "";
+              let typeLabel = "";
+              let typeColor = "";
+
+              switch (result.type) {
+                case "city":
+                  href = `/p/${result.slug}`;
+                  typeLabel = "Stadt";
+                  typeColor = "bg-blue-100 text-blue-800";
+                  break;
+                case "course":
+                  href = `/kurse/${result.slug}`;
+                  typeLabel = "Kurs";
+                  typeColor = "bg-green-100 text-green-800";
+                  break;
+                case "event":
+                  href = `/events/${result.slug}`;
+                  typeLabel = "Event";
+                  typeColor = "bg-purple-100 text-purple-800";
+                  break;
+                default:
+                  href = `/p/${result.slug}`;
+                  typeLabel = "Stadt";
+                  typeColor = "bg-gray-100 text-gray-800";
+              }
+
+              return (
+                <li
+                  key={`${result.type}-${result.id}`}
+                  className="p-4 border rounded-lg hover:bg-gray-50 transition"
                 >
-                  <div className="font-semibold">{result.city}</div>
-                  <div className="text-sm text-gray-600">
-                    {result.state} • {result.zip}
-                  </div>
-                  {result.title && result.title !== result.city && (
-                    <div className="text-sm mt-1">{result.title}</div>
-                  )}
-                </a>
-              </li>
-            ))}
+                  <a
+                    href={href}
+                    className="block text-slate-700 hover:text-blue-800"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${typeColor}`}
+                      >
+                        {typeLabel}
+                      </span>
+                    </div>
+                    <div className="font-semibold">{result.title}</div>
+                    {result.type === "city" ? (
+                      <div className="text-sm text-gray-600">
+                        {result.state} • {result.zip}
+                      </div>
+                    ) : (
+                      result.city && (
+                        <div className="text-sm text-gray-600">
+                          {result.city}
+                        </div>
+                      )
+                    )}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         ) : query ? (
           <p className="text-gray-500">

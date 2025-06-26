@@ -73,7 +73,7 @@ const Header = () => {
             <input
               type="text"
               name="query"
-              placeholder="Suchen nach Kursen, Lehrern ..."
+              placeholder="Suchen nach Kursen, Events, Städten ..."
               className="flex-1 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-100 placeholder-gray-500 text-gray-600"
               minLength={2}
               required
@@ -115,7 +115,7 @@ const Header = () => {
           <input
             type="text"
             name="query"
-            placeholder="Suchen nach Kursen, Lehrern ..."
+            placeholder="Suchen nach Kursen, Events, Städten ..."
             className="flex-1 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-100 placeholder-gray-500 text-gray-600"
             minLength={2}
             required
