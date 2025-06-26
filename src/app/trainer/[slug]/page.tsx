@@ -56,7 +56,7 @@ async function getTrainerBySlug(slug: string): Promise<Trainer | undefined> {
   const stmt = db.prepare(`
     SELECT *
     FROM Trainers
-    WHERE LOWER(first_name || '-' || last_name) = LOWER(?)
+    WHERE slug = ?
   `);
   return stmt.get(slug) as Trainer | undefined;
 }

@@ -25,16 +25,16 @@ export default async function CreateTrainerPage() {
     if (existingTrainerId) {
       // Redirect to existing trainer profile
       const trainerStmt = db.prepare(`
-        SELECT first_name, last_name
+        SELECT slug
         FROM Trainers
         WHERE trainer_id = ?
       `);
       const trainer = trainerStmt.get(existingTrainerId) as {
-        first_name: string;
-        last_name: string;
+        slug: string | null;
       };
-      const slug = `${trainer.first_name}-${trainer.last_name}`.toLowerCase();
-      redirect(`/trainer/${slug}`);
+      if (trainer?.slug) {
+        redirect(`/trainer/${trainer.slug}`);
+      }
     }
   }
 

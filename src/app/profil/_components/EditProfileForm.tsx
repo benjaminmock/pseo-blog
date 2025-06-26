@@ -184,7 +184,7 @@ export default function EditProfileForm({
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
       )}
 
-      <div>
+      <div style={{ display: "none" }}>
         <h2 className="text-xl font-medium mb-4">Persönliche Informationen</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

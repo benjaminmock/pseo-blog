@@ -41,9 +41,8 @@ export default function CreateTrainerForm({
         throw new Error(data.message || "Failed to create trainer profile");
       }
 
-      // Generate slug for redirect
-      const slug = `${formData.first_name}-${formData.last_name}`.toLowerCase();
-      router.push(`/trainer/${slug}`);
+      // Use the slug returned from the API
+      router.push(`/trainer/${data.slug}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

@@ -31,6 +31,7 @@ type Course = {
     last_name: string;
     bio: string | null;
     link: string | null;
+    slug: string | null;
   };
 };
 
@@ -42,6 +43,7 @@ async function getCourseById(id: string): Promise<Course | undefined> {
       t.last_name,
       t.bio,
       t.link,
+      t.slug as trainer_slug,
       city.city as city_name
     FROM Courses c
     LEFT JOIN Trainers t ON c.trainer_id = t.trainer_id
@@ -55,6 +57,7 @@ async function getCourseById(id: string): Promise<Course | undefined> {
         last_name: string;
         bio: string | null;
         link: string | null;
+        trainer_slug: string | null;
         city_name: string | null;
       })
     | undefined;
@@ -68,6 +71,7 @@ async function getCourseById(id: string): Promise<Course | undefined> {
       last_name: result.last_name,
       bio: result.bio,
       link: result.link,
+      slug: result.trainer_slug,
     },
   };
 }
@@ -176,14 +180,20 @@ export default async function CoursePage({ params }: CoursePageProps) {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-medium text-gray-500 text-sm">
-                Trainer:in
+                Trainer*in / Lehrer*in
               </h2>
-              <Link
-                href={`/trainer/${course.trainer.first_name.toLowerCase()}-${course.trainer.last_name.toLowerCase()}`}
-                className="text-gray-900 hover:text-indigo-600 transition-colors"
-              >
-                {course.trainer.first_name} {course.trainer.last_name}
-              </Link>
+              {course.trainer.slug ? (
+                <Link
+                  href={`/trainer/${course.trainer.slug}`}
+                  className="text-gray-900 hover:text-indigo-600 transition-colors"
+                >
+                  {course.trainer.first_name} {course.trainer.last_name}
+                </Link>
+              ) : (
+                <span className="text-gray-900">
+                  {course.trainer.first_name} {course.trainer.last_name}
+                </span>
+              )}
               {course.trainer.bio && (
                 <p className="text-gray-600 text-sm mt-2 line-clamp-3">
                   {course.trainer.bio}
