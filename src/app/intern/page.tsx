@@ -202,7 +202,7 @@ export default function InternPage() {
               {user.role === "student"
                 ? "Student"
                 : user.role === "teacher"
-                ? "Lehrer:in/Trainer:in"
+                ? "Lehrer*in/Trainer*in"
                 : user.role}
             </span>
           </p>

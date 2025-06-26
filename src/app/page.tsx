@@ -24,7 +24,7 @@ export default function HomePage() {
       <section className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-16">
           <BenefitsSection
-            title="Für Schüler"
+            title="Für Yoga Schüler*innne"
             benefits={[
               {
                 title: "Große Auswahl",
@@ -36,14 +36,14 @@ export default function HomePage() {
                 description:
                   "Lerne von zertifizierten Lehrern mit echten Bewertungen",
               },
-              {
-                title: "Flexible Buchung",
-                description: "Buche Kurse einfach mit sicherer Bezahlung",
-              },
+              // {
+              //   title: "Flexible Buchung",
+              //   description: "Buche Kurse einfach mit sicherer Bezahlung",
+              // },
             ]}
           />
           <BenefitsSection
-            title="Für Lehrer"
+            title="Für Yoga Lehrer*innen"
             benefits={[
               {
                 title: "Geschäft ausbauen",
@@ -55,7 +55,7 @@ export default function HomePage() {
                 description: "Keine Plattform-Gebühren - du behältst alles",
               },
               {
-                title: "Einfache Verwaltung",
+                title: "Einfache Verwaltung (coming soon)",
                 description: "Praktische Tools für Kurs- und Schülermanagement",
               },
             ]}
@@ -67,7 +67,7 @@ export default function HomePage() {
 
       <WhyYogaSection />
 
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
 
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16">

@@ -45,7 +45,7 @@ export default function AuthNav() {
         </>
       ) : (
         <>
-          <button
+          {/* <button
             onClick={handleGoogleSignIn}
             className="px-4 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center space-x-2"
           >
@@ -68,12 +68,12 @@ export default function AuthNav() {
               />
             </svg>
             <span>Mit Google anmelden</span>
-          </button>
+          </button> */}
           <Link
             href="/login"
             className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
-            Einloggen
+            Anmelden
           </Link>
         </>
       )}

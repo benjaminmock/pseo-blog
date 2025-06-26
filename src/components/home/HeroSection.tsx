@@ -48,7 +48,7 @@ export default function HeroSection() {
             </Link>
           </div>
 
-          {/* Trust Indicators */}
+          {/* Trust Indicators 
           <div className="mt-16 grid grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-white/90 text-2xl font-bold mb-1">1000+</div>
@@ -65,6 +65,7 @@ export default function HeroSection() {
               </div>
             </div>
           </div>
+          */}
         </div>
       </div>
 

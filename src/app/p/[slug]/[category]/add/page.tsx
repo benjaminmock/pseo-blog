@@ -110,7 +110,7 @@ export default function AddTrainerAndCourse({ params }: AddPageProps) {
 
   return (
     <div className="max-w-lg mx-auto bg-white p-8 mt-10 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">Trainer:in</h1>
+      <h1 className="text-3xl font-semibold text-gray-800 mb-6">Trainer*in</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Bot protection field, hidden from view */}
         <input

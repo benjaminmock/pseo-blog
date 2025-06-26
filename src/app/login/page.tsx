@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
-  const [userRole, setUserRole] = useState<"student" | "teacher">("student");
+  const [userRole, setUserRole] = useState<"student" | "teacher">("teacher");
 
   const handleGoogleSignIn = async () => {
     try {
@@ -104,9 +104,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full flex bg-white shadow-md rounded-lg overflow-hidden">
         <div className="w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Willkommen zurück!
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Willkommen!</h2>
           <div className="text-6xl mt-4">🧘‍♀️</div>
         </div>
         <div className="w-1/2 p-8">
@@ -119,7 +117,7 @@ export default function LoginPage() {
             )}
 
             {/* User Role Selection */}
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ich bin ein:
               </label>
@@ -147,7 +145,7 @@ export default function LoginPage() {
                   <span className="ml-2 text-gray-700">Lehrer</span>
                 </label>
               </div>
-            </div>
+            </div> */}
 
             <button
               onClick={handleGoogleSignIn}
@@ -190,7 +188,7 @@ export default function LoginPage() {
               </span>
             </button>
 
-            <div className="relative my-6">
+            {/* <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
@@ -239,7 +237,7 @@ export default function LoginPage() {
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               Registrieren Sie sich für ein neues Konto
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
