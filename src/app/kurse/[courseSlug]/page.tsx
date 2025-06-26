@@ -1,6 +1,7 @@
 import { db } from "@/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
 
 type CoursePageProps = {
   params: {
@@ -18,6 +19,13 @@ type Course = {
   city_slug: string | null;
   city_name: string | null;
   slug: string | null;
+  capacity: number | null;
+  language: string | null;
+  price: number | null;
+  duration: number | null;
+  location: string | null;
+  style: string | null;
+  level: string | null;
   trainer: {
     first_name: string;
     last_name: string;
@@ -64,6 +72,31 @@ async function getCourseById(id: string): Promise<Course | undefined> {
   };
 }
 
+async function getTrainerIdByEmail(email: string) {
+  const stmt = db.prepare(`
+    SELECT trainer_id
+    FROM Trainers
+    WHERE email = ?
+  `);
+  const result = stmt.get(email) as { trainer_id: number } | undefined;
+  return result?.trainer_id;
+}
+
+// Check if user has teacher role
+function isTeacher(user: { role?: string } | null) {
+  return user?.role === "teacher";
+}
+
+// Check if the logged-in user owns this course
+async function isUserCourseOwner(course: Course, user: any) {
+  if (!user || !isTeacher(user) || !user.email) {
+    return false;
+  }
+
+  const trainerId = await getTrainerIdByEmail(user.email);
+  return trainerId === course.trainer_id;
+}
+
 export async function generateMetadata({ params }: CoursePageProps) {
   const { courseSlug } = params;
   const course = await getCourseById(courseSlug);
@@ -91,6 +124,34 @@ function formatDate(dateStr: string) {
   });
 }
 
+function formatPrice(price: number | null) {
+  if (!price) return null;
+  return new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR",
+  }).format(price);
+}
+
+function formatDuration(duration: number | null) {
+  if (!duration) return null;
+  return `${duration} Minuten`;
+}
+
+function formatLanguage(language: string | null) {
+  if (!language) return null;
+  return language === "de" ? "Deutsch" : "English";
+}
+
+function formatLevel(level: string | null) {
+  if (!level) return null;
+  const levelMap = {
+    beginner: "Anfänger",
+    intermediate: "Fortgeschritten",
+    advanced: "Experte",
+  };
+  return levelMap[level as keyof typeof levelMap] || level;
+}
+
 export default async function CoursePage({ params }: CoursePageProps) {
   const { courseSlug } = params;
   const course = await getCourseById(courseSlug);
@@ -98,6 +159,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
   if (!course) {
     notFound();
   }
+
+  // Get current user and check if they own this course
+  const user = await getCurrentUser();
+  const userOwnsThisCourse = await isUserCourseOwner(course, user);
 
   return (
     <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -114,7 +179,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 Trainer:in
               </h2>
               <Link
-                href={`/t/${course.trainer.first_name.toLowerCase()}-${course.trainer.last_name.toLowerCase()}`}
+                href={`/trainer/${course.trainer.first_name.toLowerCase()}-${course.trainer.last_name.toLowerCase()}`}
                 className="text-gray-900 hover:text-indigo-600 transition-colors"
               >
                 {course.trainer.first_name} {course.trainer.last_name}
@@ -134,14 +199,78 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 {course.end_date && ` - ${formatDate(course.end_date)}`}
               </p>
             </div>
-            {(course.city_name || course.city_slug) && (
+            {(course.city_name || course.city_slug || course.location) && (
               <div>
                 <h2 className="text-lg font-medium text-gray-500 text-sm">
                   Ort
                 </h2>
-                <p className="text-gray-900 capitalize">
-                  {course.city_name || course.city_slug?.replace("-", " ")}
+                <div className="text-gray-900">
+                  {course.city_name && (
+                    <p className="capitalize">{course.city_name}</p>
+                  )}
+                  {!course.city_name && course.city_slug && (
+                    <p className="capitalize">
+                      {course.city_slug.replace("-", " ")}
+                    </p>
+                  )}
+                  {course.location && (
+                    <p className="text-gray-700 text-sm mt-1">
+                      {course.location}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+            {course.price && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Preis
+                </h2>
+                <p className="text-gray-900">{formatPrice(course.price)}</p>
+              </div>
+            )}
+            {course.duration && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Dauer
+                </h2>
+                <p className="text-gray-900">
+                  {formatDuration(course.duration)}
                 </p>
+              </div>
+            )}
+            {course.capacity && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Kapazität
+                </h2>
+                <p className="text-gray-900">{course.capacity} Teilnehmer</p>
+              </div>
+            )}
+            {course.language && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Sprache
+                </h2>
+                <p className="text-gray-900">
+                  {formatLanguage(course.language)}
+                </p>
+              </div>
+            )}
+            {course.style && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Stil
+                </h2>
+                <p className="text-gray-900">{course.style}</p>
+              </div>
+            )}
+            {course.level && (
+              <div>
+                <h2 className="text-lg font-medium text-gray-500 text-sm">
+                  Level
+                </h2>
+                <p className="text-gray-900">{formatLevel(course.level)}</p>
               </div>
             )}
             {course.description && (
@@ -156,13 +285,21 @@ export default async function CoursePage({ params }: CoursePageProps) {
             )}
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <Link
               href="/kurse"
               className="text-indigo-600 hover:text-indigo-800 transition-colors"
             >
               ← Zurück zur Kursübersicht
             </Link>
+            {userOwnsThisCourse && (
+              <Link
+                href={`/kurs/${course.course_id}/bearbeiten`}
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Kurs bearbeiten
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ type City = {
   id: number;
   city: string;
   zip: string;
+  slug: string;
 };
 
 type CityComboboxProps = {
@@ -51,10 +52,13 @@ export default function CityCombobox({
   useEffect(() => {
     if (cities.length > 0 && initialValue && !initialLoadRef.current) {
       const matchingCity = cities.find(
-        (city) => city.city.toLowerCase() === initialValue.toLowerCase()
+        (city) =>
+          city.slug === initialValue ||
+          city.city.toLowerCase() === initialValue.toLowerCase()
       );
       if (matchingCity) {
         setSelectedCity(matchingCity);
+        setInputValue(`${matchingCity.city} (${matchingCity.zip})`);
         onSelect(matchingCity);
         initialLoadRef.current = true;
       }
@@ -209,6 +213,7 @@ export default function CityCombobox({
         </ul>
       )}
       <input type="hidden" name="city_id" value={selectedCity?.id || ""} />
+      <input type="hidden" name="city_slug" value={selectedCity?.slug || ""} />
     </div>
   );
 }

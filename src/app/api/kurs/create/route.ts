@@ -19,6 +19,13 @@ export async function POST(request: NextRequest) {
       end_date,
       city_slug,
       city_id,
+      capacity,
+      language,
+      price,
+      duration,
+      location,
+      style,
+      level,
     } = data;
 
     // Validate required fields
@@ -54,9 +61,16 @@ export async function POST(request: NextRequest) {
         city_slug,
         slug,
         city_id,
-        active
+        active,
+        capacity,
+        language,
+        price,
+        duration,
+        location,
+        style,
+        level
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING course_id
     `);
 
@@ -69,7 +83,14 @@ export async function POST(request: NextRequest) {
       city_slug,
       slug,
       city_id,
-      1 // Set new courses as active by default
+      1, // Set new courses as active by default
+      capacity,
+      language,
+      price,
+      duration,
+      location,
+      style,
+      level
     ) as { course_id: number };
 
     return NextResponse.json({ course_id: result.course_id }, { status: 201 });

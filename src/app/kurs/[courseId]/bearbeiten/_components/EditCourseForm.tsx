@@ -14,6 +14,13 @@ type Course = {
   slug: string | null;
   city_id: number | null;
   trainer_id: number;
+  capacity: number | null;
+  language: string | null;
+  price: number | null;
+  duration: number | null;
+  location: string | null;
+  style: string | null;
+  level: string | null;
 };
 
 type Props = {
@@ -41,6 +48,19 @@ export default function EditCourseForm({ course, trainerId }: Props) {
       end_date: formData.get("end_date") || null,
       city_slug: formData.get("city_slug") || null,
       city_id: formData.get("city_id") || null,
+      capacity: formData.get("capacity")
+        ? parseInt(formData.get("capacity") as string)
+        : null,
+      language: formData.get("language") || null,
+      price: formData.get("price")
+        ? parseFloat(formData.get("price") as string)
+        : null,
+      duration: formData.get("duration")
+        ? parseInt(formData.get("duration") as string)
+        : null,
+      location: formData.get("location") || null,
+      style: formData.get("style") || null,
+      level: formData.get("level") || null,
     };
 
     try {
@@ -153,6 +173,141 @@ export default function EditCourseForm({ course, trainerId }: Props) {
             console.log("Selected city:", city);
           }}
         />
+      </div>
+
+      <div>
+        <label
+          htmlFor="location"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Genauer Ort/Adresse
+        </label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          defaultValue={course.location || ""}
+          placeholder="z.B. Yogastudio Mitte, Hauptstraße 123"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="capacity"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Kapazität (max. Teilnehmer)
+          </label>
+          <input
+            type="number"
+            id="capacity"
+            name="capacity"
+            min="1"
+            defaultValue={course.capacity || ""}
+            placeholder="z.B. 15"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="duration"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Dauer (Minuten)
+          </label>
+          <input
+            type="number"
+            id="duration"
+            name="duration"
+            min="15"
+            step="15"
+            defaultValue={course.duration || ""}
+            placeholder="z.B. 90"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="price"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Preis (€)
+          </label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            min="0"
+            step="0.01"
+            defaultValue={course.price || ""}
+            placeholder="z.B. 25.00"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="language"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Sprache
+          </label>
+          <select
+            id="language"
+            name="language"
+            defaultValue={course.language || ""}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">Sprache wählen</option>
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="style"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Yoga-Stil
+          </label>
+          <input
+            type="text"
+            id="style"
+            name="style"
+            defaultValue={course.style || ""}
+            placeholder="z.B. Hatha, Vinyasa, Yin"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="level"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Level
+          </label>
+          <select
+            id="level"
+            name="level"
+            defaultValue={course.level || ""}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">Level wählen</option>
+            <option value="beginner">Anfänger</option>
+            <option value="intermediate">Fortgeschritten</option>
+            <option value="advanced">Experte</option>
+          </select>
+        </div>
       </div>
 
       <div className="flex gap-4 pt-4">

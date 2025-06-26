@@ -20,6 +20,13 @@ export async function PUT(request: NextRequest) {
       end_date,
       city_slug,
       city_id,
+      capacity,
+      language,
+      price,
+      duration,
+      location,
+      style,
+      level,
     } = data;
 
     // Validate required fields
@@ -87,7 +94,14 @@ export async function PUT(request: NextRequest) {
         end_date = ?,
         city_slug = ?,
         slug = ?,
-        city_id = ?
+        city_id = ?,
+        capacity = ?,
+        language = ?,
+        price = ?,
+        duration = ?,
+        location = ?,
+        style = ?,
+        level = ?
       WHERE course_id = ? AND trainer_id = ?
     `);
 
@@ -99,6 +113,13 @@ export async function PUT(request: NextRequest) {
       city_slug,
       slug,
       city_id,
+      capacity,
+      language,
+      price,
+      duration,
+      location,
+      style,
+      level,
       course_id,
       trainer_id
     );

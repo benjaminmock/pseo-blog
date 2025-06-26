@@ -16,7 +16,7 @@ async function getTrainerIdByEmail(email: string) {
 
 async function getCourseById(courseId: number, trainerId: number) {
   const stmt = db.prepare(`
-    SELECT 
+    SELECT
       c.course_id,
       c.course_name,
       c.description,
@@ -25,7 +25,14 @@ async function getCourseById(courseId: number, trainerId: number) {
       c.city_slug,
       c.slug,
       c.city_id,
-      c.trainer_id
+      c.trainer_id,
+      c.capacity,
+      c.language,
+      c.price,
+      c.duration,
+      c.location,
+      c.style,
+      c.level
     FROM Courses c
     WHERE c.course_id = ? AND c.trainer_id = ?
   `);
@@ -40,6 +47,13 @@ async function getCourseById(courseId: number, trainerId: number) {
         slug: string | null;
         city_id: number | null;
         trainer_id: number;
+        capacity: number | null;
+        language: string | null;
+        price: number | null;
+        duration: number | null;
+        location: string | null;
+        style: string | null;
+        level: string | null;
       }
     | undefined;
 }

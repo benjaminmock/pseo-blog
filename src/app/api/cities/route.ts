@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const stmt = db.prepare(`
-      SELECT id, city, zip 
-      FROM cities 
+      SELECT id, city, zip, slug
+      FROM cities
       ORDER BY city ASC
     `);
 
