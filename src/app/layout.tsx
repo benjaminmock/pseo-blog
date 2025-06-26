@@ -17,8 +17,14 @@ async function initializeConfig() {
 export async function generateMetadata() {
   await initializeConfig();
   return {
-    title: metadata?.title || "Yoga Blog",
-    description: metadata?.description || "Ein Blog über Yoga und Wellness",
+    title:
+      metadata?.title ||
+      "Yoga-Kurse in deiner Nähe finden und buchen | YogaConnect",
+    description:
+      metadata?.description ||
+      "Verbinde dich mit zertifizierten Yoga-Lehrern und entdecke Kurse für alle Level. Buche Yoga-Kurse online und starte deine Wellness-Reise heute.",
+    keywords:
+      "yoga kurse, yoga lehrer, yoga buchen, yoga in der nähe, yoga unterricht, yoga lehren",
     icons: { icon: favicon },
   };
 }
@@ -35,9 +41,7 @@ export default async function RootLayout({
       <body className="antialiased bg-gray-50 text-gray-900 dark:text-gray-200 min-h-screen flex flex-col">
         <Providers>
           <Header />
-          <main className="container mx-auto px-4 py-8 flex-grow">
-            {children}
-          </main>
+          <main className="flex-grow">{children}</main>
           <Footer />
         </Providers>
       </body>

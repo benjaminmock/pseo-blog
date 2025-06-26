@@ -30,12 +30,6 @@ export default function AuthNav() {
           >
             Willkommen, {session.user.name}
           </Link>
-          <Link
-            href="/profil"
-            className="text-gray-700 hover:text-gray-900 text-sm transition-colors duration-200"
-          >
-            Mein Profil
-          </Link>
           <button
             onClick={handleLogout}
             className="text-sm font-medium text-slate-800 hover:text-slate-600 transition-colors duration-200"
