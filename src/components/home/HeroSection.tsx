@@ -3,7 +3,10 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-[90vh] min-h-[600px] flex items-center w-full">
+    <section
+      data-testid="hero-section"
+      className="relative h-[90vh] min-h-[600px] flex items-center w-full"
+    >
       {/* Background Image with Enhanced Gradient */}
       <div className="absolute inset-0 z-0">
         <Image

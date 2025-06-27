@@ -31,7 +31,7 @@ export default function SearchSection() {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
-    <section className="container mx-auto px-4">
+    <section data-testid="search-section" className="container mx-auto px-4">
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
         <div className="max-w-4xl mx-auto">
           {/* Main Search */}
