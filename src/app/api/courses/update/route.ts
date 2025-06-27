@@ -1,6 +1,7 @@
-import { db } from "@/config";
+import { db, trainers, courses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
+import { eq, and } from "drizzle-orm";
 
 export async function PUT(request: NextRequest) {
   const user = await getCurrentUser();
@@ -46,16 +47,13 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify that the course belongs to the current user's trainer profile
-    const trainerStmt = db.prepare(`
-      SELECT trainer_id
-      FROM Trainers
-      WHERE email = ?
-    `);
-    const trainerResult = trainerStmt.get(user.email) as
-      | { trainer_id: number }
-      | undefined;
+    const trainerResult = await db
+      .select({ trainerId: trainers.trainerId })
+      .from(trainers)
+      .where(eq(trainers.email, user.email!))
+      .limit(1);
 
-    if (!trainerResult || trainerResult.trainer_id !== trainer_id) {
+    if (!trainerResult.length || trainerResult[0].trainerId !== trainer_id) {
       return NextResponse.json(
         { error: "Keine Berechtigung, diesen Kurs zu bearbeiten" },
         { status: 403 }
@@ -63,16 +61,15 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify that the course exists and belongs to this trainer
-    const courseStmt = db.prepare(`
-      SELECT course_id
-      FROM Courses
-      WHERE course_id = ? AND trainer_id = ?
-    `);
-    const courseResult = courseStmt.get(course_id, trainer_id) as
-      | { course_id: number }
-      | undefined;
+    const courseResult = await db
+      .select({ courseId: courses.courseId })
+      .from(courses)
+      .where(
+        and(eq(courses.courseId, course_id), eq(courses.trainerId, trainer_id))
+      )
+      .limit(1);
 
-    if (!courseResult) {
+    if (!courseResult.length) {
       return NextResponse.json(
         { error: "Kurs nicht gefunden oder keine Berechtigung" },
         { status: 404 }
@@ -86,43 +83,27 @@ export async function PUT(request: NextRequest) {
       .replace(/^-+|-+$/g, "");
 
     // Update course in database
-    const updateStmt = db.prepare(`
-      UPDATE Courses SET
-        course_name = ?,
-        description = ?,
-        start_date = ?,
-        end_date = ?,
-        city_slug = ?,
-        slug = ?,
-        city_id = ?,
-        capacity = ?,
-        language = ?,
-        price = ?,
-        duration = ?,
-        location = ?,
-        style = ?,
-        level = ?
-      WHERE course_id = ? AND trainer_id = ?
-    `);
-
-    updateStmt.run(
-      course_name,
-      description,
-      start_date,
-      end_date,
-      city_slug,
-      slug,
-      city_id,
-      capacity,
-      language,
-      price,
-      duration,
-      location,
-      style,
-      level,
-      course_id,
-      trainer_id
-    );
+    await db
+      .update(courses)
+      .set({
+        courseName: course_name,
+        description,
+        startDate: start_date,
+        endDate: end_date,
+        citySlug: city_slug,
+        slug,
+        cityId: city_id,
+        capacity,
+        language,
+        price,
+        duration,
+        location,
+        style,
+        level,
+      })
+      .where(
+        and(eq(courses.courseId, course_id), eq(courses.trainerId, trainer_id))
+      );
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

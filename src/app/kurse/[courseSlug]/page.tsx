@@ -48,7 +48,7 @@ async function getCourseById(id: string): Promise<Course | undefined> {
     FROM Courses c
     LEFT JOIN Trainers t ON c.trainer_id = t.trainer_id
     LEFT JOIN cities city ON c.city_slug = city.slug
-    WHERE c.course_id = ? AND c.active = 1
+    WHERE c.slug = ? AND c.active = 1
   `);
 
   const result = stmt.get(id) as

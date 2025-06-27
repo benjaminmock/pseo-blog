@@ -1,17 +1,20 @@
-import { db } from "@/config";
+import { db, cities } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { asc } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const stmt = db.prepare(`
-      SELECT id, city, zip, slug
-      FROM cities
-      ORDER BY city ASC
-    `);
+    const citiesData = await db
+      .select({
+        id: cities.id,
+        city: cities.city,
+        zip: cities.zip,
+        slug: cities.slug,
+      })
+      .from(cities)
+      .orderBy(asc(cities.city));
 
-    const cities = stmt.all();
-
-    return NextResponse.json(cities);
+    return NextResponse.json(citiesData);
   } catch (error) {
     console.error("Error fetching cities:", error);
     return NextResponse.json(

@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { db } from "@/config";
+import { db, trainers } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { eq } from "drizzle-orm";
 
 // Function to generate a unique slug for a trainer
-function generateTrainerSlug(
+async function generateTrainerSlug(
   firstName: string,
   lastName: string,
   trainerId?: number
-): string {
+): Promise<string> {
   // Create base slug from first and last name
   const baseSlug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`
     .replace(/[^a-z0-9-]/g, "-") // Replace non-alphanumeric chars with hyphens
@@ -15,14 +16,16 @@ function generateTrainerSlug(
     .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
 
   // Check if this slug already exists
-  const checkSlugStmt = db.prepare(
-    "SELECT trainer_id FROM Trainers WHERE slug = ? AND trainer_id != ?"
-  );
-  const existingTrainer = checkSlugStmt.get(baseSlug, trainerId || 0) as
-    | { trainer_id: number }
-    | undefined;
+  const existingTrainer = await db
+    .select({ trainerId: trainers.trainerId })
+    .from(trainers)
+    .where(eq(trainers.slug, baseSlug))
+    .limit(1);
 
-  if (!existingTrainer) {
+  if (
+    existingTrainer.length === 0 ||
+    existingTrainer[0].trainerId === trainerId
+  ) {
     return baseSlug;
   }
 
@@ -39,18 +42,17 @@ export async function POST(request: Request) {
     }
 
     // Check if user already has a trainer profile
-    const checkStmt = db.prepare(
-      "SELECT trainer_id FROM Trainers WHERE email = ?"
-    );
-    const existingTrainer = checkStmt.get(currentUser.email) as
-      | { trainer_id: number }
-      | undefined;
+    const existingTrainer = await db
+      .select({ trainerId: trainers.trainerId })
+      .from(trainers)
+      .where(eq(trainers.email, currentUser.email!))
+      .limit(1);
 
-    if (existingTrainer) {
+    if (existingTrainer.length > 0) {
       return NextResponse.json(
         {
           message: "You already have a trainer profile",
-          trainer_id: existingTrainer.trainer_id,
+          trainer_id: existingTrainer[0].trainerId,
         },
         { status: 400 }
       );
@@ -68,39 +70,31 @@ export async function POST(request: Request) {
     }
 
     // Insert new trainer record first to get the ID
-    const insertStmt = db.prepare(`
-      INSERT INTO Trainers (
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        bio,
-        link
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-      RETURNING trainer_id
-    `);
+    const result = await db
+      .insert(trainers)
+      .values({
+        firstName: first_name,
+        lastName: last_name,
+        email: currentUser.email!,
+        phoneNumber: phone_number || null,
+        bio: bio || null,
+        link: link || null,
+      })
+      .returning({ trainerId: trainers.trainerId });
 
-    const result = insertStmt.get(
-      first_name,
-      last_name,
-      currentUser.email,
-      phone_number || null,
-      bio || null,
-      link || null
-    ) as { trainer_id: number };
+    const trainerId = result[0].trainerId;
 
     // Generate and update the slug
-    const slug = generateTrainerSlug(first_name, last_name, result.trainer_id);
-    const updateSlugStmt = db.prepare(
-      "UPDATE Trainers SET slug = ? WHERE trainer_id = ?"
-    );
-    updateSlugStmt.run(slug, result.trainer_id);
+    const slug = await generateTrainerSlug(first_name, last_name, trainerId);
+    await db
+      .update(trainers)
+      .set({ slug })
+      .where(eq(trainers.trainerId, trainerId));
 
     return NextResponse.json(
       {
         message: "Trainer profile created successfully",
-        trainer_id: result.trainer_id,
+        trainer_id: trainerId,
         slug: slug,
       },
       { status: 201 }

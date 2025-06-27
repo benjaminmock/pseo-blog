@@ -57,7 +57,7 @@ export default function CreateCourseForm({ trainerId }: Props) {
       }
 
       const result = await response.json();
-      router.push(`/kurse/${result.course_id}`);
+      router.push(`/kurse/${result.slug}`);
       router.refresh();
     } catch (err) {
       setError(

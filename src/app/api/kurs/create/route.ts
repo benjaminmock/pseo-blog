@@ -1,4 +1,4 @@
-import { db } from "@/config";
+import { db, courses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -51,49 +51,32 @@ export async function POST(request: NextRequest) {
       .replace(/^-+|-+$/g, "");
 
     // Insert course into database
-    const stmt = db.prepare(`
-      INSERT INTO Courses (
-        course_name,
-        trainer_id,
+    const result = await db
+      .insert(courses)
+      .values({
+        courseName: course_name,
+        trainerId: trainer_id,
         description,
-        start_date,
-        end_date,
-        city_slug,
+        startDate: start_date,
+        endDate: end_date,
+        citySlug: city_slug,
         slug,
-        city_id,
-        active,
+        cityId: city_id,
+        active: 1, // Set new courses as active by default
         capacity,
         language,
         price,
         duration,
         location,
         style,
-        level
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      RETURNING course_id
-    `);
+        level,
+      })
+      .returning({ courseId: courses.courseId });
 
-    const result = stmt.get(
-      course_name,
-      trainer_id,
-      description,
-      start_date,
-      end_date,
-      city_slug,
-      slug,
-      city_id,
-      1, // Set new courses as active by default
-      capacity,
-      language,
-      price,
-      duration,
-      location,
-      style,
-      level
-    ) as { course_id: number };
-
-    return NextResponse.json({ course_id: result.course_id }, { status: 201 });
+    return NextResponse.json(
+      { course_id: result[0].courseId },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating course:", error);
     return NextResponse.json(

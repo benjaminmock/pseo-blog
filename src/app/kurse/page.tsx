@@ -1,4 +1,5 @@
 import { db } from "@/config";
+// import { db } from "@/lib/db";
 import Link from "next/link";
 
 type Course = {
@@ -89,7 +90,7 @@ export default async function CoursesPage({ searchParams }: PageProps) {
         {courses.map((course) => (
           <Link
             key={course.course_id}
-            href={`/kurse/${course.course_id}`}
+            href={`/kurse/${course.slug}`}
             className="block p-6 bg-white rounded-lg hover:shadow-sm transition-shadow"
           >
             <h2 className="text-xl font-medium mb-2 text-gray-900">

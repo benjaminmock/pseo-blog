@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-import Database from "better-sqlite3";
 import { ReactElement } from "react";
+import Database from "better-sqlite3";
 
 // Define the type for the configuration module
 export interface ConfigModule {
@@ -17,7 +17,8 @@ const configCache: Record<string, ConfigModule> = {};
 // Set the active configuration
 export const ACTIVE_CONFIGURATION = "yoga";
 
-// Initialize the database connection
+// Database connection is now handled by Drizzle in src/lib/db/index.ts
+// Import { db } from "@/lib/db" instead of using this export
 export const db = new Database(`${ACTIVE_CONFIGURATION}.db`);
 
 // Map configuration names to module paths

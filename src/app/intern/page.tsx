@@ -351,7 +351,7 @@ export default function InternPage() {
                         Bearbeiten
                       </Link>
                       <Link
-                        href={`/kurse/${course.course_id}`}
+                        href={`/kurse/${course.slug}`}
                         className="text-gray-600 hover:text-gray-800 text-sm font-medium"
                       >
                         Vorschau →
