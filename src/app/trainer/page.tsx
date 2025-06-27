@@ -19,17 +19,20 @@ type PageProps = {
 async function getTrainers(page = 1, limit = 10) {
   const offset = (page - 1) * limit;
 
-  // Get trainers with pagination
+  // Get trainers with pagination - only those with slugs
   const stmt = db.prepare(`
     SELECT *
     FROM Trainers
+    WHERE slug IS NOT NULL
     ORDER BY first_name, last_name
     LIMIT ? OFFSET ?
   `);
   const trainers = stmt.all(limit + 1, offset) as Trainer[];
 
-  // Get total count
-  const countStmt = db.prepare("SELECT COUNT(*) as count FROM Trainers");
+  // Get total count - only those with slugs
+  const countStmt = db.prepare(
+    "SELECT COUNT(*) as count FROM Trainers WHERE slug IS NOT NULL"
+  );
   const { count } = countStmt.get() as { count: number };
 
   const hasMore = trainers.length > limit;
@@ -55,42 +58,25 @@ export default async function TrainersPage({ searchParams }: PageProps) {
       </h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {trainers.map((trainer) =>
-          trainer.slug ? (
-            <Link
-              key={trainer.trainer_id}
-              href={`/trainer/${trainer.slug}`}
-              className="block p-6 bg-white rounded-lg  hover:shadow-sm transition-shadow"
-            >
-              <h2 className="text-xl font-medium mb-2 text-gray-900">
-                {trainer.first_name} {trainer.last_name}
-              </h2>
-              {trainer.bio && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {trainer.bio}
-                </p>
-              )}
-              <div className="text-indigo-900 text-sm hover:underline">
-                Profil ansehen →
-              </div>
-            </Link>
-          ) : (
-            <div
-              key={trainer.trainer_id}
-              className="block p-6 bg-white rounded-lg opacity-50"
-            >
-              <h2 className="text-xl font-medium mb-2 text-gray-900">
-                {trainer.first_name} {trainer.last_name}
-              </h2>
-              {trainer.bio && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {trainer.bio}
-                </p>
-              )}
-              <div className="text-gray-600 text-sm">Kein Profil verfügbar</div>
+        {trainers.map((trainer) => (
+          <Link
+            key={trainer.trainer_id}
+            href={`/trainer/${trainer.slug}`}
+            className="block p-6 bg-white rounded-lg  hover:shadow-sm transition-shadow"
+          >
+            <h2 className="text-xl font-medium mb-2 text-gray-900">
+              {trainer.first_name} {trainer.last_name}
+            </h2>
+            {trainer.bio && (
+              <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                {trainer.bio}
+              </p>
+            )}
+            <div className="text-indigo-900 text-sm hover:underline">
+              Profil ansehen →
             </div>
-          )
-        )}
+          </Link>
+        ))}
       </div>
 
       {/* Pagination */}
