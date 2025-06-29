@@ -258,7 +258,7 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                       <h4 className="text-lg font-semibold text-gray-900">
                         {event.slug ? (
                           <Link
-                            href={`/event/${event.event_id}`}
+                            href={`/events/${event.slug}`}
                             className="hover:text-blue-600 transition-colors"
                           >
                             {event.event_name}

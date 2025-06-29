@@ -229,6 +229,7 @@ const Header = () => {
                   <a
                     href="/event/neu"
                     className="block text-gray-700 hover:text-gray-900 transition flex items-center space-x-2 mt-3"
+                    data-testid="create-event-link-mobile"
                   >
                     <svg
                       className="w-4 h-4"

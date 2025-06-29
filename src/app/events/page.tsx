@@ -28,7 +28,14 @@ export default function EventsPage() {
         const response = await fetch("/api/events");
         if (response.ok) {
           const data = await response.json();
-          setEvents(data.events);
+          // Filter out past events - only show future events
+          const futureEvents = data.events.filter((event: Event) => {
+            const eventDate = new Date(event.start_date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+            return eventDate >= today;
+          });
+          setEvents(futureEvents);
         } else {
           setError("Fehler beim Laden der Events");
         }
@@ -214,9 +221,21 @@ export default function EventsPage() {
                 </div>
 
                 <div className="mt-4">
-                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors">
-                    Mehr erfahren
-                  </button>
+                  {event.slug ? (
+                    <a
+                      href={`/events/${event.slug}`}
+                      className="block w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-center"
+                    >
+                      Mehr erfahren
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
+                    >
+                      Mehr erfahren
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

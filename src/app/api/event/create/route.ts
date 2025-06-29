@@ -39,11 +39,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate slug from event name
-    const slug = event_name
+    // Generate unique slug from event name
+    let baseSlug = event_name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check if slug already exists and make it unique
+    while (true) {
+      const existingEvent = db
+        .prepare(
+          `
+        SELECT event_id FROM Events WHERE slug = ?
+      `
+        )
+        .get(slug);
+
+      if (!existingEvent) {
+        break;
+      }
+
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
     // Insert event into database
     const stmt = db.prepare(`
@@ -78,7 +99,13 @@ export async function POST(request: NextRequest) {
       price
     ) as { event_id: number };
 
-    return NextResponse.json({ event_id: result.event_id }, { status: 201 });
+    return NextResponse.json(
+      {
+        event_id: result.event_id,
+        slug: slug,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating event:", error);
     return NextResponse.json(

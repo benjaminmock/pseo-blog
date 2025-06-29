@@ -4,24 +4,39 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CityCombobox from "@/components/CityCombobox";
 
-type Props = {
-  trainerId: number | undefined;
+type Event = {
+  event_id: number;
+  event_name: string;
+  description: string | null;
+  start_date: string;
+  start_time: string | null;
+  city_slug: string | null;
+  slug: string | null;
+  city_id: number | null;
+  active: number;
+  max_participants: number | null;
+  price: number | null;
+  trainer_id: number;
 };
 
-export default function CreateEventForm({ trainerId }: Props) {
+type Props = {
+  event: Event;
+};
+
+export default function EditEventForm({ event }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(event_form: React.FormEvent<HTMLFormElement>) {
+    event_form.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(event_form.currentTarget);
     const data = {
+      event_id: event.event_id,
       event_name: formData.get("event_name"),
-      trainer_id: trainerId,
       description: formData.get("description"),
       start_date: formData.get("start_date"),
       start_time: formData.get("start_time") || null,
@@ -36,8 +51,8 @@ export default function CreateEventForm({ trainerId }: Props) {
     };
 
     try {
-      const response = await fetch("/api/event/create", {
-        method: "POST",
+      const response = await fetch("/api/events/update", {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -49,10 +64,9 @@ export default function CreateEventForm({ trainerId }: Props) {
         throw new Error(errorData.error || "Ein Fehler ist aufgetreten");
       }
 
-      const result = await response.json();
-      // Redirect to the new event page using the slug if available
-      if (result.slug) {
-        router.push(`/events/${result.slug}`);
+      // Redirect to the event page using slug
+      if (event.slug) {
+        router.push(`/events/${event.slug}`);
       } else {
         router.push("/events");
       }
@@ -84,8 +98,8 @@ export default function CreateEventForm({ trainerId }: Props) {
           id="event_name"
           name="event_name"
           required
+          defaultValue={event.event_name}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="z.B. Yoga Workshop: Achtsamkeit & Entspannung"
         />
       </div>
 
@@ -100,8 +114,8 @@ export default function CreateEventForm({ trainerId }: Props) {
           id="description"
           name="description"
           rows={4}
+          defaultValue={event.description || ""}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Beschreiben Sie Ihr Event..."
         />
       </div>
 
@@ -118,6 +132,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             id="start_date"
             name="start_date"
             required
+            defaultValue={event.start_date}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -133,6 +148,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             type="time"
             id="start_time"
             name="start_time"
+            defaultValue={event.start_time || ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -146,8 +162,8 @@ export default function CreateEventForm({ trainerId }: Props) {
           Stadt
         </label>
         <CityCombobox
+          initialValue={event.city_slug || ""}
           onSelect={(city) => {
-            // This is handled by the hidden input in the CityCombobox component
             console.log("Selected city:", city);
           }}
         />
@@ -166,8 +182,8 @@ export default function CreateEventForm({ trainerId }: Props) {
             id="max_participants"
             name="max_participants"
             min="1"
+            defaultValue={event.max_participants || ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="z.B. 20"
           />
         </div>
 
@@ -184,19 +200,33 @@ export default function CreateEventForm({ trainerId }: Props) {
             name="price"
             min="0"
             step="0.01"
+            defaultValue={event.price || ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="z.B. 89.00"
           />
         </div>
       </div>
 
-      <div className="pt-4">
+      <div className="flex gap-4 pt-4">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white rounded-lg hover:bg-gray-900"
+          className="flex-1 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white rounded-lg hover:bg-gray-900"
         >
-          {isSubmitting ? "Wird erstellt..." : "Event erstellen"}
+          {isSubmitting ? "Wird gespeichert..." : "Änderungen speichern"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (event.slug) {
+              router.push(`/events/${event.slug}`);
+            } else {
+              router.push("/events");
+            }
+          }}
+          className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Abbrechen
         </button>
       </div>
     </form>

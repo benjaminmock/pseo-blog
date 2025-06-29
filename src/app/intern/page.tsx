@@ -109,6 +109,41 @@ export default function InternPage() {
     }
   };
 
+  const deleteCourse = async (courseId: number, courseName: string) => {
+    if (
+      !confirm(
+        `Sind Sie sicher, dass Sie den Kurs "${courseName}" dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          course_id: courseId,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message || "Kurs wurde erfolgreich gelöscht");
+        // Refresh the courses list
+        fetchCourses();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Fehler beim Löschen des Kurses");
+      }
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      alert("Fehler beim Löschen des Kurses");
+    }
+  };
+
   const toggleEventStatus = async (eventId: number, currentStatus: number) => {
     try {
       const newStatus = currentStatus === 1 ? false : true;
@@ -131,6 +166,41 @@ export default function InternPage() {
       }
     } catch (error) {
       console.error("Error updating event status:", error);
+    }
+  };
+
+  const deleteEvent = async (eventId: number, eventName: string) => {
+    if (
+      !confirm(
+        `Sind Sie sicher, dass Sie das Event "${eventName}" dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/events/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_id: eventId,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message || "Event wurde erfolgreich gelöscht");
+        // Refresh the events list
+        fetchEvents();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Fehler beim Löschen des Events");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Fehler beim Löschen des Events");
     }
   };
 
@@ -368,6 +438,14 @@ export default function InternPage() {
                       >
                         {course.active === 1 ? "Deaktivieren" : "Aktivieren"}
                       </button>
+                      <button
+                        onClick={() =>
+                          deleteCourse(course.course_id, course.course_name)
+                        }
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Löschen
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -479,6 +557,14 @@ export default function InternPage() {
                         }`}
                       >
                         {event.active === 1 ? "Deaktivieren" : "Aktivieren"}
+                      </button>
+                      <button
+                        onClick={() =>
+                          deleteEvent(event.event_id, event.event_name)
+                        }
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Löschen
                       </button>
                     </div>
                   </div>

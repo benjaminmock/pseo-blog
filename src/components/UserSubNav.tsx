@@ -89,6 +89,7 @@ export default function UserSubNav() {
           <Link
             href="/event/neu"
             className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 flex items-center space-x-1"
+            data-testid="create-event-link-desktop"
           >
             <svg
               className="w-4 h-4"

@@ -33,6 +33,8 @@ export default async function CreateEventPage() {
     ? await getTrainerIdByEmail(user.email)
     : undefined;
 
+  console.log(userIsTeacher, trainerId);
+
   // If user is not a teacher, show appropriate message
   if (!userIsTeacher) {
     return (

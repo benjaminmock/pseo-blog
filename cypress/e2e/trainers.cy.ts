@@ -269,9 +269,393 @@ describe("Trainer Detail Page", () => {
       }
 
       // Check for event links
-      const eventLinks = $body.find('a[href*="/event/"]');
+      const eventLinks = $body.find('a[href*="/events/"]');
       if (eventLinks.length > 0) {
-        cy.get('a[href*="/event/"]').should("be.visible");
+        cy.get('a[href*="/events/"]').should("be.visible");
+      }
+    });
+  });
+
+  it("should display events section with correct structure and content", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check that events section exists
+    cy.contains("Workshops & Events").should("be.visible");
+
+    // Check events section structure
+    cy.get("body").then(($body) => {
+      if (
+        $body.find('p:contains("Derzeit keine Events verfügbar")').length > 0
+      ) {
+        // No events case
+        cy.contains("Derzeit keine Events verfügbar").should("be.visible");
+      } else {
+        // Events exist - check their structure
+        cy.get('h3:contains("Workshops & Events")')
+          .parent()
+          .within(() => {
+            // Check for event cards
+            cy.get("div").should("exist");
+
+            // Check each event card has required elements
+            cy.get("div").each(($eventCard) => {
+              cy.wrap($eventCard).within(() => {
+                // Event name should be visible
+                cy.get("h4").should("be.visible");
+
+                // Date information should be visible (look in the metadata section)
+                cy.get("div.flex.flex-wrap.gap-4.text-sm.text-gray-500").should(
+                  "contain",
+                  "📅"
+                );
+
+                // Check for price if present
+                if ($eventCard.find('span:contains("€")').length > 0) {
+                  cy.get('span:contains("€")').should("be.visible");
+                }
+              });
+            });
+          });
+      }
+    });
+  });
+
+  it("should display courses section with correct structure and content", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check that courses section exists
+    cy.contains("Kurse").should("be.visible");
+
+    // Check courses section structure
+    cy.get("body").then(($body) => {
+      if (
+        $body.find('p:contains("Derzeit keine Kurse verfügbar")').length > 0
+      ) {
+        // No courses case
+        cy.contains("Derzeit keine Kurse verfügbar").should("be.visible");
+      } else {
+        // Courses exist - check their structure
+        cy.get('h3:contains("Kurse")')
+          .parent()
+          .within(() => {
+            // Check for course cards
+            cy.get("div").should("exist");
+
+            // Check each course card has required elements
+            cy.get("div").each(($courseCard) => {
+              cy.wrap($courseCard).within(() => {
+                // Course name should be visible
+                cy.get("h4").should("be.visible");
+
+                // Date information should be visible (look in the metadata section)
+                cy.get("div.flex.flex-wrap.gap-4.text-sm.text-gray-500").should(
+                  "contain",
+                  "📅"
+                );
+
+                // Check for price if present
+                if ($courseCard.find('span:contains("€")').length > 0) {
+                  cy.get('span:contains("€")').should("be.visible");
+                }
+
+                // Check for course tags if present
+                if (
+                  $courseCard.find(
+                    "span.bg-blue-100, span.bg-green-100, span.bg-purple-100"
+                  ).length > 0
+                ) {
+                  cy.get('span[class*="bg-"]').should("be.visible");
+                }
+              });
+            });
+          });
+      }
+    });
+  });
+
+  it("should navigate to event detail pages when clicking event links", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check for event links and test navigation
+    cy.get("body").then(($body) => {
+      const eventLinks = $body.find('a[href*="/events/"]');
+
+      if (eventLinks.length > 0) {
+        // Get the first event link
+        cy.get('a[href*="/events/"]')
+          .first()
+          .then(($link) => {
+            const href = $link.attr("href");
+            const eventName = $link.text().trim();
+
+            // Click the event link
+            cy.wrap($link).click();
+
+            // Verify we navigated to the correct event page
+            cy.url().should("include", href);
+
+            // Verify event detail page is rendered correctly
+            cy.get("h1").should("be.visible").and("contain", eventName);
+            cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+            cy.contains("Datum").should("be.visible");
+
+            // Verify back link works
+            cy.contains("← Zurück zur Event-Übersicht")
+              .should("be.visible")
+              .and("have.attr", "href", "/events");
+          });
+      } else {
+        cy.log("No event links found on this trainer page");
+      }
+    });
+  });
+
+  it("should navigate to course detail pages when clicking course links", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check for course links and test navigation
+    cy.get("body").then(($body) => {
+      const courseLinks = $body.find('a[href*="/kurse/"]');
+
+      if (courseLinks.length > 0) {
+        // Get the first course link
+        cy.get('a[href*="/kurse/"]')
+          .first()
+          .then(($link) => {
+            const href = $link.attr("href");
+            const courseName = $link.text().trim();
+
+            // Click the course link
+            cy.wrap($link).click();
+
+            // Verify we navigated to the correct course page
+            cy.url().should("include", href);
+
+            // Verify course detail page is rendered correctly
+            cy.get("h1").should("be.visible").and("contain", courseName);
+            cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+            cy.contains("Zeitraum").should("be.visible");
+
+            // Verify back link works
+            cy.contains("← Zurück zur Kursübersicht")
+              .should("be.visible")
+              .and("have.attr", "href", "/kurse");
+          });
+      } else {
+        cy.log("No course links found on this trainer page");
+      }
+    });
+  });
+
+  it("should display event information correctly with all details", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check events section for detailed information
+    cy.get("body").then(($body) => {
+      if (!$body.find('p:contains("Derzeit keine Events verfügbar")').length) {
+        // Events exist, check their detailed information
+        cy.get('h3:contains("Workshops & Events")')
+          .parent()
+          .within(() => {
+            cy.get("div")
+              .first()
+              .within(() => {
+                // Event name should be visible and clickable if it has a slug
+                cy.get("h4").should("be.visible");
+
+                // Date should be formatted correctly (German format)
+                cy.get('div:contains("📅")')
+                  .should("be.visible")
+                  .and("contain.text", "📅");
+
+                // Check for optional time information
+                cy.get('div:contains("🕐")').then(($timeDiv) => {
+                  if ($timeDiv.length > 0) {
+                    cy.get('div:contains("🕐")').should("be.visible");
+                  }
+                });
+
+                // Check for location information
+                cy.get('div:contains("📍")').then(($locationDiv) => {
+                  if ($locationDiv.length > 0) {
+                    cy.get('div:contains("📍")').should("be.visible");
+                  }
+                });
+
+                // Check for max participants information
+                cy.get('div:contains("👥")').then(($participantsDiv) => {
+                  if ($participantsDiv.length > 0) {
+                    cy.get('div:contains("👥")').should("be.visible");
+                  }
+                });
+
+                // Check for description if present
+                cy.get("p.text-gray-600").then(($descriptionP) => {
+                  if ($descriptionP.length > 0) {
+                    cy.get("p.text-gray-600").should("be.visible");
+                  }
+                });
+              });
+          });
+      }
+    });
+  });
+
+  it("should display course information correctly with all details", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check courses section for detailed information
+    cy.get("body").then(($body) => {
+      if (!$body.find('p:contains("Derzeit keine Kurse verfügbar")').length) {
+        // Courses exist, check their detailed information
+        cy.get('h3:contains("Kurse")')
+          .parent()
+          .within(() => {
+            cy.get("div")
+              .first()
+              .within(() => {
+                // Course name should be visible and clickable if it has a slug
+                cy.get("h4").should("be.visible");
+
+                // Date should be formatted correctly (German format)
+                cy.get('div:contains("📅")')
+                  .should("be.visible")
+                  .and("contain.text", "📅");
+
+                // Check for location information
+                cy.get('div:contains("📍")').then(($locationDiv) => {
+                  if ($locationDiv.length > 0) {
+                    cy.get('div:contains("📍")').should("be.visible");
+                  }
+                });
+
+                // Check for capacity information
+                cy.get('div:contains("👥")').then(($capacityDiv) => {
+                  if ($capacityDiv.length > 0) {
+                    cy.get('div:contains("👥")').should("be.visible");
+                  }
+                });
+
+                // Check for duration information
+                cy.get('div:contains("⏱️")').then(($durationDiv) => {
+                  if ($durationDiv.length > 0) {
+                    cy.get('div:contains("⏱️")').should("be.visible");
+                  }
+                });
+
+                // Check for course tags (style, level, language)
+                cy.get("span.bg-blue-100").then(($styleSpan) => {
+                  if ($styleSpan.length > 0) {
+                    cy.get("span.bg-blue-100").should("be.visible");
+                  }
+                });
+                cy.get("span.bg-green-100").then(($levelSpan) => {
+                  if ($levelSpan.length > 0) {
+                    cy.get("span.bg-green-100").should("be.visible");
+                  }
+                });
+                cy.get("span.bg-purple-100").then(($languageSpan) => {
+                  if ($languageSpan.length > 0) {
+                    cy.get("span.bg-purple-100").should("be.visible");
+                  }
+                });
+
+                // Check for description if present
+                cy.get("p.text-gray-600").then(($descriptionP) => {
+                  if ($descriptionP.length > 0) {
+                    cy.get("p.text-gray-600").should("be.visible");
+                  }
+                });
+              });
+          });
+      }
+    });
+  });
+
+  it("should handle events and courses without slugs correctly", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check that events without slugs are displayed but not clickable
+    cy.get("body").then(($body) => {
+      // Check events section
+      if (!$body.find('p:contains("Derzeit keine Events verfügbar")').length) {
+        cy.get('h3:contains("Workshops & Events")')
+          .parent()
+          .within(() => {
+            cy.get("h4").each(($eventTitle) => {
+              // If the event title is not wrapped in a link, it should still be visible
+              if (!$eventTitle.closest("a").length) {
+                cy.wrap($eventTitle).should("be.visible");
+              }
+            });
+          });
+      }
+
+      // Check courses section
+      if (!$body.find('p:contains("Derzeit keine Kurse verfügbar")').length) {
+        cy.get('h3:contains("Kurse")')
+          .parent()
+          .within(() => {
+            cy.get("h4").each(($courseTitle) => {
+              // If the course title is not wrapped in a link, it should still be visible
+              if (!$courseTitle.closest("a").length) {
+                cy.wrap($courseTitle).should("be.visible");
+              }
+            });
+          });
+      }
+    });
+  });
+
+  it("should display price information correctly for events and courses", () => {
+    // Navigate to a trainer detail page
+    cy.visit("/trainer");
+    cy.get('[href*="/trainer/"]').first().click();
+
+    // Check price formatting in events
+    cy.get("body").then(($body) => {
+      // Check events section for price information
+      if (!$body.find('p:contains("Derzeit keine Events verfügbar")').length) {
+        cy.get('h3:contains("Workshops & Events")')
+          .parent()
+          .within(() => {
+            cy.get("span.text-green-600").each(($priceSpan) => {
+              // Price should be formatted as "XXX€" or "Preis auf Anfrage"
+              cy.wrap($priceSpan).should("satisfy", ($el) => {
+                const text = $el.text();
+                return text.includes("€") || text.includes("Preis auf Anfrage");
+              });
+            });
+          });
+      }
+
+      // Check courses section for price information
+      if (!$body.find('p:contains("Derzeit keine Kurse verfügbar")').length) {
+        cy.get('h3:contains("Kurse")')
+          .parent()
+          .within(() => {
+            cy.get("span.text-green-600").each(($priceSpan) => {
+              // Price should be formatted as "XXX€" or "Preis auf Anfrage"
+              cy.wrap($priceSpan).should("satisfy", ($el) => {
+                const text = $el.text();
+                return text.includes("€") || text.includes("Preis auf Anfrage");
+              });
+            });
+          });
       }
     });
   });
