@@ -2,9 +2,12 @@ describe("Event CRUD Operations", () => {
   beforeEach(() => {
     cy.logoutViaAPI();
 
-    // Handle uncaught exceptions from Next.js redirects
+    // Handle uncaught exceptions from Next.js redirects and 404s
     cy.on("uncaught:exception", (err, runnable) => {
-      if (err.message.includes("NEXT_REDIRECT")) {
+      if (
+        err.message.includes("NEXT_REDIRECT") ||
+        err.message.includes("NEXT_NOT_FOUND")
+      ) {
         return false;
       }
     });
