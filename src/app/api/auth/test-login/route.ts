@@ -57,25 +57,26 @@ export async function POST(request: NextRequest) {
           .get(testUser.email);
 
         if (!existingTrainer) {
-          // Create trainer record in SQLite
+          // Create trainer record in SQLite using correct schema
           const insertTrainer = db.prepare(`
-            INSERT INTO Trainers (name, email, bio, specialties, experience_years, certifications, profile_image, contact_info, availability, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            INSERT INTO Trainers (first_name, last_name, email, phone_number, bio, link, slug)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
           `);
 
+          // Split name into first and last name
+          const nameParts = testUser.name.split(" ");
+          const firstName = nameParts[0] || "Test";
+          const lastName = nameParts.slice(1).join(" ") || "Teacher";
+          const slug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`;
+
           insertTrainer.run(
-            testUser.name,
+            firstName,
+            lastName,
             testUser.email,
+            "+49 123 456789",
             "Test trainer bio for Cypress testing",
-            "Hatha Yoga, Vinyasa",
-            5,
-            "RYT-200, RYT-500",
-            testUser.image,
-            JSON.stringify({
-              phone: "+49 123 456789",
-              website: "https://example.com",
-            }),
-            JSON.stringify({ monday: "09:00-17:00", tuesday: "09:00-17:00" })
+            "https://example.com",
+            slug
           );
         }
       } catch (error) {

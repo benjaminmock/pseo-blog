@@ -247,26 +247,22 @@ Cypress.Commands.add("clickCreateEventLink", () => {
 });
 
 // Custom command to seed trainer data for tests
+// Note: This is now handled by loginViaAPI when role is "teacher"
 Cypress.Commands.add(
   "seedTrainer",
   (email: string, firstName = "Test", lastName = "Teacher") => {
-    cy.request({
-      method: "POST",
-      url: "/api/test/seed-trainer",
-      body: {
-        email,
-        firstName,
-        lastName,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.be.oneOf([200, 201]);
+    // Use loginViaAPI with teacher role to create both user and trainer
+    cy.loginViaAPI({
+      email,
+      name: `${firstName} ${lastName}`,
+      role: "teacher",
     });
   }
 );
 
 // Custom command to cleanup trainer data after tests
 Cypress.Commands.add("cleanupTrainer", (email: string) => {
+  // Clean up trainer record
   cy.request({
     method: "DELETE",
     url: "/api/test/seed-trainer",
@@ -275,6 +271,9 @@ Cypress.Commands.add("cleanupTrainer", (email: string) => {
     },
     failOnStatusCode: false,
   });
+
+  // Clean up user session
+  cy.logoutViaAPI();
 });
 
 // Custom command to navigate to a link, handling both mobile and desktop navigation
@@ -308,7 +307,6 @@ declare global {
       login(userOptions?: UserOptions): Chainable<any>;
       logout(): Chainable<any>;
       mockUserData(options?: MockDataOptions): Chainable<any>;
-      mockEventEditPage(eventSlug: string, eventData?: any): Chainable<any>;
       loginViaAPI(userOptions?: UserOptions): Chainable<any>;
       logoutViaAPI(): Chainable<any>;
       clickCreateEventLink(): Chainable<any>;

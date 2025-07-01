@@ -42,8 +42,14 @@ export default function InternPage() {
   } | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(false);
+  const [courseFilter, setCourseFilter] = useState<
+    "active" | "inactive" | "all"
+  >("active");
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [eventFilter, setEventFilter] = useState<
+    "active_future" | "inactive_past"
+  >("active_future");
 
   console.log(session?.user);
 
@@ -335,9 +341,28 @@ export default function InternPage() {
 
         {/* Courses Section */}
         <div className="mt-8">
-          <h2 className="text-xl font-medium mb-4 text-gray-900">
-            Meine Kurse
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-medium text-gray-900">Meine Kurse</h2>
+            <div className="flex items-center gap-2">
+              <label htmlFor="course-filter" className="text-sm text-gray-600">
+                Filter:
+              </label>
+              <select
+                id="course-filter"
+                value={courseFilter}
+                onChange={(e) =>
+                  setCourseFilter(
+                    e.target.value as "active" | "inactive" | "all"
+                  )
+                }
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="active">Nur aktive Kurse</option>
+                <option value="inactive">Nur inaktive Kurse</option>
+                <option value="all">Alle Kurse</option>
+              </select>
+            </div>
+          </div>
 
           {isLoadingCourses ? (
             <div className="text-center py-8">
@@ -360,105 +385,152 @@ export default function InternPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-4">
-              {courses.map((course) => (
-                <div
-                  key={course.course_id}
-                  className={`bg-white border rounded-lg p-6 hover:shadow-md transition-shadow ${
-                    course.active === 0
-                      ? "border-red-200 bg-red-50"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {course.course_name}
-                        </h3>
-                        <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                            course.active === 1
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {course.active === 1 ? "Aktiv" : "Deaktiviert"}
-                        </span>
-                      </div>
-                      {course.description && (
-                        <p className="text-gray-600 mb-3">
-                          {course.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <span>
-                          <strong>Start:</strong>{" "}
-                          {new Date(course.start_date).toLocaleDateString(
-                            "de-DE"
-                          )}
-                        </span>
-                        {course.end_date && (
-                          <span>
-                            <strong>Ende:</strong>{" "}
-                            {new Date(course.end_date).toLocaleDateString(
-                              "de-DE"
-                            )}
-                          </span>
-                        )}
-                        {course.city_slug && (
-                          <span>
-                            <strong>Ort:</strong> {course.city_slug}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="ml-4 flex flex-col gap-2">
-                      <Link
-                        href={`/kurs/${course.course_id}/bearbeiten`}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                      >
-                        Bearbeiten
-                      </Link>
-                      <Link
-                        href={`/kurse/${course.slug}`}
-                        className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                      >
-                        Vorschau →
-                      </Link>
-                      <button
-                        onClick={() =>
-                          toggleCourseStatus(course.course_id, course.active)
-                        }
-                        className={`text-sm font-medium ${
-                          course.active === 1
-                            ? "text-red-600 hover:text-red-800"
-                            : "text-green-600 hover:text-green-800"
-                        }`}
-                      >
-                        {course.active === 1 ? "Deaktivieren" : "Aktivieren"}
-                      </button>
-                      <button
-                        onClick={() =>
-                          deleteCourse(course.course_id, course.course_name)
-                        }
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
-                      >
-                        Löschen
-                      </button>
-                    </div>
-                  </div>
+            (() => {
+              const filteredCourses = courses.filter((course) => {
+                if (courseFilter === "active") return course.active === 1;
+                if (courseFilter === "inactive") return course.active === 0;
+                return true; // 'all' - show all courses
+              });
+
+              return filteredCourses.length === 0 ? (
+                <div className="bg-gray-50 rounded-lg p-6 text-center">
+                  <p className="text-gray-600">
+                    {courseFilter === "active"
+                      ? "Keine aktiven Kurse gefunden."
+                      : courseFilter === "inactive"
+                      ? "Keine inaktiven Kurse gefunden."
+                      : "Keine Kurse gefunden."}
+                  </p>
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredCourses.map((course) => (
+                    <div
+                      key={course.course_id}
+                      className={`bg-white border rounded-lg p-6 hover:shadow-md transition-shadow ${
+                        course.active === 0
+                          ? "border-red-200 bg-red-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-medium text-gray-900">
+                              {course.course_name}
+                            </h3>
+                            <span
+                              className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                course.active === 1
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {course.active === 1 ? "Aktiv" : "Deaktiviert"}
+                            </span>
+                          </div>
+                          {course.description && (
+                            <p className="text-gray-600 mb-3">
+                              {course.description}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                            <span>
+                              <strong>Start:</strong>{" "}
+                              {new Date(course.start_date).toLocaleDateString(
+                                "de-DE"
+                              )}
+                            </span>
+                            {course.end_date && (
+                              <span>
+                                <strong>Ende:</strong>{" "}
+                                {new Date(course.end_date).toLocaleDateString(
+                                  "de-DE"
+                                )}
+                              </span>
+                            )}
+                            {course.city_slug && (
+                              <span>
+                                <strong>Ort:</strong> {course.city_slug}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="ml-4 flex flex-col gap-2">
+                          <Link
+                            href={`/kurs/${course.course_id}/bearbeiten`}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                          >
+                            Bearbeiten
+                          </Link>
+                          <Link
+                            href={`/kurse/${course.slug}`}
+                            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                          >
+                            Vorschau →
+                          </Link>
+                          <button
+                            onClick={() =>
+                              toggleCourseStatus(
+                                course.course_id,
+                                course.active
+                              )
+                            }
+                            className={`text-sm font-medium ${
+                              course.active === 1
+                                ? "text-red-600 hover:text-red-800"
+                                : "text-green-600 hover:text-green-800"
+                            }`}
+                          >
+                            {course.active === 1
+                              ? "Deaktivieren"
+                              : "Aktivieren"}
+                          </button>
+                          <button
+                            onClick={() =>
+                              deleteCourse(course.course_id, course.course_name)
+                            }
+                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          >
+                            Löschen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()
           )}
         </div>
 
         {/* Events Section */}
         <div className="mt-8">
-          <h2 className="text-xl font-medium mb-4 text-gray-900">
-            Meine Events
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-medium text-gray-900">Meine Events</h2>
+            <div className="flex items-center gap-2">
+              <label htmlFor="event-filter" className="text-sm text-gray-600">
+                Filter:
+              </label>
+              <select
+                id="event-filter"
+                value={eventFilter}
+                onChange={(e) =>
+                  setEventFilter(
+                    e.target.value as "active_future" | "inactive_past"
+                  )
+                }
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="active_future">
+                  Aktive Events in der Zukunft
+                </option>
+                <option value="inactive_past">
+                  Inaktive oder vergangene Events
+                </option>
+              </select>
+            </div>
+          </div>
 
           {isLoadingEvents ? (
             <div className="text-center py-8">
@@ -481,96 +553,153 @@ export default function InternPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-4">
-              {events.map((event) => (
-                <div
-                  key={event.event_id}
-                  className={`bg-white border rounded-lg p-6 hover:shadow-md transition-shadow ${
-                    event.active === 0
-                      ? "border-red-200 bg-red-50"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {event.event_name}
-                        </h3>
-                        <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                            event.active === 1
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+            (() => {
+              const filteredEvents = events.filter((event) => {
+                const eventDate = new Date(event.start_date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                const isPastEvent = eventDate < today;
+
+                if (eventFilter === "active_future") {
+                  return event.active === 1 && !isPastEvent;
+                } else {
+                  return event.active === 0 || isPastEvent;
+                }
+              });
+
+              return filteredEvents.length === 0 ? (
+                <div className="bg-gray-50 rounded-lg p-6 text-center">
+                  <p className="text-gray-600">
+                    {eventFilter === "active_future"
+                      ? "Keine aktiven Events in der Zukunft gefunden."
+                      : "Keine inaktiven oder vergangenen Events gefunden."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredEvents
+                    .sort(
+                      (a, b) =>
+                        new Date(b.start_date).getTime() -
+                        new Date(a.start_date).getTime()
+                    )
+                    .map((event) => {
+                      const eventDate = new Date(event.start_date);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                      const isPastEvent = eventDate < today;
+
+                      return (
+                        <div
+                          key={event.event_id}
+                          className={`bg-white border rounded-lg p-6 hover:shadow-md transition-shadow ${
+                            event.active === 0
+                              ? "border-red-200 bg-red-50"
+                              : isPastEvent
+                              ? "border-gray-300 bg-gray-50"
+                              : "border-gray-200"
                           }`}
                         >
-                          {event.active === 1 ? "Aktiv" : "Deaktiviert"}
-                        </span>
-                      </div>
-                      {event.description && (
-                        <p className="text-gray-600 mb-3">
-                          {event.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <span>
-                          <strong>Datum:</strong>{" "}
-                          {new Date(event.start_date).toLocaleDateString(
-                            "de-DE"
-                          )}
-                          {event.start_time &&
-                            ` um ${event.start_time.slice(0, 5)}`}
-                        </span>
-                        {event.city_slug && (
-                          <span>
-                            <strong>Ort:</strong> {event.city_slug}
-                          </span>
-                        )}
-                        {event.price && (
-                          <span>
-                            <strong>Preis:</strong> {event.price.toFixed(2)} €
-                          </span>
-                        )}
-                        {event.max_participants && (
-                          <span>
-                            <strong>Max. Teilnehmer:</strong>{" "}
-                            {event.max_participants}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="ml-4 flex flex-col gap-2">
-                      <Link
-                        href={`/event/${event.event_id}/bearbeiten`}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                      >
-                        Bearbeiten
-                      </Link>
-                      <button
-                        onClick={() =>
-                          toggleEventStatus(event.event_id, event.active)
-                        }
-                        className={`text-sm font-medium ${
-                          event.active === 1
-                            ? "text-red-600 hover:text-red-800"
-                            : "text-green-600 hover:text-green-800"
-                        }`}
-                      >
-                        {event.active === 1 ? "Deaktivieren" : "Aktivieren"}
-                      </button>
-                      <button
-                        onClick={() =>
-                          deleteEvent(event.event_id, event.event_name)
-                        }
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
-                      >
-                        Löschen
-                      </button>
-                    </div>
-                  </div>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-medium text-gray-900">
+                                  {event.event_name}
+                                </h3>
+                                <span
+                                  className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                    event.active === 1
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {event.active === 1 ? "Aktiv" : "Deaktiviert"}
+                                </span>
+                                {isPastEvent && (
+                                  <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                                    Vergangen
+                                  </span>
+                                )}
+                              </div>
+                              {event.description && (
+                                <p className="text-gray-600 mb-3">
+                                  {event.description}
+                                </p>
+                              )}
+                              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                                <span>
+                                  <strong>Datum:</strong>{" "}
+                                  {new Date(
+                                    event.start_date
+                                  ).toLocaleDateString("de-DE")}
+                                  {event.start_time &&
+                                    ` um ${event.start_time.slice(0, 5)}`}
+                                </span>
+                                {event.city_slug && (
+                                  <span>
+                                    <strong>Ort:</strong> {event.city_slug}
+                                  </span>
+                                )}
+                                {event.price && (
+                                  <span>
+                                    <strong>Preis:</strong>{" "}
+                                    {event.price.toFixed(2)} €
+                                  </span>
+                                )}
+                                {event.max_participants && (
+                                  <span>
+                                    <strong>Max. Teilnehmer:</strong>{" "}
+                                    {event.max_participants}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-4 flex flex-col gap-2">
+                              <Link
+                                href={`/event/${event.event_id}/bearbeiten`}
+                                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                              >
+                                Bearbeiten
+                              </Link>
+                              <Link
+                                href={`/events/${event.slug}`}
+                                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                              >
+                                Vorschau →
+                              </Link>
+                              <button
+                                onClick={() =>
+                                  toggleEventStatus(
+                                    event.event_id,
+                                    event.active
+                                  )
+                                }
+                                className={`text-sm font-medium ${
+                                  event.active === 1
+                                    ? "text-red-600 hover:text-red-800"
+                                    : "text-green-600 hover:text-green-800"
+                                }`}
+                              >
+                                {event.active === 1
+                                  ? "Deaktivieren"
+                                  : "Aktivieren"}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  deleteEvent(event.event_id, event.event_name)
+                                }
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Löschen
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
-              ))}
-            </div>
+              );
+            })()
           )}
         </div>
       </div>

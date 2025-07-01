@@ -29,11 +29,14 @@ export default function EventsPage() {
         if (response.ok) {
           const data = await response.json();
           // Filter out past events - only show future events
+          // Normalize dates to UTC for consistent comparison
+          const todayUTC = new Date();
+          todayUTC.setUTCHours(0, 0, 0, 0);
+
           const futureEvents = data.events.filter((event: Event) => {
             const eventDate = new Date(event.start_date);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
-            return eventDate >= today;
+            eventDate.setUTCHours(0, 0, 0, 0); // Normalize to UTC
+            return eventDate >= todayUTC;
           });
           setEvents(futureEvents);
         } else {
