@@ -456,44 +456,50 @@ export default function InternPage() {
                             )}
                           </div>
                         </div>
-                        <div className="ml-4 flex flex-col gap-2">
-                          <Link
-                            href={`/kurs/${course.course_id}/bearbeiten`}
-                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                          >
-                            Bearbeiten
-                          </Link>
-                          <Link
-                            href={`/kurse/${course.slug}`}
-                            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                          >
-                            Vorschau →
-                          </Link>
-                          <button
-                            onClick={() =>
-                              toggleCourseStatus(
-                                course.course_id,
-                                course.active
-                              )
-                            }
-                            className={`text-sm font-medium ${
-                              course.active === 1
-                                ? "text-red-600 hover:text-red-800"
-                                : "text-green-600 hover:text-green-800"
-                            }`}
-                          >
-                            {course.active === 1
-                              ? "Deaktivieren"
-                              : "Aktivieren"}
-                          </button>
-                          <button
-                            onClick={() =>
-                              deleteCourse(course.course_id, course.course_name)
-                            }
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                          >
-                            Löschen
-                          </button>
+                        <div className="ml-4 flex flex-col gap-3">
+                          {/* Primary Actions */}
+                          <div className="flex flex-col gap-1">
+                            <Link
+                              href={`/kurs/${course.course_id}/bearbeiten`}
+                              className="px-4 py-2 text-white rounded-lg transition-colors bg-black text-white rounded-lg hover:bg-gray-900 text-center"
+                            >
+                              Bearbeiten
+                            </Link>
+                            <Link
+                              href={`/kurse/${course.slug}`}
+                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                            >
+                              Vorschau
+                            </Link>
+                          </div>
+
+                          {/* Secondary Actions */}
+                          <div className="flex flex-col gap-1 pt-2 border-t border-gray-200">
+                            <button
+                              onClick={() =>
+                                toggleCourseStatus(
+                                  course.course_id,
+                                  course.active
+                                )
+                              }
+                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                              {course.active === 1
+                                ? "Deaktivieren"
+                                : "Aktivieren"}
+                            </button>
+                            <button
+                              onClick={() =>
+                                deleteCourse(
+                                  course.course_id,
+                                  course.course_name
+                                )
+                              }
+                              className="px-4 py-2 border border-gray-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                            >
+                              Löschen
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -654,44 +660,50 @@ export default function InternPage() {
                                 )}
                               </div>
                             </div>
-                            <div className="ml-4 flex flex-col gap-2">
-                              <Link
-                                href={`/event/${event.event_id}/bearbeiten`}
-                                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                              >
-                                Bearbeiten
-                              </Link>
-                              <Link
-                                href={`/events/${event.slug}`}
-                                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                              >
-                                Vorschau →
-                              </Link>
-                              <button
-                                onClick={() =>
-                                  toggleEventStatus(
-                                    event.event_id,
-                                    event.active
-                                  )
-                                }
-                                className={`text-sm font-medium ${
-                                  event.active === 1
-                                    ? "text-red-600 hover:text-red-800"
-                                    : "text-green-600 hover:text-green-800"
-                                }`}
-                              >
-                                {event.active === 1
-                                  ? "Deaktivieren"
-                                  : "Aktivieren"}
-                              </button>
-                              <button
-                                onClick={() =>
-                                  deleteEvent(event.event_id, event.event_name)
-                                }
-                                className="text-red-600 hover:text-red-800 text-sm font-medium"
-                              >
-                                Löschen
-                              </button>
+                            <div className="ml-4 flex flex-col gap-3">
+                              {/* Primary Actions */}
+                              <div className="flex flex-col gap-1">
+                                <Link
+                                  href={`/event/${event.event_id}/bearbeiten`}
+                                  className="px-4 py-2 text-white rounded-lg transition-colors bg-black text-white rounded-lg hover:bg-gray-900 text-center"
+                                >
+                                  Bearbeiten
+                                </Link>
+                                <Link
+                                  href={`/events/${event.slug}`}
+                                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                >
+                                  Vorschau
+                                </Link>
+                              </div>
+
+                              {/* Secondary Actions */}
+                              <div className="flex flex-col gap-1 pt-2 border-t border-gray-200">
+                                <button
+                                  onClick={() =>
+                                    toggleEventStatus(
+                                      event.event_id,
+                                      event.active
+                                    )
+                                  }
+                                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                  {event.active === 1
+                                    ? "Deaktivieren"
+                                    : "Aktivieren"}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    deleteEvent(
+                                      event.event_id,
+                                      event.event_name
+                                    )
+                                  }
+                                  className="px-4 py-2 border border-gray-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                                >
+                                  Löschen
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>

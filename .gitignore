@@ -39,3 +39,5 @@ next-env.d.ts
 *.db
 *.sqlite
 *.sqlite3
+
+cypress/screenshots/
