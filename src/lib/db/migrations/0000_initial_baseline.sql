@@ -9,3 +9,4 @@
 -- topics_slug_unique, Trainers_email_unique, users_email_unique
 
 -- This migration serves as a baseline for future schema changes
+SELECT 1;
