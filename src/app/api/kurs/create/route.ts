@@ -26,6 +26,11 @@ export async function POST(request: NextRequest) {
       location,
       style,
       level,
+      is_online,
+      is_in_person,
+      online_url,
+      online_platform,
+      online_instructions,
     } = data;
 
     // Validate required fields
@@ -40,6 +45,31 @@ export async function POST(request: NextRequest) {
     if (!trainer_id) {
       return NextResponse.json(
         { error: "Trainer-ID konnte nicht ermittelt werden" },
+        { status: 400 }
+      );
+    }
+
+    // Validate delivery mode flags
+    const isOnline = is_online === 1 || is_online === "1";
+    const isInPerson = is_in_person === 1 || is_in_person === "1";
+
+    if (!isOnline && !isInPerson) {
+      return NextResponse.json(
+        { error: "Kurs muss mindestens eine Veranstaltungsart unterstützen" },
+        { status: 400 }
+      );
+    }
+
+    if (isOnline && !online_url) {
+      return NextResponse.json(
+        { error: "Online-URL ist für Online-Kurse erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    if (isInPerson && (!city_slug || !city_id)) {
+      return NextResponse.json(
+        { error: "Standort ist für Präsenz-Kurse erforderlich" },
         { status: 400 }
       );
     }
@@ -70,6 +100,11 @@ export async function POST(request: NextRequest) {
         location,
         style,
         level,
+        isOnline: isOnline ? 1 : 0,
+        isInPerson: isInPerson ? 1 : 0,
+        onlineUrl: online_url || null,
+        onlinePlatform: online_platform || null,
+        onlineInstructions: online_instructions || null,
       })
       .returning({ courseId: courses.courseId });
 

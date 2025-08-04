@@ -56,12 +56,12 @@ const Header = () => {
             >
               Lehrer
             </a>
-            <a
+            {/* <a
               href="/studios"
               className="text-gray-700 hover:text-gray-900 transition"
             >
               Studios
-            </a>
+            </a> */}
           </nav>
 
           {/* Search Field */}

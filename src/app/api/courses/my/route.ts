@@ -25,22 +25,27 @@ export async function GET() {
       return NextResponse.json({ courses: [] });
     }
 
-    // Get all courses for this trainer
+    // Get all courses for this trainer with enrollment counts
     const coursesStmt = db.prepare(`
       SELECT
-        c.course_id,
-        c.course_name,
+        c.course_id as courseId,
+        c.course_name as courseName,
+        c.trainer_id as trainerId,
         c.description,
-        c.start_date,
-        c.end_date,
+        c.start_date as startDate,
+        c.end_date as endDate,
         c.city_slug,
         c.slug,
         c.active,
+        c.price,
+        c.max_capacity as maxCapacity,
+        c.current_enrollments as currentEnrollments,
         t.first_name,
-        t.last_name
+        t.last_name,
+        (t.first_name || ' ' || t.last_name) as trainerName
       FROM Courses c
       JOIN Trainers t ON c.trainer_id = t.trainer_id
-      WHERE c.trainer_id = ?
+      WHERE c.trainer_id = ? AND c.active = 1
       ORDER BY c.start_date DESC
     `);
 

@@ -21,6 +21,11 @@ export async function POST(request: NextRequest) {
       city_id,
       max_participants,
       price,
+      is_online,
+      is_in_person,
+      online_url,
+      online_platform,
+      online_instructions,
     } = data;
 
     // Validate required fields
@@ -35,6 +40,31 @@ export async function POST(request: NextRequest) {
     if (!trainer_id) {
       return NextResponse.json(
         { error: "Trainer-ID konnte nicht ermittelt werden" },
+        { status: 400 }
+      );
+    }
+
+    // Validate delivery mode flags
+    const isOnline = is_online === 1 || is_online === "1";
+    const isInPerson = is_in_person === 1 || is_in_person === "1";
+
+    if (!isOnline && !isInPerson) {
+      return NextResponse.json(
+        { error: "Event muss mindestens eine Veranstaltungsart unterstützen" },
+        { status: 400 }
+      );
+    }
+
+    if (isOnline && !online_url) {
+      return NextResponse.json(
+        { error: "Online-URL ist für Online-Events erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    if (isInPerson && (!city_slug || !city_id)) {
+      return NextResponse.json(
+        { error: "Standort ist für Präsenz-Events erforderlich" },
         { status: 400 }
       );
     }
@@ -79,9 +109,14 @@ export async function POST(request: NextRequest) {
         city_id,
         active,
         max_participants,
-        price
+        price,
+        is_online,
+        is_in_person,
+        online_url,
+        online_platform,
+        online_instructions
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING event_id
     `);
 
@@ -96,7 +131,12 @@ export async function POST(request: NextRequest) {
       city_id,
       1, // Set new events as active by default
       max_participants,
-      price
+      price,
+      isOnline ? 1 : 0,
+      isInPerson ? 1 : 0,
+      online_url || null,
+      online_platform || null,
+      online_instructions || null
     ) as { event_id: number };
 
     return NextResponse.json(

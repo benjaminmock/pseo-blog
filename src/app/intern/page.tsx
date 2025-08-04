@@ -339,6 +339,82 @@ export default function InternPage() {
           </Link>
         </div>
 
+        {/* Participant Management Section - Only for Teachers */}
+        {user?.role === "teacher" && (
+          <div className="mt-8">
+            <h2 className="text-xl font-medium text-gray-900 mb-4">
+              Teilnehmer-Verwaltung
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link
+                href="/intern/participants"
+                className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Teilnehmer
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Verwalte alle Kursteilnehmer
+                    </p>
+                  </div>
+                  <span className="text-indigo-900">→</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/intern/enrollments"
+                className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Anmeldungen
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Kursanmeldungen verwalten
+                    </p>
+                  </div>
+                  <span className="text-indigo-900">→</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/intern/attendance"
+                className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Anwesenheit
+                    </h3>
+                    <p className="text-sm text-gray-600">Teilnahme erfassen</p>
+                  </div>
+                  <span className="text-indigo-900">→</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/intern/payments"
+                className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Zahlungen
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Rechnungen & Zahlungen
+                    </p>
+                  </div>
+                  <span className="text-indigo-900">→</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Courses Section */}
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">

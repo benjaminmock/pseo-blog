@@ -17,9 +17,7 @@ async function initializeConfig() {
 export async function generateMetadata() {
   await initializeConfig();
   return {
-    title:
-      metadata?.title ||
-      "Yoga-Kurse in deiner Nähe finden und buchen | YogaConnect",
+    title: metadata?.title || "Yoga-Kurse in deiner Nähe finden und buchen",
     description:
       metadata?.description ||
       "Verbinde dich mit zertifizierten Yoga-Lehrern und entdecke Kurse für alle Level. Buche Yoga-Kurse online und starte deine Wellness-Reise heute.",

@@ -174,3 +174,7 @@ https://www.linkedin.com/mypreferences/d/data-sharing-for-permitted-services -> 
 ## Marketing
 
 - Linkedin: https://www.linkedin.com/search/results/people/?geoUrn=%5B%22101282230%22%5D&keywords=yoga&origin=FACETED_SEARCH&sid=-RB
+
+### sparring
+
+Nick Mulder out LinkedIn
