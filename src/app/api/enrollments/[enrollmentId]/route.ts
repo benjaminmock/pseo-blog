@@ -55,7 +55,33 @@ export async function GET(
       WHERE ce.enrollment_id = ?
     `);
 
-    const rawEnrollment = enrollmentStmt.get(enrollmentId) as any;
+    const rawEnrollment = enrollmentStmt.get(enrollmentId) as
+      | {
+          enrollment_id: number;
+          participant_id: number;
+          course_id: number;
+          enrollment_date: string;
+          status: string;
+          payment_status: string;
+          total_amount: number | null;
+          paid_amount: number;
+          notes: string | null;
+          enrolled_by: number | null;
+          full_name: string;
+          email: string;
+          phone_number: string | null;
+          emergency_contact: string | null;
+          emergency_phone: string | null;
+          medical_notes: string | null;
+          course_name: string;
+          start_date: string;
+          end_date: string;
+          description: string | null;
+          price: number | null;
+          trainer_first_name: string | null;
+          trainer_last_name: string | null;
+        }
+      | undefined;
 
     if (!rawEnrollment) {
       return NextResponse.json(

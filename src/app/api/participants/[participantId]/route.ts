@@ -43,7 +43,24 @@ export async function GET(
       WHERE participant_id = ?
     `);
 
-    const rawParticipant = participantStmt.get(participantId) as any;
+    const rawParticipant = participantStmt.get(participantId) as
+      | {
+          participant_id: number;
+          user_id: number | null;
+          full_name: string;
+          email: string;
+          phone_number: string | null;
+          emergency_contact: string | null;
+          emergency_phone: string | null;
+          medical_notes: string | null;
+          date_of_birth: string | null;
+          address: string | null;
+          city: string | null;
+          postal_code: string | null;
+          created_at: string;
+          updated_at: string;
+        }
+      | undefined;
 
     if (!rawParticipant) {
       return NextResponse.json(
@@ -90,7 +107,19 @@ export async function GET(
       ORDER BY ce.enrollment_date DESC
     `);
 
-    const rawEnrollments = enrollmentsStmt.all(participantId) as any[];
+    const rawEnrollments = enrollmentsStmt.all(participantId) as {
+      enrollment_id: number;
+      course_id: number;
+      enrollment_date: string;
+      status: string;
+      payment_status: string;
+      total_amount: number | null;
+      paid_amount: number;
+      notes: string | null;
+      course_name: string;
+      start_date: string;
+      end_date: string;
+    }[];
     const enrollments = rawEnrollments.map((e) => ({
       enrollmentId: e.enrollment_id,
       courseId: e.course_id,
@@ -125,7 +154,19 @@ export async function GET(
       ORDER BY er.registration_date DESC
     `);
 
-    const rawRegistrations = registrationsStmt.all(participantId) as any[];
+    const rawRegistrations = registrationsStmt.all(participantId) as {
+      registration_id: number;
+      event_id: number;
+      registration_date: string;
+      status: string;
+      payment_status: string;
+      total_amount: number | null;
+      paid_amount: number;
+      notes: string | null;
+      event_name: string;
+      start_date: string;
+      start_time: string | null;
+    }[];
     const registrations = rawRegistrations.map((r) => ({
       registrationId: r.registration_id,
       eventId: r.event_id,
@@ -161,7 +202,19 @@ export async function GET(
       ORDER BY ar.session_date DESC
     `);
 
-    const rawAttendance = attendanceStmt.all(participantId) as any[];
+    const rawAttendance = attendanceStmt.all(participantId) as {
+      attendance_id: number;
+      course_id: number | null;
+      event_id: number | null;
+      session_date: string;
+      session_number: number | null;
+      attended: number;
+      check_in_time: string | null;
+      notes: string | null;
+      recorded_at: string;
+      course_name: string | null;
+      event_name: string | null;
+    }[];
     const attendance = rawAttendance.map((a) => ({
       attendanceId: a.attendance_id,
       courseId: a.course_id,
@@ -198,7 +251,20 @@ export async function GET(
       ORDER BY p.created_at DESC
     `);
 
-    const rawPayments = paymentsStmt.all(participantId) as any[];
+    const rawPayments = paymentsStmt.all(participantId) as {
+      payment_id: number;
+      participant_id: number;
+      course_id: number | null;
+      event_id: number | null;
+      amount: number;
+      payment_method: string;
+      status: string;
+      paid_at: string | null;
+      created_at: string;
+      notes: string | null;
+      course_name: string | null;
+      event_name: string | null;
+    }[];
     const payments = rawPayments.map((p) => ({
       paymentId: p.payment_id,
       participantId: p.participant_id,

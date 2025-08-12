@@ -74,7 +74,49 @@ export async function GET(
       WHERE pay.payment_id = ?
     `);
 
-    const rawPayment = paymentStmt.get(paymentId) as any;
+    const rawPayment = paymentStmt.get(paymentId) as
+      | {
+          payment_id: number;
+          participant_id: number;
+          course_id: number | null;
+          event_id: number | null;
+          enrollment_id: number | null;
+          registration_id: number | null;
+          amount: number;
+          currency: string;
+          payment_method: string;
+          status: string;
+          transaction_id: string | null;
+          stripe_payment_intent_id: string | null;
+          paid_at: string | null;
+          refunded_at: string | null;
+          refund_amount: number | null;
+          created_at: string;
+          notes: string | null;
+          processed_by: number | null;
+          full_name: string;
+          email: string;
+          phone_number: string | null;
+          emergency_contact: string | null;
+          emergency_phone: string | null;
+          medical_notes: string | null;
+          course_name: string | null;
+          course_start_date: string | null;
+          course_end_date: string | null;
+          course_description: string | null;
+          course_price: number | null;
+          event_name: string | null;
+          event_date: string | null;
+          event_description: string | null;
+          event_price: number | null;
+          processor_first_name: string | null;
+          processor_last_name: string | null;
+          enrollment_date: string | null;
+          enrollment_status: string | null;
+          registration_date: string | null;
+          registration_status: string | null;
+        }
+      | undefined;
 
     if (!rawPayment) {
       return NextResponse.json(

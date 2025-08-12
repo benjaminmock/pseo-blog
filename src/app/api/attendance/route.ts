@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     // Build WHERE clause
     let whereClause = "WHERE 1=1";
-    let queryParams: (string | number)[] = [];
+    const queryParams: (string | number)[] = [];
 
     if (courseId) {
       whereClause += " AND ar.course_id = ?";
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
 
     // Check if attendance record already exists for this session
     let existingCheck = "";
-    let existingParams = [participantId, sessionDate];
+    const existingParams = [participantId, sessionDate];
 
     if (courseId) {
       existingCheck =

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function AuthNav() {
   const router = useRouter();
@@ -11,13 +11,6 @@ export default function AuthNav() {
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/login" });
     router.refresh();
-  };
-
-  const handleGoogleSignIn = async () => {
-    await signIn("google", {
-      callbackUrl: window.location.href,
-      redirect: true,
-    });
   };
 
   return (

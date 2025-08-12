@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate unique slug from event name
-    let baseSlug = event_name
+    const baseSlug = event_name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");

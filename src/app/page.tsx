@@ -7,7 +7,6 @@ import HeroSection from "@/components/home/HeroSection";
 import SearchSection from "@/components/home/SearchSection";
 import BenefitsSection from "@/components/home/BenefitsSection";
 import WhyYogaSection from "@/components/home/WhyYogaSection";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
 
 interface Course {
   course_id: number;

@@ -89,7 +89,10 @@ function isTeacher(user: { role?: string } | null) {
 }
 
 // Check if the logged-in user owns this event
-async function isUserEventOwner(event: Event, user: any) {
+async function isUserEventOwner(
+  event: Event,
+  user: { email?: string | null; role?: string } | null
+) {
   if (!user || !isTeacher(user) || !user.email) {
     return false;
   }

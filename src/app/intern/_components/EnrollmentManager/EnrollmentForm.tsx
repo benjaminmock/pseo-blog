@@ -76,7 +76,7 @@ export default function EnrollmentForm({
         }));
       }
     }
-  }, [formData.courseId, courses]);
+  }, [formData.courseId, formData.totalAmount, courses]);
 
   const fetchCourses = async () => {
     try {

@@ -12,9 +12,6 @@ export default function CreateEventForm({ trainerId }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Add state for delivery mode flags
-  const [isOnline, setIsOnline] = useState(false);
-  const [isInPerson, setIsInPerson] = useState(true);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

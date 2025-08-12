@@ -57,7 +57,7 @@ export async function GET() {
       totalRegistrations = totalRegistrationsStmt.get(trainerId) as {
         count: number;
       };
-    } catch (error) {
+    } catch {
       // If event_registrations table doesn't exist, default to 0
       console.log("event_registrations table not found, defaulting to 0");
     }

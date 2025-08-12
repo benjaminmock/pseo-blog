@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     // Build WHERE clause
     let whereClause = "WHERE 1=1";
-    let queryParams: (string | number)[] = [];
+    const queryParams: (string | number)[] = [];
 
     if (eventId) {
       whereClause += " AND er.event_id = ?";

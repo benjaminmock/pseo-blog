@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Build WHERE clause
     let whereClause = "WHERE 1=1";
-    let queryParams: (string | number)[] = [];
+    const queryParams: (string | number)[] = [];
 
     if (participantId) {
       whereClause += " AND pay.participant_id = ?";
@@ -87,10 +87,41 @@ export async function GET(request: NextRequest) {
       LIMIT ? OFFSET ?
     `);
 
-    const rawPayments = paymentsStmt.all(...queryParams, limit, offset);
+    interface RawPayment {
+      payment_id: number;
+      participant_id: number;
+      course_id: number | null;
+      event_id: number | null;
+      enrollment_id: number | null;
+      registration_id: number | null;
+      amount: number;
+      currency: string;
+      payment_method: string;
+      status: string;
+      transaction_id: string | null;
+      stripe_payment_intent_id: string | null;
+      paid_at: string | null;
+      refunded_at: string | null;
+      refund_amount: number | null;
+      created_at: string;
+      notes: string | null;
+      processed_by: number | null;
+      full_name: string;
+      email: string;
+      course_name: string | null;
+      event_name: string | null;
+      processor_first_name: string | null;
+      processor_last_name: string | null;
+    }
+
+    const rawPayments = paymentsStmt.all(
+      ...queryParams,
+      limit,
+      offset
+    ) as RawPayment[];
 
     // Map the database fields to the expected interface
-    const payments = rawPayments.map((payment: any) => ({
+    const payments = rawPayments.map((payment) => ({
       ...payment,
       participantName: payment.full_name,
       participantEmail: payment.email,

@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
-  const [userRole, setUserRole] = useState<"student" | "teacher">("teacher");
+  const [emailSent] = useState(false);
+  const userRole = "teacher"; // Default role since selection is commented out
 
   const handleGoogleSignIn = async () => {
     try {
@@ -42,36 +40,6 @@ export default function LoginPage() {
       await signIn("linkedin", {
         callbackUrl: "/intern", // Redirect to intern page after login
       });
-    } catch {
-      setError(
-        "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setIsLoading(true);
-      setError("");
-
-      // Store the selected role in localStorage before initiating the email sign-in
-      localStorage.setItem("selectedUserRole", userRole);
-
-      const result = await signIn("email", {
-        email,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError(
-          "Ungültige E-Mail-Adresse. Bitte überprüfen Sie Ihre Eingabe."
-        );
-      } else {
-        setEmailSent(true);
-      }
     } catch {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."

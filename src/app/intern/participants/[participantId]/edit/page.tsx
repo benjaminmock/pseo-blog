@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ParticipantForm from "../../../_components/ParticipantManager/ParticipantForm";
@@ -15,13 +15,7 @@ export default function EditParticipantPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (participantId && !isNaN(participantId)) {
-      fetchParticipant();
-    }
-  }, [participantId]);
-
-  const fetchParticipant = async () => {
+  const fetchParticipant = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/participants/${participantId}`);
@@ -44,7 +38,13 @@ export default function EditParticipantPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [participantId]);
+
+  useEffect(() => {
+    if (participantId && !isNaN(participantId)) {
+      fetchParticipant();
+    }
+  }, [participantId, fetchParticipant]);
 
   const handleSuccess = () => {
     router.push(`/intern/participants/${participantId}`);

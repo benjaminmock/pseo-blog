@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 interface PaymentDetails {
@@ -69,7 +69,7 @@ export default function PaymentDetailsPage({
     refundAmount: 0,
   });
 
-  const fetchPaymentDetails = async () => {
+  const fetchPaymentDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/payments/${params.paymentId}`);
@@ -90,11 +90,11 @@ export default function PaymentDetailsPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.paymentId]);
 
   useEffect(() => {
     fetchPaymentDetails();
-  }, [params.paymentId]);
+  }, [fetchPaymentDetails]);
 
   // Redirect if not authenticated or not a teacher
   if (status === "loading") {

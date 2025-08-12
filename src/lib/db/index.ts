@@ -3,8 +3,8 @@ import Database from "better-sqlite3";
 import * as schema from "./schema";
 
 // Get the database path from environment or use default
-const dbPath = process.env.DATABASE_URL || "yoga.db";
-
+const dbPath = /*process.env.DATABASE_URL ||*/ "yoga.db";
+console.log("---", dbPath);
 // Create the SQLite database connection
 const sqlite = new Database(dbPath);
 

@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
         // Check if attendance record already exists
         let existingCheck = "";
-        let existingParams = [participantId, sessionDate];
+        const existingParams = [participantId, sessionDate];
 
         if (courseId) {
           existingCheck =

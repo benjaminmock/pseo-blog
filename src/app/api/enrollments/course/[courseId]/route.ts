@@ -54,10 +54,25 @@ export async function GET(
       ORDER BY ce.enrollment_date ASC
     `);
 
-    const rawEnrollments = enrollmentsStmt.all(courseId);
+    const rawEnrollments = enrollmentsStmt.all(courseId) as {
+      enrollment_id: number;
+      participant_id: number;
+      enrollment_date: string;
+      status: string;
+      payment_status: string;
+      total_amount: number | null;
+      paid_amount: number;
+      notes: string | null;
+      full_name: string;
+      email: string;
+      phone_number: string | null;
+      emergency_contact: string | null;
+      emergency_phone: string | null;
+      medical_notes: string | null;
+    }[];
 
     // Transform the data to match the expected frontend format
-    const enrollments = rawEnrollments.map((enrollment: any) => ({
+    const enrollments = rawEnrollments.map((enrollment) => ({
       enrollmentId: enrollment.enrollment_id,
       participantId: enrollment.participant_id,
       courseId: courseId,

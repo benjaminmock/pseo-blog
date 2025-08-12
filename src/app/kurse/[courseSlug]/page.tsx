@@ -92,7 +92,10 @@ function isTeacher(user: { role?: string } | null) {
 }
 
 // Check if the logged-in user owns this course
-async function isUserCourseOwner(course: Course, user: any) {
+async function isUserCourseOwner(
+  course: Course,
+  user: { email?: string | null; role?: string } | null
+) {
   if (!user || !isTeacher(user) || !user.email) {
     return false;
   }

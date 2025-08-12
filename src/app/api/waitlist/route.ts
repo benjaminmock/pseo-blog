@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // Build WHERE clause
     let whereClause = "WHERE 1=1";
-    let queryParams: (string | number)[] = [];
+    const queryParams: (string | number)[] = [];
 
     if (courseId) {
       whereClause += " AND pw.course_id = ?";

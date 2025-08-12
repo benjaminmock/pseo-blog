@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CourseEnrollment, EventRegistration } from "@/lib/db/schema";
+import { useState, useEffect, useCallback } from "react";
 
 interface AttendanceParticipant {
   participantId: number;
@@ -33,13 +32,8 @@ export default function AttendanceSheet({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectAll, setSelectAll] = useState<0 | 1 | 2>(1);
 
-  useEffect(() => {
-    fetchParticipants();
-  }, [courseId, eventId, sessionDate]);
-
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     try {
       setLoading(true);
       let url = "";
@@ -67,29 +61,42 @@ export default function AttendanceSheet({
         }&sessionDate=${sessionDate}`
       );
 
-      let existingAttendance: any[] = [];
+      let existingAttendance: Array<{
+        participantId: number;
+        attended: number;
+        checkInTime?: string;
+        notes?: string;
+      }> = [];
       if (attendanceResponse.ok) {
         const attendanceData = await attendanceResponse.json();
         existingAttendance = attendanceData.attendance || [];
       }
 
       const participantList: AttendanceParticipant[] =
-        enrollmentsOrRegistrations.map((item: any) => {
-          const existing = existingAttendance.find(
-            (att: any) => att.participantId === item.participantId
-          );
+        enrollmentsOrRegistrations.map(
+          (item: {
+            participantId: number;
+            participantName: string;
+            participantEmail: string;
+            enrollmentId?: number;
+            registrationId?: number;
+          }) => {
+            const existing = existingAttendance.find(
+              (att) => att.participantId === item.participantId
+            );
 
-          return {
-            participantId: item.participantId,
-            fullName: item.participantName,
-            email: item.participantEmail,
-            enrollmentId: courseId ? item.enrollmentId : undefined,
-            registrationId: eventId ? item.registrationId : undefined,
-            attended: existing?.attended || 0,
-            checkInTime: existing?.checkInTime || "",
-            notes: existing?.notes || "",
-          };
-        });
+            return {
+              participantId: item.participantId,
+              fullName: item.participantName,
+              email: item.participantEmail,
+              enrollmentId: courseId ? item.enrollmentId : undefined,
+              registrationId: eventId ? item.registrationId : undefined,
+              attended: existing?.attended || 0,
+              checkInTime: existing?.checkInTime || "",
+              notes: existing?.notes || "",
+            };
+          }
+        );
 
       setParticipants(participantList);
     } catch (err) {
@@ -97,12 +104,16 @@ export default function AttendanceSheet({
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, eventId, sessionDate]);
+
+  useEffect(() => {
+    fetchParticipants();
+  }, [fetchParticipants]);
 
   const updateAttendance = (
     participantId: number,
     field: keyof AttendanceParticipant,
-    value: any
+    value: string | number
   ) => {
     setParticipants((prev) =>
       prev.map((p) =>
@@ -112,7 +123,6 @@ export default function AttendanceSheet({
   };
 
   const handleSelectAll = (status: 0 | 1 | 2) => {
-    setSelectAll(status);
     const currentTime = new Date().toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",

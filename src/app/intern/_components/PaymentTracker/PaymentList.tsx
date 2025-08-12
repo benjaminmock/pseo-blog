@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Payment } from "@/lib/db/schema";
 
@@ -28,11 +28,7 @@ export default function PaymentList({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchPayments();
-  }, [participantId, courseId, eventId]);
-
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
       setLoading(true);
       let url = "/api/payments";
@@ -58,7 +54,11 @@ export default function PaymentList({
     } finally {
       setLoading(false);
     }
-  };
+  }, [participantId, courseId, eventId]);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
 
   const updatePaymentStatus = async (paymentId: number, status: string) => {
     try {

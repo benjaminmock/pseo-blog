@@ -62,7 +62,22 @@ export async function GET(request: NextRequest) {
       ...searchParams_sql,
       limit,
       offset
-    ) as any[];
+    ) as {
+      participant_id: number;
+      user_id: number | null;
+      full_name: string;
+      email: string;
+      phone_number: string | null;
+      emergency_contact: string | null;
+      emergency_phone: string | null;
+      medical_notes: string | null;
+      date_of_birth: string | null;
+      address: string | null;
+      city: string | null;
+      postal_code: string | null;
+      created_at: string;
+      updated_at: string;
+    }[];
 
     // Transform snake_case database fields to camelCase for frontend
     const participants = rawParticipants.map((p) => ({

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Build WHERE clause - only show enrollments for courses owned by this trainer
     let whereClause = "WHERE c.trainer_id = ?";
-    let queryParams: (string | number)[] = [trainerResult.trainer_id];
+    const queryParams: (string | number)[] = [trainerResult.trainer_id];
 
     if (courseId) {
       whereClause += " AND ce.course_id = ?";
@@ -79,10 +79,35 @@ export async function GET(request: NextRequest) {
       LIMIT ? OFFSET ?
     `);
 
-    const rawEnrollments = enrollmentsStmt.all(...queryParams, limit, offset);
+    interface RawEnrollment {
+      enrollment_id: number;
+      participant_id: number;
+      course_id: number;
+      enrollment_date: string;
+      status: string;
+      payment_status: string;
+      total_amount: number | null;
+      paid_amount: number | null;
+      notes: string | null;
+      enrolled_by: number | null;
+      full_name: string;
+      email: string;
+      phone_number: string | null;
+      course_name: string;
+      start_date: string;
+      end_date: string;
+      trainer_first_name: string | null;
+      trainer_last_name: string | null;
+    }
+
+    const rawEnrollments = enrollmentsStmt.all(
+      ...queryParams,
+      limit,
+      offset
+    ) as RawEnrollment[];
 
     // Transform the data to match the expected frontend format
-    const enrollments = rawEnrollments.map((enrollment: any) => ({
+    const enrollments = rawEnrollments.map((enrollment) => ({
       enrollmentId: enrollment.enrollment_id,
       participantId: enrollment.participant_id,
       courseId: enrollment.course_id,

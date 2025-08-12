@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import PaymentForm from "../../_components/PaymentTracker/PaymentForm";
 
-export default function NewPaymentPage() {
+function NewPaymentContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,5 +67,15 @@ export default function NewPaymentPage() {
         onCancel={handleFormCancel}
       />
     </main>
+  );
+}
+
+export default function NewPaymentPage() {
+  return (
+    <Suspense
+      fallback={<div className="max-w-6xl mx-auto p-6">Loading...</div>}
+    >
+      <NewPaymentContent />
+    </Suspense>
   );
 }

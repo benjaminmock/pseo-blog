@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 interface EnrollmentDetails {
@@ -49,20 +49,7 @@ export default function EnrollmentDetailsPage({
     notes: "",
   });
 
-  // Redirect if not authenticated or not a teacher
-  if (status === "loading") {
-    return <div className="max-w-4xl mx-auto p-6">Loading...</div>;
-  }
-
-  if (status === "unauthenticated" || session?.user?.role !== "teacher") {
-    redirect("/login");
-  }
-
-  useEffect(() => {
-    fetchEnrollmentDetails();
-  }, [params.enrollmentId]);
-
-  const fetchEnrollmentDetails = async () => {
+  const fetchEnrollmentDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/enrollments/${params.enrollmentId}`);
@@ -83,7 +70,20 @@ export default function EnrollmentDetailsPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.enrollmentId]);
+
+  useEffect(() => {
+    fetchEnrollmentDetails();
+  }, [fetchEnrollmentDetails]);
+
+  // Redirect if not authenticated or not a teacher
+  if (status === "loading") {
+    return <div className="max-w-4xl mx-auto p-6">Loading...</div>;
+  }
+
+  if (status === "unauthenticated" || session?.user?.role !== "teacher") {
+    redirect("/login");
+  }
 
   const handleSave = async () => {
     try {

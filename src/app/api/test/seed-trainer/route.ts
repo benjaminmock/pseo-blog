@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { email, firstName = "Test", lastName = "Teacher", trainerId } = body;
+    const { email, firstName = "Test", lastName = "Teacher" } = body;
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });

@@ -17,9 +17,7 @@ interface PaginationInfo {
   totalPages: number;
 }
 
-interface ParticipantListProps {}
-
-export default function ParticipantList({}: ParticipantListProps = {}) {
+export default function ParticipantList() {
   const [participants, setParticipants] = useState<ParticipantWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -106,14 +104,14 @@ export default function ParticipantList({}: ParticipantListProps = {}) {
   // Fetch participants when search term, sort, or pagination changes
   useEffect(() => {
     fetchParticipants();
-  }, [debouncedSearchTerm, sortBy, sortOrder]);
+  }, [debouncedSearchTerm, sortBy, sortOrder, fetchParticipants]);
 
   // Handle pagination changes separately to avoid circular dependencies
   useEffect(() => {
     if (!isInitialLoad) {
       fetchParticipants();
     }
-  }, [pagination.page, pagination.limit]);
+  }, [pagination.page, pagination.limit, fetchParticipants, isInitialLoad]);
 
   const handleSortChange = (
     newSortBy: "full_name" | "email" | "created_at"

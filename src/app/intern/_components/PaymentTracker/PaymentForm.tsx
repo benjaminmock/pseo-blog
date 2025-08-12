@@ -75,8 +75,6 @@ export default function PaymentForm({
   const [loadingParticipants, setLoadingParticipants] = useState(
     !participantId
   );
-  const [loadingCourses, setLoadingCourses] = useState(!courseId);
-  const [loadingEvents, setLoadingEvents] = useState(!eventId);
 
   const [formData, setFormData] = useState({
     participantId: participantId ? participantId.toString() : "",
@@ -166,6 +164,7 @@ export default function PaymentForm({
     formData.registrationId,
     formData.courseId,
     formData.eventId,
+    formData.amount,
     enrollments,
     registrations,
     courses,
@@ -189,7 +188,6 @@ export default function PaymentForm({
 
   const fetchCourses = async () => {
     try {
-      setLoadingCourses(true);
       const response = await fetch("/api/courses/my");
       if (response.ok) {
         const data = await response.json();
@@ -197,14 +195,11 @@ export default function PaymentForm({
       }
     } catch (err) {
       console.error("Error fetching courses:", err);
-    } finally {
-      setLoadingCourses(false);
     }
   };
 
   const fetchEvents = async () => {
     try {
-      setLoadingEvents(true);
       const response = await fetch("/api/events/my");
       if (response.ok) {
         const data = await response.json();
@@ -212,8 +207,6 @@ export default function PaymentForm({
       }
     } catch (err) {
       console.error("Error fetching events:", err);
-    } finally {
-      setLoadingEvents(false);
     }
   };
 
@@ -343,7 +336,7 @@ export default function PaymentForm({
         throw new Error(errorData.error || "Ein Fehler ist aufgetreten");
       }
 
-      const result = await response.json();
+      await response.json();
 
       if (onSuccess) {
         onSuccess();

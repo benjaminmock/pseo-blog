@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       trainer_id
     );
 
-    const response: any = {
+    const response: { message: string; newSlug?: string } = {
       message: "Trainer information updated successfully",
     };
     if (newSlug) {

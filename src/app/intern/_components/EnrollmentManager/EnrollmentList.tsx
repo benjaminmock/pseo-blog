@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { CourseEnrollment } from "@/lib/db/schema";
 
@@ -36,15 +36,7 @@ export default function EnrollmentList({
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [courseFilter, setCourseFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchEnrollments();
-    // Only fetch courses if we're not filtering by a specific course
-    if (!courseId) {
-      fetchCourses();
-    }
-  }, [courseId, participantId]);
-
-  const fetchEnrollments = async () => {
+  const fetchEnrollments = useCallback(async () => {
     try {
       setLoading(true);
       let url = "/api/enrollments";
@@ -66,7 +58,15 @@ export default function EnrollmentList({
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, participantId]);
+
+  useEffect(() => {
+    fetchEnrollments();
+    // Only fetch courses if we're not filtering by a specific course
+    if (!courseId) {
+      fetchCourses();
+    }
+  }, [courseId, participantId, fetchEnrollments]);
 
   const fetchCourses = async () => {
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Participant,
@@ -52,11 +52,7 @@ export default function ParticipantDetails({
     "overview" | "enrollments" | "payments" | "attendance"
   >("overview");
 
-  useEffect(() => {
-    fetchParticipantDetails();
-  }, [participantId]);
-
-  const fetchParticipantDetails = async () => {
+  const fetchParticipantDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/participants/${participantId}`);
@@ -68,18 +64,19 @@ export default function ParticipantDetails({
       // Calculate additional metrics
       const totalPaidFromPayments =
         data.payments?.reduce(
-          (sum: number, payment: any) =>
+          (sum: number, payment: { status: string; amount: number }) =>
             sum + (payment.status === "completed" ? payment.amount || 0 : 0),
           0
         ) || 0;
 
       const totalOwed =
         data.enrollments.reduce(
-          (sum: number, enrollment: any) => sum + (enrollment.totalAmount || 0),
+          (sum: number, enrollment: { totalAmount?: number }) =>
+            sum + (enrollment.totalAmount || 0),
           0
         ) +
         (data.registrations?.reduce(
-          (sum: number, registration: any) =>
+          (sum: number, registration: { totalAmount?: number }) =>
             sum + (registration.totalAmount || 0),
           0
         ) || 0);
@@ -89,7 +86,8 @@ export default function ParticipantDetails({
       // Calculate attendance rate
       const totalSessions = data.attendance?.length || 0;
       const attendedSessions =
-        data.attendance?.filter((a: any) => a.attended).length || 0;
+        data.attendance?.filter((a: { attended: boolean }) => a.attended)
+          .length || 0;
       const attendanceRate =
         totalSessions > 0 ? (attendedSessions / totalSessions) * 100 : 0;
 
@@ -110,7 +108,11 @@ export default function ParticipantDetails({
     } finally {
       setLoading(false);
     }
-  };
+  }, [participantId]);
+
+  useEffect(() => {
+    fetchParticipantDetails();
+  }, [fetchParticipantDetails]);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("de-DE");
