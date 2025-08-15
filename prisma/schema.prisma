@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./database.sqlite"
+  url      = "file:./yoga.db"
 }
 
 model User {
