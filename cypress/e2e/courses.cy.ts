@@ -226,3 +226,91 @@ describe("Course Navigation Flow", () => {
     cy.contains("Unsere Yoga Kurse").should("be.visible");
   });
 });
+
+describe("Course Creation to Public Display Integration", () => {
+  const teacherEmail = "integration-teacher@example.com";
+
+  before(() => {
+    // Create a teacher account for integration tests
+    cy.seedTrainer(teacherEmail, "Integration", "Teacher");
+  });
+
+  beforeEach(() => {
+    // Log in as teacher
+    cy.loginViaAPI({
+      email: teacherEmail,
+      name: "Integration Teacher",
+      role: "teacher",
+    });
+  });
+
+  it("should create a course and verify it appears in public listing", () => {
+    const courseName = "Integration Test Course " + Date.now();
+    const description = "Course created for integration testing";
+
+    // Step 1: Create the course
+    cy.visit("/kurs/neu");
+    cy.get('input[name="course_name"]').type(courseName);
+    cy.get('textarea[name="description"]').type(description);
+    cy.get('input[name="start_date"]').type("2025-12-01");
+    cy.get('input[name="end_date"]').type("2025-12-31");
+    cy.get('button[type="submit"]').click();
+
+    // Step 2: Verify redirect to course detail page
+    cy.url().should("include", "/kurse/");
+    cy.contains(courseName).should("be.visible");
+
+    // Step 3: Navigate to public courses page
+    cy.visit("/kurse");
+
+    // Step 4: Verify course appears in public listing
+    cy.contains(courseName).should("be.visible");
+    cy.contains(description).should("be.visible");
+    cy.contains("mit Integration Teacher").should("be.visible");
+    cy.contains("01.12.2025").should("be.visible");
+
+    // Step 5: Click on the course to view details
+    cy.contains(courseName).parents("a").click();
+
+    // Step 6: Verify course detail page shows all information
+    cy.url().should("include", "/kurse/");
+    cy.contains(courseName).should("be.visible");
+    cy.contains(description).should("be.visible");
+    cy.contains("Integration Teacher").should("be.visible");
+    cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+    cy.contains("Zeitraum").should("be.visible");
+  });
+
+  it("should handle the complete workflow from creation to navigation", () => {
+    const courseName = "Workflow Course " + Date.now();
+
+    // Create course
+    cy.visit("/kurs/neu");
+    cy.get('input[name="course_name"]').type(courseName);
+    cy.get('input[name="start_date"]').type("2025-10-15");
+    cy.get('button[type="submit"]').click();
+
+    // Verify creation success
+    cy.contains(courseName).should("be.visible");
+
+    // Navigate back to courses overview using back link
+    cy.contains("← Zurück zur Kursübersicht").click();
+
+    // Verify we're on courses page and course is listed
+    cy.url().should("match", /\/kurse\/?$/);
+    cy.contains("Unsere Yoga Kurse").should("be.visible");
+    cy.contains(courseName).should("be.visible");
+
+    // Navigate to course detail again
+    cy.contains(courseName).parents("a").click();
+
+    // Verify navigation worked
+    cy.url().should("include", "/kurse/");
+    cy.contains(courseName).should("be.visible");
+  });
+
+  after(() => {
+    // Clean up test data
+    cy.cleanupTrainer(teacherEmail);
+  });
+});

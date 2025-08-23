@@ -2,6 +2,13 @@ import { db } from "@/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import dynamic from "next/dynamic";
+
+// Dynamically import the GuestPaymentForm to avoid SSR issues with Stripe
+const GuestPaymentForm = dynamic(
+  () => import("@/components/GuestPaymentForm"),
+  { ssr: false }
+);
 
 type EventPageProps = {
   params: {
@@ -162,6 +169,9 @@ export default async function EventPage({ params }: EventPageProps) {
   const userOwnsThisEvent = await isUserEventOwner(event, user);
   const eventInPast = isEventInPast(event.start_date);
 
+  // Show payment form if event has a price, is not in the past, and user doesn't own it
+  const showPaymentForm = event.price && event.price > 0 && !eventInPast && !userOwnsThisEvent;
+
   return (
     <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
@@ -265,6 +275,22 @@ export default async function EventPage({ params }: EventPageProps) {
               </div>
             )}
           </div>
+
+          {/* Payment Form Section */}
+          {showPaymentForm && (
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-medium mb-4">Event buchen</h3>
+              <GuestPaymentForm
+                eventId={event.event_id}
+                eventName={event.event_name}
+                price={event.price!}
+                onSuccess={() => {
+                  // Redirect to success page
+                  window.location.href = '/events/payment/success';
+                }}
+              />
+            </div>
+          )}
 
           <div className="mt-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <Link

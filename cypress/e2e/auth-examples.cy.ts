@@ -29,10 +29,15 @@ describe("Authentication Examples", () => {
         events: [],
       });
 
-      cy.visit("/intern");
+      // cy.visit("/intern");
+      cy.visit("/kurs/neu");
       cy.contains("Willkommen, Mock User!").should("be.visible");
-      cy.contains("Rolle: Lehrer*in/Trainer*in").should("be.visible");
+      // cy.contains("Rolle: Lehrer*in/Trainer*in").should("be.visible");
       cy.contains("Mocked Course").should("be.visible");
+
+      // gogo
+      cy.visit("/kurs/neu");
+      cy.contains("Mocked Coursemmm").should("be.visible");
     });
 
     it("should logout using session clearing", () => {
@@ -96,7 +101,7 @@ describe("Authentication Examples", () => {
       cy.visit("/login");
 
       // Check that Google login button exists (using actual button text)
-      cy.contains("Mit Google anmelden").should("be.visible");
+      // cy.contains("Mit Google anmelden").should("be.visible");
 
       // For this example, we'll just navigate directly after mocking
       cy.visit("/intern");

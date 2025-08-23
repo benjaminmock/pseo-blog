@@ -1,40 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
 # IMPROTANT
 
 0. `npm i`
@@ -178,3 +141,98 @@ https://www.linkedin.com/mypreferences/d/data-sharing-for-permitted-services -> 
 ### sparring
 
 Nick Mulder out LinkedIn
+
+URLs
+Pages
+Public Pages
+/ - Home page
+/auth/error - Authentication error page
+/auth/verify-request - Email verification request page
+/events - Events listing page
+/events/[eventSlug] - Individual event details page
+/events/payment/failure - Event payment failure page
+/events/payment/success - Event payment success page
+/impressum - Legal imprint page
+/kurse - Courses listing page
+/kurse/[courseSlug] - Individual course details page
+/login - User login page
+/p/[slug] - City-specific page
+/p/[slug]/[category] - Category page within a city
+/p/[slug]/[category]/add - Add new course page
+/p/[slug]/[category]/add/success - Course addition success page
+/profil - User profile page
+/register - User registration page
+/seite/[page] - Dynamic content pages
+/suche - Search results page
+/t/[slug] - Topic/blog post page
+/trainer/[slug] - Trainer profile page
+Event Management
+/event/neu - Create new event page
+/event/[eventId]/bearbeiten - Edit existing event page
+/events/[eventSlug]/bearbeiten - Edit event page (alternative route)
+Course Management
+/kurs/neu - Create new course page
+/kurs/[courseId]/bearbeiten - Edit existing course page
+Trainer Management
+/trainer/neu - Create new trainer profile page
+Internal Admin Pages
+/intern/attendance - Attendance tracking dashboard
+/intern/enrollments - Enrollment management
+/intern/enrollments/[enrollmentId] - Individual enrollment details
+/intern/enrollments/new - Create new enrollment
+/intern/events - Events management dashboard
+/intern/kurse - Courses management dashboard
+/intern/participants/[participantId]/edit - Edit participant information
+/intern/participants/new - Add new participant
+/intern/payments/[paymentId] - Payment details page
+/intern/payments/new - Create new payment record
+API Routes
+Authentication & User Management
+/api/auth/[...nextauth] - NextAuth.js authentication endpoints
+/api/auth/register - User registration endpoint
+/api/auth/update-role - Update user roles and permissions
+/api/profile/update - Update user profile information
+Content Management
+/api/add - Add new content/courses
+/api/cities - City data management
+/api/hero-image/[slug] - Serve hero images for cities
+/api/search - Search functionality endpoint
+/api/test/seed-trainer - Test data seeding endpoint
+Course Management
+/api/courses/deactivate - Deactivate courses
+/api/courses/delete - Delete courses
+/api/courses/my - Get user's courses
+/api/courses/stats - Course statistics
+/api/courses/update - Update course information
+/api/kurs/create - Create new course
+Event Management
+/api/event/create - Create new event
+/api/events - Events CRUD operations
+/api/events/[eventId]/register - Event registration
+/api/events/deactivate - Deactivate events
+/api/events/delete - Delete events
+/api/events/my - Get user's events
+/api/events/stats - Event statistics
+/api/events/update - Update event information
+Enrollment & Attendance
+/api/attendance - Attendance management
+/api/attendance/bulk - Bulk attendance operations
+/api/enrollments - Enrollment management
+/api/enrollments/[enrollmentId] - Individual enrollment operations
+/api/enrollments/course/[courseId] - Course-specific enrollments
+/api/enrollments/stats - Enrollment statistics
+Participant Management
+/api/participants - Participants CRUD operations
+/api/participants/[participantId] - Individual participant operations
+Payment Processing
+/api/payments - Payments management
+/api/payments/[paymentId] - Individual payment operations
+/api/payments/stats - Payment statistics
+/api/webhooks/stripe - Stripe webhook handling
+Waitlist & Registrations
+/api/registrations - Registration management
+/api/waitlist - Waitlist management
+/api/waitlist/[waitlistId] - Individual waitlist operations
+Trainer Management
+/api/trainer/create - Create new trainer
+/api/trainer/update - Update trainer information

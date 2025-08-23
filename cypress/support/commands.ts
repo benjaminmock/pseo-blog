@@ -15,6 +15,57 @@ interface MockDataOptions {
 }
 
 // Custom command to mock authentication without third-party login
+// Cypress.Commands.add("login", (userOptions: UserOptions = {}) => {
+//   const defaultUser = {
+//     id: "test-user-id",
+//     name: "Test User",
+//     email: "test@example.com",
+//     role: "student",
+//     image: null,
+//   };
+
+//   const user = { ...defaultUser, ...userOptions };
+
+//   // Create a mock session object
+//   const session = {
+//     user,
+//     expires:
+//       userOptions.expires ||
+//       new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
+//   };
+
+//   // Mock the NextAuth session endpoint
+//   cy.intercept("GET", "/api/auth/session", {
+//     statusCode: 200,
+//     body: session,
+//   }).as("getSession");
+
+//   // Mock the CSRF token endpoint
+//   cy.intercept("GET", "/api/auth/csrf", {
+//     statusCode: 200,
+//     body: { csrfToken: "mock-csrf-token" },
+//   }).as("getCsrf");
+
+//   // Set NextAuth cookies to simulate authenticated state
+//   const sessionToken = btoa(JSON.stringify(session));
+//   cy.setCookie("next-auth.session-token", sessionToken, {
+//     domain: "localhost",
+//     httpOnly: false,
+//     secure: false,
+//   });
+
+//   cy.setCookie("next-auth.csrf-token", "mock-csrf-token", {
+//     domain: "localhost",
+//     httpOnly: false,
+//     secure: false,
+//   });
+
+//   // Store session in window for client-side access
+//   cy.window().then((win: any) => {
+//     win.__NEXT_AUTH_SESSION = session;
+//   });
+// });
+
 Cypress.Commands.add("login", (userOptions: UserOptions = {}) => {
   const defaultUser = {
     id: "test-user-id",
@@ -26,48 +77,54 @@ Cypress.Commands.add("login", (userOptions: UserOptions = {}) => {
 
   const user = { ...defaultUser, ...userOptions };
 
-  // Create a mock session object
-  const session = {
-    user,
-    expires:
-      userOptions.expires ||
-      new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
-  };
+  // Use unique session ID based on user email to prevent conflicts
+  const sessionId = `session-${user.email}-${user.role}`;
 
-  // Mock the NextAuth session endpoint
-  cy.intercept("GET", "/api/auth/session", {
-    statusCode: 200,
-    body: session,
-  }).as("getSession");
+  cy.session(sessionId, () => {
+    // Create a mock session object
+    const session = {
+      user,
+      expires: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
+    };
 
-  // Mock the CSRF token endpoint
-  cy.intercept("GET", "/api/auth/csrf", {
-    statusCode: 200,
-    body: { csrfToken: "mock-csrf-token" },
-  }).as("getCsrf");
+    // Mock the NextAuth session endpoint
+    cy.intercept("GET", "/api/auth/session", {
+      statusCode: 200,
+      body: session,
+    }).as("getSession");
 
-  // Set NextAuth cookies to simulate authenticated state
-  const sessionToken = btoa(JSON.stringify(session));
-  cy.setCookie("next-auth.session-token", sessionToken, {
-    domain: "localhost",
-    httpOnly: false,
-    secure: false,
-  });
+    // Mock the CSRF token endpoint
+    cy.intercept("GET", "/api/auth/csrf", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" },
+    }).as("getCsrf");
 
-  cy.setCookie("next-auth.csrf-token", "mock-csrf-token", {
-    domain: "localhost",
-    httpOnly: false,
-    secure: false,
-  });
+    // Set NextAuth cookies to simulate authenticated state
+    const sessionToken = btoa(JSON.stringify(session));
+    cy.setCookie("next-auth.session-token", sessionToken, {
+      domain: "localhost",
+      httpOnly: false,
+      secure: false,
+    });
 
-  // Store session in window for client-side access
-  cy.window().then((win: any) => {
-    win.__NEXT_AUTH_SESSION = session;
+    cy.setCookie("next-auth.csrf-token", "mock-csrf-token", {
+      domain: "localhost",
+      httpOnly: false,
+      secure: false,
+    });
+
+    // Store session in window for client-side access
+    cy.window().then((win: any) => {
+      win.__NEXT_AUTH_SESSION = session;
+    });
   });
 });
 
 // Custom command to logout
 Cypress.Commands.add("logout", () => {
+  // Clear all saved sessions to prevent restoration
+  Cypress.session.clearAllSavedSessions();
+
   cy.clearCookies();
   cy.window().then((win: any) => {
     delete win.__NEXT_AUTH_SESSION;

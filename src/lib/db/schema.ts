@@ -182,9 +182,12 @@ export const participants = sqliteTable(
       autoIncrement: true,
     }),
     userId: text("user_id"), // Link to Prisma auth user (optional for guest registrations)
-    fullName: text("full_name").notNull(),
+    fullName: text("full_name"), // Keep for backward compatibility
+    firstName: text("first_name"),
+    lastName: text("last_name"),
     email: text().notNull(),
     phone: text("phone_number"),
+    isGuest: integer("is_guest").default(0), // 0 = false, 1 = true
     emergencyContact: text("emergency_contact"),
     emergencyPhone: text("emergency_phone"),
     medicalNotes: text("medical_notes"),
