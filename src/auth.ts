@@ -7,6 +7,11 @@ import LinkedIn, { LinkedInProfile } from "next-auth/providers/linkedin";
 import EmailProvider from "next-auth/providers/email";
 import { prisma } from "./lib/prisma";
 
+console.log(
+  `###NextAuth configured with Prisma adapter using SQLite database: ${process.env.DATABASE_URL}`
+);
+console.log(prisma.$connect.name);
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -71,6 +76,77 @@ export const authOptions: AuthOptions = {
       from: process.env.EMAIL_FROM,
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      console.log("IN createUser");
+      // When a new user is created, check if they should have a trainer profile
+      // This handles all registration scenarios (OAuth, email, etc.)
+      try {
+        console.log(prisma);
+        // Get the user's role from the database (it might have been set during registration)
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+        });
+
+        console.log({ dbUser });
+
+        // TODO does not work yet - role is always student
+        // const userRole = dbUser?.role || "student";
+        const userRole = "teacher";
+        console.log("user role", userRole);
+
+        // If user is a teacher, automatically create a trainer profile
+        if (userRole === "teacher" && user.email) {
+          // Check if trainer profile already exists
+          const existingTrainer = await prisma.trainer.findUnique({
+            where: { email: user.email },
+          });
+
+          if (!existingTrainer) {
+            // Create trainer profile
+            const firstName = user.name
+              ? user.name.split(" ")[0]
+              : user.email.split("@")[0];
+            const lastName =
+              user.name && user.name.includes(" ")
+                ? user.name.split(" ").slice(1).join(" ")
+                : "";
+
+            // Create slug from first and last name, ensure it's unique
+            let baseSlug =
+              `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(
+                /\s+/g,
+                "-"
+              );
+            let slug = baseSlug;
+            let counter = 1;
+
+            // Check for existing slugs and make unique if necessary
+            while (await prisma.trainer.findFirst({ where: { slug } })) {
+              slug = `${baseSlug}-${counter}`;
+              counter++;
+            }
+
+            await prisma.trainer.create({
+              data: {
+                firstName,
+                lastName,
+                email: user.email,
+                slug,
+              },
+            });
+
+            console.log(
+              `Created trainer profile for user: ${user.email} with slug: ${slug}`
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error in createUser event:", error);
+        // Don't throw error to avoid breaking user creation
+      }
+    },
+  },
   callbacks: {
     async session({ session, token }) {
       if (token?.sub) {
@@ -187,13 +263,28 @@ export const authOptions: AuthOptions = {
 
             if (!existingTrainer) {
               // Create trainer profile
-              const firstName = user.name ? user.name.split(" ")[0] : user.email.split("@")[0];
-              const lastName = user.name && user.name.includes(" ")
-                ? user.name.split(" ").slice(1).join(" ")
-                : "";
-              
-              // Create slug from first and last name
-              const slug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(/\s+/g, "-");
+              const firstName = user.name
+                ? user.name.split(" ")[0]
+                : user.email.split("@")[0];
+              const lastName =
+                user.name && user.name.includes(" ")
+                  ? user.name.split(" ").slice(1).join(" ")
+                  : "";
+
+              // Create slug from first and last name, ensure it's unique
+              let baseSlug =
+                `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(
+                  /\s+/g,
+                  "-"
+                );
+              let slug = baseSlug;
+              let counter = 1;
+
+              // Check for existing slugs and make unique if necessary
+              while (await prisma.trainer.findFirst({ where: { slug } })) {
+                slug = `${baseSlug}-${counter}`;
+                counter++;
+              }
 
               await prisma.trainer.create({
                 data: {
@@ -203,9 +294,16 @@ export const authOptions: AuthOptions = {
                   slug,
                 },
               });
+
+              console.log(
+                `Created trainer profile for user: ${user.email} with slug: ${slug}`
+              );
             }
           } catch (trainerError) {
-            console.error("Error creating trainer profile:", trainerError);
+            console.error(
+              "Error creating trainer profile in signIn callback:",
+              trainerError
+            );
             // Continue even if trainer profile creation fails
           }
         }

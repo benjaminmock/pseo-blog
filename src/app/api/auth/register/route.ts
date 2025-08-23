@@ -63,8 +63,16 @@ export async function POST(req: Request) {
               ? name.split(" ").slice(1).join(" ")
               : "";
           
-          // Create slug from first and last name
-          const slug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(/\s+/g, "-");
+          // Create slug from first and last name, ensure it's unique
+          let baseSlug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(/\s+/g, "-");
+          let slug = baseSlug;
+          let counter = 1;
+          
+          // Check for existing slugs and make unique if necessary
+          while (await prisma.trainer.findFirst({ where: { slug } })) {
+            slug = `${baseSlug}-${counter}`;
+            counter++;
+          }
 
           await prisma.trainer.create({
             data: {
@@ -74,6 +82,8 @@ export async function POST(req: Request) {
               slug,
             },
           });
+
+          console.log(`Created trainer profile for user: ${email} with slug: ${slug}`);
         }
       } catch (trainerError) {
         console.error("Error creating trainer profile:", trainerError);

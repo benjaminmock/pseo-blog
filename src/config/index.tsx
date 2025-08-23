@@ -17,9 +17,8 @@ const configCache: Record<string, ConfigModule> = {};
 // Set the active configuration
 export const ACTIVE_CONFIGURATION = "yoga";
 
-// Database connection is now handled by Drizzle in src/lib/db/index.ts
 // Import { db } from "@/lib/db" instead of using this export
-export const db = new Database(`${ACTIVE_CONFIGURATION}.db`);
+export const db = new Database(`prisma/${ACTIVE_CONFIGURATION}.db`);
 
 // Map configuration names to module paths
 const configMap: Record<string, () => ConfigModule> = {
