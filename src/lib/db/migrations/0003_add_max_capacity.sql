@@ -1,1 +1,0 @@
-ALTER TABLE `Courses` ADD `max_capacity` integer;

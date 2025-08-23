@@ -1,25 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./yoga.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
-  role          String    @default("student") // Changed default to "student", can be "student" or "teacher"
+  role          String        @default("student")
+  password_hash String?
   accounts      Account[]
   sessions      Session[]
-  password_hash String?
+  participants  Participant[]
 }
 
 model Account {
@@ -35,8 +33,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -55,4 +52,318 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Entry {
+  id           Int     @id @default(autoincrement())
+  name         String?
+  url          String?
+  description  String?
+  citySlug     String? @map("city_slug")
+  categorySlug String? @map("category_slug")
+
+  @@map("entries")
+}
+
+model Category {
+  id    Int     @id @default(autoincrement())
+  title String?
+  slug  String?
+
+  @@map("categories")
+}
+
+model Post {
+  id              Int     @id @default(autoincrement())
+  title           String?
+  metaDescription String? @map("meta_description")
+  content         String?
+  citySlug        String? @map("city_slug")
+  categorySlug    String? @map("category_slug")
+
+  @@map("posts")
+}
+
+model Trainer {
+  trainerId          Int                 @id @default(autoincrement()) @map("trainer_id")
+  firstName          String              @map("first_name")
+  lastName           String              @map("last_name")
+  email              String              @unique
+  phoneNumber        String?             @map("phone_number")
+  bio                String?
+  link               String?
+  slug               String?
+  courses            Course[]
+  events             Event[]
+  recordedAttendance AttendanceRecord[]  @relation("RecordedBy")
+  enrolledBy         CourseEnrollment[]  @relation("EnrolledBy")
+  registeredBy       EventRegistration[] @relation("RegisteredBy")
+  processedPayments  Payment[]           @relation("ProcessedBy")
+
+  @@map("Trainers")
+}
+
+model Waitlist {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  city      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("waitlist")
+}
+
+model NearbyCityDistance {
+  id           Int    @id @default(autoincrement())
+  cityId       Int?   @map("city_id")
+  nearbyCityId Int?   @map("nearby_city_id")
+  distance     Float?
+
+  @@map("nearby_city_distances")
+}
+
+model Course {
+  courseId            Int                   @id @default(autoincrement()) @map("course_id")
+  courseName          String                @map("course_name")
+  trainerId           Int                   @map("trainer_id")
+  description         String?
+  startDate           String                @map("start_date")
+  endDate             String?               @map("end_date")
+  citySlug            String?               @map("city_slug")
+  slug                String?
+  cityId              Int?                  @map("city_id")
+  active              Int                   @default(1)
+  capacity            Int?
+  maxCapacity         Int?                  @map("max_capacity")
+  currentEnrollments  Int                   @default(0) @map("current_enrollments")
+  waitlistEnabled     Int                   @default(1) @map("waitlist_enabled")
+  autoConfirmWaitlist Int                   @default(1) @map("auto_confirm_waitlist")
+  language            String?
+  price               Float?
+  duration            Int?
+  location            String?
+  style               String?
+  level               String?
+  isOnline            Int                   @default(0) @map("is_online")
+  isInPerson          Int                   @default(1) @map("is_in_person")
+  onlineUrl           String?               @map("online_url")
+  onlinePlatform      String?               @map("online_platform")
+  onlineInstructions  String?               @map("online_instructions")
+  city                City?                 @relation(fields: [cityId], references: [id])
+  trainer             Trainer               @relation(fields: [trainerId], references: [trainerId])
+  attendanceRecords   AttendanceRecord[]
+  enrollments         CourseEnrollment[]
+  waitlistEntries     ParticipantWaitlist[]
+  payments            Payment[]
+
+  @@map("Courses")
+}
+
+model Event {
+  eventId              Int                   @id @default(autoincrement()) @map("event_id")
+  eventName            String                @map("event_name")
+  trainerId            Int                   @map("trainer_id")
+  description          String?
+  startDate            String                @map("start_date")
+  endDate              String?               @map("end_date")
+  startTime            String?               @map("start_time")
+  endTime              String?               @map("end_time")
+  citySlug             String?               @map("city_slug")
+  slug                 String?
+  cityId               Int?                  @map("city_id")
+  active               Int                   @default(1)
+  maxParticipants      Int?                  @map("max_participants")
+  currentRegistrations Int                   @default(0) @map("current_registrations")
+  waitlistEnabled      Int                   @default(1) @map("waitlist_enabled")
+  price                Float?
+  isOnline             Int                   @default(0) @map("is_online")
+  isInPerson           Int                   @default(1) @map("is_in_person")
+  onlineUrl            String?               @map("online_url")
+  onlinePlatform       String?               @map("online_platform")
+  onlineInstructions   String?               @map("online_instructions")
+  city                 City?                 @relation(fields: [cityId], references: [id])
+  trainer              Trainer               @relation(fields: [trainerId], references: [trainerId])
+  attendanceRecords    AttendanceRecord[]
+  registrations        EventRegistration[]
+  waitlistEntries      ParticipantWaitlist[]
+  payments             Payment[]
+
+  @@map("Events")
+}
+
+model City {
+  id              Int          @id @default(autoincrement())
+  city            String?
+  stateCode       String?
+  zip             String?
+  population      Int?
+  longitude       Float?
+  latitude        Float?
+  state           String?
+  stateSlug       String?
+  slug            String?
+  title           String?
+  metaDescription String?      @map("meta_description")
+  content         String?
+  courses         Course[]
+  events          Event[]
+  nearbyToCities  NearbyCity[] @relation("NearbyCityTo")
+  nearbyCities    NearbyCity[] @relation("CityToNearby")
+
+  @@map("cities")
+}
+
+model NearbyCity {
+  id           Int   @id @default(autoincrement())
+  cityId       Int?  @map("city_id")
+  nearbyCityId Int?  @map("nearby_city_id")
+  nearbyCity   City? @relation("NearbyCityTo", fields: [nearbyCityId], references: [id])
+  city         City? @relation("CityToNearby", fields: [cityId], references: [id])
+
+  @@map("nearby_cities")
+}
+
+model Topic {
+  id              Int     @id @default(autoincrement())
+  title           String?
+  metaDescription String? @map("meta_description")
+  content         String?
+  slug            String? @unique
+
+  @@map("topics")
+}
+
+model Participant {
+  participantId     Int                   @id @default(autoincrement()) @map("participant_id")
+  userId            String?               @map("user_id")
+  fullName          String?               @map("full_name")
+  firstName         String?               @map("first_name")
+  lastName          String?               @map("last_name")
+  email             String                @unique
+  phone             String?               @map("phone_number")
+  isGuest           Int                   @default(0) @map("is_guest")
+  emergencyContact  String?               @map("emergency_contact")
+  emergencyPhone    String?               @map("emergency_phone")
+  medicalNotes      String?               @map("medical_notes")
+  dateOfBirth       String?               @map("date_of_birth")
+  address           String?
+  city              String?
+  postalCode        String?               @map("postal_code")
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @default(now()) @updatedAt @map("updated_at")
+  attendanceRecords AttendanceRecord[]
+  enrollments       CourseEnrollment[]
+  registrations     EventRegistration[]
+  waitlistEntries   ParticipantWaitlist[]
+  user              User?                 @relation(fields: [userId], references: [id])
+  payments          Payment[]
+
+  @@map("participants")
+}
+
+model CourseEnrollment {
+  enrollmentId   Int         @id @default(autoincrement()) @map("enrollment_id")
+  participantId  Int         @map("participant_id")
+  courseId       Int         @map("course_id")
+  enrollmentDate DateTime    @default(now()) @map("enrollment_date")
+  status         String      @default("active")
+  paymentStatus  String      @default("pending") @map("payment_status")
+  totalAmount    Float?      @map("total_amount")
+  paidAmount     Float       @default(0) @map("paid_amount")
+  notes          String?
+  enrolledBy     Int?        @map("enrolled_by")
+  trainer        Trainer?    @relation("EnrolledBy", fields: [enrolledBy], references: [trainerId])
+  course         Course      @relation(fields: [courseId], references: [courseId])
+  participant    Participant @relation(fields: [participantId], references: [participantId])
+  payments       Payment[]
+
+  @@unique([participantId, courseId])
+  @@map("course_enrollments")
+}
+
+model EventRegistration {
+  registrationId   Int         @id @default(autoincrement()) @map("registration_id")
+  participantId    Int         @map("participant_id")
+  eventId          Int         @map("event_id")
+  registrationDate DateTime    @default(now()) @map("registration_date")
+  status           String      @default("registered")
+  paymentStatus    String      @default("pending") @map("payment_status")
+  totalAmount      Float?      @map("total_amount")
+  paidAmount       Float       @default(0) @map("paid_amount")
+  notes            String?
+  registeredBy     Int?        @map("registered_by")
+  trainer          Trainer?    @relation("RegisteredBy", fields: [registeredBy], references: [trainerId])
+  event            Event       @relation(fields: [eventId], references: [eventId])
+  participant      Participant @relation(fields: [participantId], references: [participantId])
+  payments         Payment[]
+
+  @@unique([participantId, eventId])
+  @@map("event_registrations")
+}
+
+model AttendanceRecord {
+  attendanceId  Int         @id @default(autoincrement()) @map("attendance_id")
+  participantId Int         @map("participant_id")
+  courseId      Int?        @map("course_id")
+  eventId       Int?        @map("event_id")
+  sessionDate   String      @map("session_date")
+  sessionNumber Int?        @map("session_number")
+  attended      Int         @default(0)
+  checkInTime   String?     @map("check_in_time")
+  notes         String?
+  recordedAt    DateTime    @default(now()) @map("recorded_at")
+  recordedBy    Int?        @map("recorded_by")
+  trainer       Trainer?    @relation("RecordedBy", fields: [recordedBy], references: [trainerId])
+  event         Event?      @relation(fields: [eventId], references: [eventId])
+  course        Course?     @relation(fields: [courseId], references: [courseId])
+  participant   Participant @relation(fields: [participantId], references: [participantId])
+
+  @@map("attendance_records")
+}
+
+model Payment {
+  paymentId             Int                @id @default(autoincrement()) @map("payment_id")
+  participantId         Int                @map("participant_id")
+  courseId              Int?               @map("course_id")
+  eventId               Int?               @map("event_id")
+  enrollmentId          Int?               @map("enrollment_id")
+  registrationId        Int?               @map("registration_id")
+  amount                Float
+  currency              String             @default("EUR")
+  paymentMethod         String?            @map("payment_method")
+  status                String             @default("pending")
+  transactionId         String?            @map("transaction_id")
+  stripePaymentIntentId String?            @map("stripe_payment_intent_id")
+  paidAt                String?            @map("paid_at")
+  refundedAt            String?            @map("refunded_at")
+  refundAmount          Float?             @map("refund_amount")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  notes                 String?
+  processedBy           Int?               @map("processed_by")
+  trainer               Trainer?           @relation("ProcessedBy", fields: [processedBy], references: [trainerId])
+  registration          EventRegistration? @relation(fields: [registrationId], references: [registrationId])
+  enrollment            CourseEnrollment?  @relation(fields: [enrollmentId], references: [enrollmentId])
+  event                 Event?             @relation(fields: [eventId], references: [eventId])
+  course                Course?            @relation(fields: [courseId], references: [courseId])
+  participant           Participant        @relation(fields: [participantId], references: [participantId])
+
+  @@map("payments")
+}
+
+model ParticipantWaitlist {
+  waitlistId    Int         @id @default(autoincrement()) @map("waitlist_id")
+  participantId Int         @map("participant_id")
+  courseId      Int?        @map("course_id")
+  eventId       Int?        @map("event_id")
+  position      Int
+  addedAt       DateTime    @default(now()) @map("added_at")
+  notifiedAt    String?     @map("notified_at")
+  status        String      @default("waiting")
+  expiresAt     String?     @map("expires_at")
+  notes         String?
+  event         Event?      @relation(fields: [eventId], references: [eventId])
+  course        Course?     @relation(fields: [courseId], references: [courseId])
+  participant   Participant @relation(fields: [participantId], references: [participantId])
+
+  @@map("participant_waitlist")
 }

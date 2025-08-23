@@ -39,7 +39,6 @@ export default async function ProfilePage() {
   // Get user data from Prisma
   const userData = await getUserData(user.id);
 
-  // Get trainer data from yoga.db
   let trainerData = null;
   if (user.email) {
     trainerData = (await getTrainerByEmail(user.email)) || null;

@@ -176,6 +176,40 @@ export const authOptions: AuthOptions = {
           }
         }
 
+        // If user is a teacher, automatically create a trainer profile
+        const finalRole = role || user.role;
+        if (finalRole === "teacher" && user.email) {
+          try {
+            // Check if trainer profile already exists
+            const existingTrainer = await prisma.trainer.findUnique({
+              where: { email: user.email },
+            });
+
+            if (!existingTrainer) {
+              // Create trainer profile
+              const firstName = user.name ? user.name.split(" ")[0] : user.email.split("@")[0];
+              const lastName = user.name && user.name.includes(" ")
+                ? user.name.split(" ").slice(1).join(" ")
+                : "";
+              
+              // Create slug from first and last name
+              const slug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(/\s+/g, "-");
+
+              await prisma.trainer.create({
+                data: {
+                  firstName,
+                  lastName,
+                  email: user.email,
+                  slug,
+                },
+              });
+            }
+          } catch (trainerError) {
+            console.error("Error creating trainer profile:", trainerError);
+            // Continue even if trainer profile creation fails
+          }
+        }
+
         return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
