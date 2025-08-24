@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { stripe, formatAmountForStripe } from '@/lib/stripe';
 import { z } from 'zod';
-import { events } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
 import { paymentRateLimit } from '@/lib/rateLimit';
 
 const registrationSchema = z.object({
@@ -43,19 +41,21 @@ export async function POST(
     // Validate input
     const validatedData = registrationSchema.parse(body);
     
-    // Get event details using Drizzle ORM
-    const event = await db
-      .select({
-        eventId: events.eventId,
-        eventName: events.eventName,
-        price: events.price,
-        maxParticipants: events.maxParticipants,
-        currentRegistrations: events.currentRegistrations,
-        active: events.active,
-      })
-      .from(events)
-      .where(and(eq(events.eventId, eventId), eq(events.active, 1)))
-      .get();
+    // Get event details using Prisma
+    const event = await prisma.event.findFirst({
+      where: {
+        eventId: eventId,
+        active: 1,
+      },
+      select: {
+        eventId: true,
+        eventName: true,
+        price: true,
+        maxParticipants: true,
+        currentRegistrations: true,
+        active: true,
+      },
+    });
     
     if (!event) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });

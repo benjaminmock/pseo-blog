@@ -1,4 +1,4 @@
-import { db, courses } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -81,9 +81,8 @@ export async function POST(request: NextRequest) {
       .replace(/^-+|-+$/g, "");
 
     // Insert course into database
-    const result = await db
-      .insert(courses)
-      .values({
+    const result = await prisma.course.create({
+      data: {
         courseName: course_name,
         trainerId: trainer_id,
         description,
@@ -105,11 +104,12 @@ export async function POST(request: NextRequest) {
         onlineUrl: online_url || null,
         onlinePlatform: online_platform || null,
         onlineInstructions: online_instructions || null,
-      })
-      .returning({ courseId: courses.courseId });
+      },
+      select: { courseId: true },
+    });
 
     return NextResponse.json(
-      { course_id: result[0].courseId },
+      { course_id: result.courseId },
       { status: 201 }
     );
   } catch (error) {

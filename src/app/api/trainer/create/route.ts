@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { db, trainers } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { eq } from "drizzle-orm";
 
 // Function to generate a unique slug for a trainer
 async function generateTrainerSlug(
@@ -16,16 +15,12 @@ async function generateTrainerSlug(
     .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
 
   // Check if this slug already exists
-  const existingTrainer = await db
-    .select({ trainerId: trainers.trainerId })
-    .from(trainers)
-    .where(eq(trainers.slug, baseSlug))
-    .limit(1);
+  const existingTrainer = await prisma.trainer.findFirst({
+    where: { slug: baseSlug },
+    select: { trainerId: true },
+  });
 
-  if (
-    existingTrainer.length === 0 ||
-    existingTrainer[0].trainerId === trainerId
-  ) {
+  if (!existingTrainer || existingTrainer.trainerId === trainerId) {
     return baseSlug;
   }
 
@@ -42,17 +37,16 @@ export async function POST(request: Request) {
     }
 
     // Check if user already has a trainer profile
-    const existingTrainer = await db
-      .select({ trainerId: trainers.trainerId })
-      .from(trainers)
-      .where(eq(trainers.email, currentUser.email!))
-      .limit(1);
+    const existingTrainer = await prisma.trainer.findFirst({
+      where: { email: currentUser.email! },
+      select: { trainerId: true },
+    });
 
-    if (existingTrainer.length > 0) {
+    if (existingTrainer) {
       return NextResponse.json(
         {
           message: "You already have a trainer profile",
-          trainer_id: existingTrainer[0].trainerId,
+          trainer_id: existingTrainer.trainerId,
         },
         { status: 400 }
       );
@@ -70,26 +64,26 @@ export async function POST(request: Request) {
     }
 
     // Insert new trainer record first to get the ID
-    const result = await db
-      .insert(trainers)
-      .values({
+    const newTrainer = await prisma.trainer.create({
+      data: {
         firstName: first_name,
         lastName: last_name,
         email: currentUser.email!,
         phoneNumber: phone_number || null,
         bio: bio || null,
         link: link || null,
-      })
-      .returning({ trainerId: trainers.trainerId });
+      },
+      select: { trainerId: true },
+    });
 
-    const trainerId = result[0].trainerId;
+    const trainerId = newTrainer.trainerId;
 
     // Generate and update the slug
     const slug = await generateTrainerSlug(first_name, last_name, trainerId);
-    await db
-      .update(trainers)
-      .set({ slug })
-      .where(eq(trainers.trainerId, trainerId));
+    await prisma.trainer.update({
+      where: { trainerId },
+      data: { slug },
+    });
 
     return NextResponse.json(
       {

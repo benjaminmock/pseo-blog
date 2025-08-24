@@ -2,13 +2,7 @@ import { db } from "@/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import dynamic from "next/dynamic";
-
-// Dynamically import the GuestPaymentForm to avoid SSR issues with Stripe
-const GuestPaymentForm = dynamic(
-  () => import("@/components/GuestPaymentForm"),
-  { ssr: false }
-);
+import EventPaymentSection from "./_components/EventPaymentSection";
 
 type EventPageProps = {
   params: {
@@ -278,18 +272,11 @@ export default async function EventPage({ params }: EventPageProps) {
 
           {/* Payment Form Section */}
           {showPaymentForm && (
-            <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-4">Event buchen</h3>
-              <GuestPaymentForm
-                eventId={event.event_id}
-                eventName={event.event_name}
-                price={event.price!}
-                onSuccess={() => {
-                  // Redirect to success page
-                  window.location.href = '/events/payment/success';
-                }}
-              />
-            </div>
+            <EventPaymentSection
+              eventId={event.event_id}
+              eventName={event.event_name}
+              price={event.price!}
+            />
           )}
 
           <div className="mt-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">

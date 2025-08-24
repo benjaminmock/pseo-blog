@@ -11,9 +11,6 @@ async function getTrainerIdByEmail(email: string) {
     WHERE email = ?
   `);
   const result = stmt.get(email) as { trainer_id: number } | undefined;
-  console.log({ db });
-  console.log("SQL Statement:", stmt.source);
-  console.log("getTrainerByEmail", email, result);
   return result?.trainer_id;
 }
 

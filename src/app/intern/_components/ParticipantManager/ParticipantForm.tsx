@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Participant } from "@/lib/db/schema";
+import { Participant } from "@prisma/client";
 
 interface ParticipantFormProps {
   participant?: Participant;

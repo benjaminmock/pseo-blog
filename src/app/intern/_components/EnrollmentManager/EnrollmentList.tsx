@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { CourseEnrollment } from "@/lib/db/schema";
+import { CourseEnrollment } from "@prisma/client";
 
 interface EnrollmentWithDetails extends CourseEnrollment {
   participantName: string;

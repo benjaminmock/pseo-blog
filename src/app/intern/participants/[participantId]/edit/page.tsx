@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ParticipantForm from "../../../_components/ParticipantManager/ParticipantForm";
-import { Participant } from "@/lib/db/schema";
+import { Participant } from "@prisma/client";
 
 export default function EditParticipantPage() {
   const params = useParams();

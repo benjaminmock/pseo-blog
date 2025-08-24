@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Participant } from "@/lib/db/schema";
+import { Participant } from "@prisma/client";
 
 interface ParticipantWithStats extends Participant {
   enrollmentCount: number;

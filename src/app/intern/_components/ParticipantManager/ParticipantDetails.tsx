@@ -7,7 +7,7 @@ import {
   CourseEnrollment,
   EventRegistration,
   Payment,
-} from "@/lib/db/schema";
+} from "@prisma/client";
 
 interface ParticipantWithDetails extends Participant {
   enrollments: Array<

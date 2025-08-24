@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
-import { participants, eventRegistrations, payments, events } from '@/lib/db/schema';
+import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
-import { eq } from 'drizzle-orm';
 import { webhookRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
@@ -42,42 +40,41 @@ export async function POST(request: NextRequest) {
       const metadata = paymentIntent.metadata;
       
       // Start a transaction to ensure data consistency
-      const result = await db.transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx) => {
         // Create participant record
-        const [participantResult] = await tx
-          .insert(participants)
-          .values({
+        const participantResult = await tx.participant.create({
+          data: {
             firstName: metadata.firstName,
             lastName: metadata.lastName,
             email: metadata.email,
             phone: metadata.phone || null,
             isGuest: 1,
-            createdAt: new Date().toISOString(),
-          })
-          .returning({ participantId: participants.participantId });
+            createdAt: new Date(),
+          },
+          select: { participantId: true },
+        });
         
         const participantId = participantResult.participantId;
         const eventId = parseInt(metadata.eventId);
         const amountInEur = paymentIntent.amount / 100;
         
         // Create event registration
-        const [registrationResult] = await tx
-          .insert(eventRegistrations)
-          .values({
+        const registrationResult = await tx.eventRegistration.create({
+          data: {
             participantId,
             eventId,
             totalAmount: amountInEur,
             paidAmount: amountInEur,
             paymentStatus: 'paid',
             status: 'registered',
-            registrationDate: new Date().toISOString(),
-          })
-          .returning({ registrationId: eventRegistrations.registrationId });
+            registrationDate: new Date(),
+          },
+          select: { registrationId: true },
+        });
         
         // Create payment record
-        await tx
-          .insert(payments)
-          .values({
+        await tx.payment.create({
+          data: {
             participantId,
             eventId,
             registrationId: registrationResult.registrationId,
@@ -87,19 +84,22 @@ export async function POST(request: NextRequest) {
             status: 'completed',
             stripePaymentIntentId: paymentIntent.id,
             paidAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-          });
+            createdAt: new Date(),
+          },
+        });
+        
+        // Count current registrations for this event
+        const registrationCount = await tx.eventRegistration.count({
+          where: { eventId },
+        });
         
         // Update event registration count
-        await tx
-          .update(events)
-          .set({
-            currentRegistrations: db.$count(
-              eventRegistrations,
-              eq(eventRegistrations.eventId, eventId)
-            ),
-          })
-          .where(eq(events.eventId, eventId));
+        await tx.event.update({
+          where: { eventId },
+          data: {
+            currentRegistrations: registrationCount,
+          },
+        });
         
         return {
           participantId,

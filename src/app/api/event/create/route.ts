@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(city_slug, city_id);
     if (isInPerson && (!city_slug || !city_id)) {
       return NextResponse.json(
         { error: "Standort ist für Präsenz-Events erforderlich" },

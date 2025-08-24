@@ -7,11 +7,6 @@ import LinkedIn, { LinkedInProfile } from "next-auth/providers/linkedin";
 import EmailProvider from "next-auth/providers/email";
 import { prisma } from "./lib/prisma";
 
-console.log(
-  `###NextAuth configured with Prisma adapter using SQLite database: ${process.env.DATABASE_URL}`
-);
-console.log(prisma.$connect.name);
-
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -78,22 +73,17 @@ export const authOptions: AuthOptions = {
   ],
   events: {
     async createUser({ user }) {
-      console.log("IN createUser");
       // When a new user is created, check if they should have a trainer profile
       // This handles all registration scenarios (OAuth, email, etc.)
       try {
-        console.log(prisma);
         // Get the user's role from the database (it might have been set during registration)
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
         });
 
-        console.log({ dbUser });
-
         // TODO does not work yet - role is always student
         // const userRole = dbUser?.role || "student";
         const userRole = "teacher";
-        console.log("user role", userRole);
 
         // If user is a teacher, automatically create a trainer profile
         if (userRole === "teacher" && user.email) {

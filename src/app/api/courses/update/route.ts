@@ -1,7 +1,6 @@
-import { db, trainers, courses } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
 
 export async function PUT(request: NextRequest) {
   const user = await getCurrentUser();
@@ -47,13 +46,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify that the course belongs to the current user's trainer profile
-    const trainerResult = await db
-      .select({ trainerId: trainers.trainerId })
-      .from(trainers)
-      .where(eq(trainers.email, user.email!))
-      .limit(1);
+    const trainerResult = await prisma.trainer.findFirst({
+      where: { email: user.email! },
+      select: { trainerId: true },
+    });
 
-    if (!trainerResult.length || trainerResult[0].trainerId !== trainer_id) {
+    if (!trainerResult || trainerResult.trainerId !== trainer_id) {
       return NextResponse.json(
         { error: "Keine Berechtigung, diesen Kurs zu bearbeiten" },
         { status: 403 }
@@ -61,15 +59,15 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify that the course exists and belongs to this trainer
-    const courseResult = await db
-      .select({ courseId: courses.courseId })
-      .from(courses)
-      .where(
-        and(eq(courses.courseId, course_id), eq(courses.trainerId, trainer_id))
-      )
-      .limit(1);
+    const courseResult = await prisma.course.findFirst({
+      where: {
+        courseId: course_id,
+        trainerId: trainer_id,
+      },
+      select: { courseId: true },
+    });
 
-    if (!courseResult.length) {
+    if (!courseResult) {
       return NextResponse.json(
         { error: "Kurs nicht gefunden oder keine Berechtigung" },
         { status: 404 }
@@ -83,9 +81,9 @@ export async function PUT(request: NextRequest) {
       .replace(/^-+|-+$/g, "");
 
     // Update course in database
-    await db
-      .update(courses)
-      .set({
+    await prisma.course.update({
+      where: { courseId: course_id },
+      data: {
         courseName: course_name,
         description,
         startDate: start_date,
@@ -100,10 +98,8 @@ export async function PUT(request: NextRequest) {
         location,
         style,
         level,
-      })
-      .where(
-        and(eq(courses.courseId, course_id), eq(courses.trainerId, trainer_id))
-      );
+      },
+    });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

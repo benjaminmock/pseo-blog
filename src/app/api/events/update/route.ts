@@ -21,12 +21,42 @@ export async function PUT(request: NextRequest) {
       city_id,
       max_participants,
       price,
+      is_online,
+      is_in_person,
+      online_url,
+      online_platform,
+      online_instructions,
     } = data;
 
     // Validate required fields
     if (!event_id || !event_name || !start_date) {
       return NextResponse.json(
         { error: "Event-ID, Event-Name und Startdatum sind erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    // Validate delivery mode flags
+    const isOnline = is_online === 1 || is_online === "1";
+    const isInPerson = is_in_person === 1 || is_in_person === "1";
+
+    if (!isOnline && !isInPerson) {
+      return NextResponse.json(
+        { error: "Event muss mindestens eine Veranstaltungsart unterstützen" },
+        { status: 400 }
+      );
+    }
+
+    if (isOnline && !online_url) {
+      return NextResponse.json(
+        { error: "Online-URL ist für Online-Events erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    if (isInPerson && (!city_slug || !city_id)) {
+      return NextResponse.json(
+        { error: "Standort ist für Präsenz-Events erforderlich" },
         { status: 400 }
       );
     }
@@ -83,7 +113,12 @@ export async function PUT(request: NextRequest) {
         slug = ?,
         city_id = ?,
         max_participants = ?,
-        price = ?
+        price = ?,
+        is_online = ?,
+        is_in_person = ?,
+        online_url = ?,
+        online_platform = ?,
+        online_instructions = ?
       WHERE event_id = ?
     `);
 
@@ -97,6 +132,11 @@ export async function PUT(request: NextRequest) {
       city_id,
       max_participants,
       price,
+      isOnline ? 1 : 0,
+      isInPerson ? 1 : 0,
+      online_url || null,
+      online_platform || null,
+      online_instructions || null,
       event_id
     );
 

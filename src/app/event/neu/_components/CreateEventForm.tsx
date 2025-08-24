@@ -12,13 +12,40 @@ export default function CreateEventForm({ trainerId }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOnline, setIsOnline] = useState(false);
+  const [isInPerson, setIsInPerson] = useState(true);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
+    // Client-side validation
+    if (!isOnline && !isInPerson) {
+      setError("Event muss mindestens eine Veranstaltungsart unterstützen (Online oder Präsenz)");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
+    
+    // Validate online URL if online is selected
+    const onlineUrl = formData.get("online_url") as string;
+    if (isOnline && (!onlineUrl || onlineUrl.trim() === "")) {
+      setError("Online-URL ist für Online-Events erforderlich");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate location if in-person is selected
+    const citySlug = formData.get("city_slug") as string;
+    const cityId = formData.get("city_id") as string;
+    if (isInPerson && (!citySlug || !cityId)) {
+      setError("Standort ist für Präsenz-Events erforderlich");
+      setIsSubmitting(false);
+      return;
+    }
+
     const data = {
       event_name: formData.get("event_name"),
       trainer_id: trainerId,
@@ -33,6 +60,11 @@ export default function CreateEventForm({ trainerId }: Props) {
       price: formData.get("price")
         ? parseFloat(formData.get("price") as string)
         : null,
+      is_online: isOnline ? 1 : 0,
+      is_in_person: isInPerson ? 1 : 0,
+      online_url: isOnline ? (formData.get("online_url") || null) : null,
+      online_platform: isOnline ? (formData.get("online_platform") || null) : null,
+      online_instructions: isOnline ? (formData.get("online_instructions") || null) : null,
     };
 
     try {
@@ -138,20 +170,112 @@ export default function CreateEventForm({ trainerId }: Props) {
         </div>
       </div>
 
+      {/* Delivery Mode Selection */}
       <div>
-        <label
-          htmlFor="city_combobox"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Stadt
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Veranstaltungsart *
         </label>
-        <CityCombobox
-          onSelect={(city) => {
-            // This is handled by the hidden input in the CityCombobox component
-            console.log("Selected city:", city);
-          }}
-        />
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_online"
+              checked={isOnline}
+              onChange={(e) => setIsOnline(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label htmlFor="is_online" className="ml-2 text-sm text-gray-700">
+              Online-Event
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_in_person"
+              checked={isInPerson}
+              onChange={(e) => setIsInPerson(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label htmlFor="is_in_person" className="ml-2 text-sm text-gray-700">
+              Präsenz-Event
+            </label>
+          </div>
+        </div>
       </div>
+
+      {/* Online Event Fields */}
+      {isOnline && (
+        <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-700">Online-Event Details</h3>
+          
+          <div>
+            <label
+              htmlFor="online_url"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Online-URL *
+            </label>
+            <input
+              type="url"
+              id="online_url"
+              name="online_url"
+              required={isOnline}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="z.B. https://zoom.us/j/123456789"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="online_platform"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Plattform
+            </label>
+            <input
+              type="text"
+              id="online_platform"
+              name="online_platform"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="z.B. Zoom, Teams, Google Meet"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="online_instructions"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Teilnahme-Hinweise
+            </label>
+            <textarea
+              id="online_instructions"
+              name="online_instructions"
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Zusätzliche Hinweise für die Online-Teilnahme..."
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Location Selection for In-Person Events */}
+      {isInPerson && (
+        <div>
+          <label
+            htmlFor="city_combobox"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Stadt *
+          </label>
+          <CityCombobox
+            onSelect={(city) => {
+              // This is handled by the hidden input in the CityCombobox component
+              console.log("Selected city:", city);
+            }}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

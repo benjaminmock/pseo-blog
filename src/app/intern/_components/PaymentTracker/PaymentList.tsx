@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Payment } from "@/lib/db/schema";
+import { Payment } from "@prisma/client";
 
 interface PaymentWithDetails extends Payment {
   participantName: string;

@@ -31,6 +31,11 @@ async function getEventById(eventId: number, trainerId: number) {
       e.active,
       e.max_participants,
       e.price,
+      e.is_online,
+      e.is_in_person,
+      e.online_url,
+      e.online_platform,
+      e.online_instructions,
       t.first_name,
       t.last_name
     FROM Events e
@@ -53,6 +58,11 @@ async function getEventById(eventId: number, trainerId: number) {
         active: number;
         max_participants: number;
         price: number;
+        is_online: number;
+        is_in_person: number;
+        online_url: string | null;
+        online_platform: string | null;
+        online_instructions: string | null;
         trainer_id: number;
         first_name: string;
         last_name: string;
