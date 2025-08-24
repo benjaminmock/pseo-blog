@@ -132,6 +132,7 @@ export default function EditEventForm({ event }: Props) {
           required
           defaultValue={event.event_name}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="z.B. Yoga Workshop: Achtsamkeit & Entspannung"
         />
       </div>
 
@@ -148,6 +149,7 @@ export default function EditEventForm({ event }: Props) {
           rows={4}
           defaultValue={event.description || ""}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Beschreiben Sie Ihr Event..."
         />
       </div>
 
@@ -311,6 +313,7 @@ export default function EditEventForm({ event }: Props) {
             min="1"
             defaultValue={event.max_participants || ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="z.B. 20"
           />
         </div>
 
@@ -329,6 +332,7 @@ export default function EditEventForm({ event }: Props) {
             step="0.01"
             defaultValue={event.price || ""}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="z.B. 89.00"
           />
         </div>
       </div>
