@@ -157,7 +157,7 @@ describe("Event CRUD Operations", () => {
   });
 
   describe("Event Editing", () => {
-    it.only("should edit an existing event successfully", () => {
+    it("should edit an existing event successfully", () => {
       // Seed trainer data and login as teacher (seedTrainer now handles both)
       cy.seedTrainer("teacher@example.com", "Test", "Teacher");
 

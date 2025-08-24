@@ -246,7 +246,7 @@ Cypress.Commands.add("mockUserData", (options: MockDataOptions = {}) => {
 //   }
 // );
 
-// Alternative login method using test endpoint (more realistic)
+// Alternative login method using session mocking (same as login but without cy.session)
 Cypress.Commands.add("loginViaAPI", (userOptions: UserOptions = {}) => {
   const defaultUser = {
     id: "test-user-id",
@@ -258,34 +258,56 @@ Cypress.Commands.add("loginViaAPI", (userOptions: UserOptions = {}) => {
 
   const user = { ...defaultUser, ...userOptions };
 
-  cy.request({
-    method: "POST",
-    url: "/api/auth/test-login",
-    body: {
-      user,
-      expires: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-    },
-  }).then((response) => {
-    expect(response.status).to.eq(200);
+  // Create a mock session object
+  const session = {
+    user,
+    expires: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
+  };
 
-    // Also mock the client-side session for components that use useSession
-    cy.intercept("GET", "/api/auth/session", {
-      statusCode: 200,
-      body: {
-        user,
-        expires: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      },
-    }).as("getSession");
+  // Mock the NextAuth session endpoint
+  cy.intercept("GET", "/api/auth/session", {
+    statusCode: 200,
+    body: session,
+  }).as("getSession");
+
+  // Mock the CSRF token endpoint
+  cy.intercept("GET", "/api/auth/csrf", {
+    statusCode: 200,
+    body: { csrfToken: "mock-csrf-token" },
+  }).as("getCsrf");
+
+  // Set NextAuth cookies to simulate authenticated state
+  const sessionToken = btoa(JSON.stringify(session));
+  cy.setCookie("next-auth.session-token", sessionToken, {
+    domain: "localhost",
+    httpOnly: false,
+    secure: false,
+  });
+
+  cy.setCookie("next-auth.csrf-token", "mock-csrf-token", {
+    domain: "localhost",
+    httpOnly: false,
+    secure: false,
+  });
+
+  // Store session in window for client-side access
+  cy.window().then((win: any) => {
+    win.__NEXT_AUTH_SESSION = session;
   });
 });
 
-// Fast logout using test endpoint
+// Fast logout using session clearing
 Cypress.Commands.add("logoutViaAPI", () => {
-  cy.request({
-    method: "DELETE",
-    url: "/api/auth/test-login",
-    failOnStatusCode: false,
+  cy.clearCookies();
+  cy.window().then((win: any) => {
+    delete win.__NEXT_AUTH_SESSION;
   });
+
+  // Mock empty session response
+  cy.intercept("GET", "/api/auth/session", {
+    statusCode: 200,
+    body: {},
+  }).as("getEmptySession");
 });
 
 // Custom command to click on create event link, handling both mobile and desktop navigation
@@ -304,7 +326,7 @@ Cypress.Commands.add("clickCreateEventLink", () => {
 });
 
 // Custom command to seed trainer data for tests
-// Note: This is now handled by loginViaAPI when role is "teacher"
+// Note: This now uses session mocking to simulate a teacher user
 Cypress.Commands.add(
   "seedTrainer",
   (email: string, firstName = "Test", lastName = "Teacher") => {
@@ -314,22 +336,24 @@ Cypress.Commands.add(
       name: `${firstName} ${lastName}`,
       role: "teacher",
     });
+
+    // Mock trainer-specific API endpoints
+    cy.intercept("GET", "/api/trainer/profile", {
+      statusCode: 200,
+      body: {
+        trainer_id: 1,
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        bio: "Test trainer bio",
+      },
+    }).as("getTrainerProfile");
   }
 );
 
 // Custom command to cleanup trainer data after tests
 Cypress.Commands.add("cleanupTrainer", (email: string) => {
-  // Clean up trainer record
-  cy.request({
-    method: "DELETE",
-    url: "/api/test/seed-trainer",
-    body: {
-      email,
-    },
-    failOnStatusCode: false,
-  });
-
-  // Clean up user session
+  // Clean up user session (no actual API cleanup needed since we're mocking)
   cy.logoutViaAPI();
 });
 
