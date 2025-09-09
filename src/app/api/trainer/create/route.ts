@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { withTeacher } from "@/lib/api-auth";
 
 // Function to generate a unique slug for a trainer
 async function generateTrainerSlug(
@@ -28,17 +28,11 @@ async function generateTrainerSlug(
   return `${baseSlug}-${trainerId}`;
 }
 
-export async function POST(request: Request) {
+export const POST = withTeacher(async (user, request: Request) => {
   try {
-    const currentUser = await getCurrentUser();
-
-    if (!currentUser) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     // Check if user already has a trainer profile
     const existingTrainer = await prisma.trainer.findFirst({
-      where: { email: currentUser.email! },
+      where: { email: user.email },
       select: { trainerId: true },
     });
 
@@ -68,7 +62,7 @@ export async function POST(request: Request) {
       data: {
         firstName: first_name,
         lastName: last_name,
-        email: currentUser.email!,
+        email: user.email,
         phoneNumber: phone_number || null,
         bio: bio || null,
         link: link || null,
@@ -100,4 +94,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
+});

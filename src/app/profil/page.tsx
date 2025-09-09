@@ -1,26 +1,16 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { db } from "@/config";
 import EditProfileForm from "./_components/EditProfileForm";
 import { prisma } from "@/lib/prisma";
 
-// Function to get trainer data for a user by email
+// Function to get trainer data for a user by email with avatar
 async function getTrainerByEmail(email: string) {
-  const stmt = db.prepare(`
-    SELECT * FROM Trainers
-    WHERE email = ?
-  `);
-  return stmt.get(email) as
-    | {
-        trainer_id: number;
-        first_name: string;
-        last_name: string;
-        email: string;
-        phone_number: string | null;
-        bio: string | null;
-        link: string | null;
-      }
-    | undefined;
+  return await prisma.trainer.findUnique({
+    where: { email },
+    include: {
+      avatarFile: true,
+    },
+  });
 }
 
 // Function to get user data from Prisma
@@ -41,7 +31,7 @@ export default async function ProfilePage() {
 
   let trainerData = null;
   if (user.email) {
-    trainerData = (await getTrainerByEmail(user.email)) || null;
+    trainerData = await getTrainerByEmail(user.email);
   }
 
   return (

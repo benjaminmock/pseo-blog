@@ -4,7 +4,13 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./yoga.db"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  student
+  teacher
+  admin
 }
 
 model User {
@@ -13,7 +19,7 @@ model User {
   email         String?       @unique
   emailVerified DateTime?
   image         String?
-  role          String        @default("student")
+  role          UserRole      @default(student)
   password_hash String?
   accounts      Account[]
   sessions      Session[]
@@ -93,6 +99,8 @@ model Trainer {
   bio                String?
   link               String?
   slug               String?
+  avatarFileId       String?             @map("avatar_file_id")
+  avatarFile         File?               @relation(fields: [avatarFileId], references: [id])
   courses            Course[]
   events             Event[]
   recordedAttendance AttendanceRecord[]  @relation("RecordedBy")
@@ -366,4 +374,19 @@ model ParticipantWaitlist {
   participant   Participant @relation(fields: [participantId], references: [participantId])
 
   @@map("participant_waitlist")
+}
+
+model File {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  url       String
+  mimeType  String    @map("mime_type")
+  sizeBytes Int       @map("size_bytes")
+  width     Int?
+  height    Int?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  trainers  Trainer[]
+
+  @@map("files")
 }

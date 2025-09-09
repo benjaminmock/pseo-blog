@@ -1,16 +1,5 @@
-import { db } from "@/config";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-
-type Trainer = {
-  trainer_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string | null;
-  bio: string | null;
-  link: string | null;
-  slug: string | null;
-};
 
 type PageProps = {
   searchParams: { page?: string };
@@ -20,20 +9,28 @@ async function getTrainers(page = 1, limit = 10) {
   const offset = (page - 1) * limit;
 
   // Get trainers with pagination - only those with slugs
-  const stmt = db.prepare(`
-    SELECT *
-    FROM Trainers
-    WHERE slug IS NOT NULL
-    ORDER BY first_name, last_name
-    LIMIT ? OFFSET ?
-  `);
-  const trainers = stmt.all(limit + 1, offset) as Trainer[];
+  const trainers = await prisma.trainer.findMany({
+    where: {
+      slug: {
+        not: null,
+      },
+    },
+    orderBy: [
+      { firstName: 'asc' },
+      { lastName: 'asc' },
+    ],
+    skip: offset,
+    take: limit + 1, // Take one extra to check if there are more
+  });
 
   // Get total count - only those with slugs
-  const countStmt = db.prepare(
-    "SELECT COUNT(*) as count FROM Trainers WHERE slug IS NOT NULL"
-  );
-  const { count } = countStmt.get() as { count: number };
+  const count = await prisma.trainer.count({
+    where: {
+      slug: {
+        not: null,
+      },
+    },
+  });
 
   const hasMore = trainers.length > limit;
   if (hasMore) {
@@ -60,12 +57,12 @@ export default async function TrainersPage({ searchParams }: PageProps) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {trainers.map((trainer) => (
           <Link
-            key={trainer.trainer_id}
+            key={trainer.trainerId}
             href={`/trainer/${trainer.slug}`}
             className="block p-6 bg-white rounded-lg  hover:shadow-sm transition-shadow"
           >
             <h2 className="text-xl font-medium mb-2 text-gray-900">
-              {trainer.first_name} {trainer.last_name}
+              {trainer.firstName} {trainer.lastName}
             </h2>
             {trainer.bio && (
               <p className="text-gray-600 text-sm mb-4 line-clamp-3">

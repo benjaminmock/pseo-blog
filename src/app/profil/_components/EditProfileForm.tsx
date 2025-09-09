@@ -2,21 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User } from "@prisma/client";
+import { User, Trainer, File } from "@prisma/client";
+import AvatarUpload from "./AvatarUpload";
+import Image from "next/image";
 
-type Trainer = {
-  trainer_id?: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string | null;
-  bio: string | null;
-  link: string | null;
+type TrainerWithAvatar = Trainer & {
+  avatarFile?: File | null;
 };
 
 type EditProfileFormProps = {
   user: User | null;
-  trainer: Trainer | null;
+  trainer: TrainerWithAvatar | null;
 };
 
 export default function EditProfileForm({
@@ -26,12 +22,16 @@ export default function EditProfileForm({
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(
+    trainer?.avatarFile?.url || null
+  );
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    first_name: trainer?.first_name || "",
-    last_name: trainer?.last_name || "",
-    phone_number: trainer?.phone_number || "",
+    first_name: trainer?.firstName || "",
+    last_name: trainer?.lastName || "",
+    phone_number: trainer?.phoneNumber || "",
     bio: trainer?.bio || "",
     link: trainer?.link || "",
   });
@@ -39,6 +39,7 @@ export default function EditProfileForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch("/api/profile/update", {
@@ -48,7 +49,7 @@ export default function EditProfileForm({
         },
         body: JSON.stringify({
           userId: user?.id,
-          trainer_id: trainer?.trainer_id,
+          trainer_id: trainer?.trainerId,
           ...formData,
         }),
       });
@@ -58,6 +59,7 @@ export default function EditProfileForm({
         throw new Error(data.message || "Failed to update profile information");
       }
 
+      setSuccess("Profil erfolgreich aktualisiert!");
       setIsEditing(false);
       router.refresh();
     } catch (err) {
@@ -75,9 +77,49 @@ export default function EditProfileForm({
     }));
   };
 
+  const handleAvatarUploadComplete = (avatarUrl: string) => {
+    setCurrentAvatarUrl(avatarUrl);
+    setSuccess("Avatar erfolgreich hochgeladen!");
+    router.refresh();
+  };
+
+  const handleAvatarUploadError = (errorMessage: string) => {
+    setError(`Avatar Upload Fehler: ${errorMessage}`);
+  };
+
   if (!isEditing) {
     return (
       <div className="space-y-6">
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-50 text-green-600 p-4 rounded-lg">{success}</div>
+        )}
+
+        {/* Avatar Section */}
+        {trainer && (
+          <div className="flex items-center space-x-6 pb-6 border-b border-gray-200">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+              {currentAvatarUrl ? (
+                <Image
+                  src={currentAvatarUrl}
+                  alt="Trainer Avatar"
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-400 text-3xl">👤</span>
+              )}
+            </div>
+            <div>
+              <h2 className="text-2xl font-medium text-gray-900">
+                {trainer.firstName} {trainer.lastName}
+              </h2>
+              <p className="text-gray-600">{trainer.email}</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h2 className="text-xl font-medium mb-4">
@@ -119,24 +161,24 @@ export default function EditProfileForm({
                 <div>
                   <dt className="text-gray-600">Vorname</dt>
                   <dd className="font-medium">
-                    {trainer.first_name || "Nicht angegeben"}
+                    {trainer.firstName || "Nicht angegeben"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-gray-600">Nachname</dt>
                   <dd className="font-medium">
-                    {trainer.last_name || "Nicht angegeben"}
+                    {trainer.lastName || "Nicht angegeben"}
                   </dd>
                 </div>
-                {trainer.phone_number && (
+                {trainer.phoneNumber && (
                   <div>
                     <dt className="text-gray-600">Telefon</dt>
                     <dd className="font-medium">
                       <a
-                        href={`tel:${trainer.phone_number}`}
+                        href={`tel:${trainer.phoneNumber}`}
                         className="text-blue-600 hover:underline"
                       >
-                        {trainer.phone_number}
+                        {trainer.phoneNumber}
                       </a>
                     </dd>
                   </div>
@@ -182,6 +224,23 @@ export default function EditProfileForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 text-green-600 p-4 rounded-lg">{success}</div>
+      )}
+
+      {/* Avatar Upload Section */}
+      {trainer && (
+        <div>
+          <h2 className="text-xl font-medium mb-4">Profilbild</h2>
+          <AvatarUpload
+            currentAvatarUrl={currentAvatarUrl}
+            trainerId={trainer.trainerId}
+            onUploadComplete={handleAvatarUploadComplete}
+            onUploadError={handleAvatarUploadError}
+          />
+        </div>
       )}
 
       <div style={{ display: "none" }}>

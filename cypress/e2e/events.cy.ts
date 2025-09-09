@@ -1,60 +1,73 @@
+// Helper function to create test event data
+function createTestEventData() {
+  const futureDate1 = new Date();
+  futureDate1.setDate(futureDate1.getDate() + 30);
+  const futureDate2 = new Date();
+  futureDate2.setDate(futureDate2.getDate() + 45);
+  const futureDate3 = new Date();
+  futureDate3.setDate(futureDate3.getDate() + 60);
+
+  return [
+    {
+      event_id: 1,
+      event_name: "Yoga Workshop für Anfänger",
+      description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
+      start_date: futureDate1.toISOString().split('T')[0],
+      start_time: "10:00",
+      city_slug: "hamburg",
+      slug: "yoga-workshop-anfaenger",
+      max_participants: 15,
+      price: 45.0,
+      first_name: "Anna",
+      last_name: "Schmidt",
+      trainer_bio: "Erfahrene Yoga-Lehrerin",
+      trainer_id: 1,
+      active: 1,
+    },
+    {
+      event_id: 2,
+      event_name: "Fortgeschrittenes Vinyasa",
+      description: "Dynamisches Yoga für erfahrene Praktizierende.",
+      start_date: futureDate2.toISOString().split('T')[0],
+      start_time: "18:00",
+      city_slug: "berlin",
+      slug: "fortgeschrittenes-vinyasa",
+      max_participants: 12,
+      price: 65.0,
+      first_name: "Michael",
+      last_name: "Weber",
+      trainer_bio: "Yoga-Experte mit 10 Jahren Erfahrung",
+      trainer_id: 2,
+      active: 1,
+    },
+    {
+      event_id: 3,
+      event_name: "Event ohne Slug",
+      description: "Ein Event ohne Slug zum Testen.",
+      start_date: futureDate3.toISOString().split('T')[0],
+      start_time: "14:00",
+      city_slug: "münchen",
+      slug: null,
+      max_participants: 20,
+      price: 35.0,
+      first_name: "Sarah",
+      last_name: "Müller",
+      trainer_bio: "Zertifizierte Trainerin",
+      trainer_id: 3,
+      active: 1,
+    },
+  ];
+}
+
 describe("Events Page", () => {
   beforeEach(() => {
     // Mock the events API with sample data - use future dates to ensure they show up
-    const futureDate1 = new Date();
-    futureDate1.setDate(futureDate1.getDate() + 30);
-    const futureDate2 = new Date();
-    futureDate2.setDate(futureDate2.getDate() + 45);
-    const futureDate3 = new Date();
-    futureDate3.setDate(futureDate3.getDate() + 60);
+    const eventData = createTestEventData();
 
     cy.intercept("GET", "**/api/events", {
       statusCode: 200,
       body: {
-        events: [
-          {
-            event_id: 1,
-            event_name: "Yoga Workshop für Anfänger",
-            description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
-            start_date: futureDate1.toISOString().split('T')[0],
-            start_time: "10:00",
-            city_slug: "hamburg",
-            slug: "yoga-workshop-anfaenger",
-            max_participants: 15,
-            price: 45.0,
-            first_name: "Anna",
-            last_name: "Schmidt",
-            trainer_bio: "Erfahrene Yoga-Lehrerin",
-          },
-          {
-            event_id: 2,
-            event_name: "Fortgeschrittenes Vinyasa",
-            description: "Dynamisches Yoga für erfahrene Praktizierende.",
-            start_date: futureDate2.toISOString().split('T')[0],
-            start_time: "18:00",
-            city_slug: "berlin",
-            slug: "fortgeschrittenes-vinyasa",
-            max_participants: 12,
-            price: 65.0,
-            first_name: "Michael",
-            last_name: "Weber",
-            trainer_bio: "Yoga-Experte mit 10 Jahren Erfahrung",
-          },
-          {
-            event_id: 3,
-            event_name: "Event ohne Slug",
-            description: "Ein Event ohne Slug zum Testen.",
-            start_date: futureDate3.toISOString().split('T')[0],
-            start_time: "14:00",
-            city_slug: "münchen",
-            slug: null,
-            max_participants: 20,
-            price: 35.0,
-            first_name: "Sarah",
-            last_name: "Müller",
-            trainer_bio: "Zertifizierte Trainerin",
-          },
-        ],
+        events: eventData,
       },
     }).as("getEvents");
 
@@ -127,11 +140,12 @@ describe("Events Page", () => {
         cy.url().should("include", href);
         cy.url().should("include", "/events/yoga-workshop-anfaenger");
 
-        // Check that the event detail page is rendered
-        cy.get("body").should("be.visible");
-
-        // Note: The actual event detail page would need to be mocked separately
-        // For now, we just verify navigation occurred
+        // Check that the event detail page is rendered with expected content
+        cy.get("h1").should("be.visible").and("contain", "Yoga Workshop für Anfänger");
+        cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+        cy.contains("Anna Schmidt").should("be.visible");
+        cy.contains("Datum").should("be.visible");
+        cy.contains("← Zurück zur Event-Übersicht").should("be.visible");
       });
   });
 
@@ -139,15 +153,17 @@ describe("Events Page", () => {
     // Navigate to an event detail page first
     cy.get('a[href*="/events/"]').first().click();
 
-    // Wait for the page to load
-    cy.url().should("include", "/events/");
+    // Wait for the page to load and verify we're on the detail page
+    cy.url().should("include", "/events/yoga-workshop-anfaenger");
+    cy.get("h1").should("be.visible").and("contain", "Yoga Workshop für Anfänger");
 
-    // Note: The actual event detail page would need proper mocking
-    // For now, we just verify navigation occurred
-    cy.log("Navigation to event detail page successful");
+    // Check that the back link is present and functional
+    cy.contains("← Zurück zur Event-Übersicht")
+      .should("be.visible")
+      .and("have.attr", "href", "/events");
     
-    // Go back to events page manually for this test
-    cy.visit("/events");
+    // Click the back link to return to events page
+    cy.contains("← Zurück zur Event-Übersicht").click();
     cy.url().should("match", /\/events\/?$/);
     cy.contains("Yoga Events & Workshops").should("be.visible");
   });
@@ -215,125 +231,68 @@ describe("Events Page", () => {
 });
 
 describe("Event Detail Page", () => {
+  beforeEach(() => {
+    // Mock the events API for this test suite
+    const eventData = createTestEventData()[0]; // Use first event
+
+    cy.intercept("GET", "**/api/events", {
+      statusCode: 200,
+      body: { events: [eventData] },
+    }).as("getEvents");
+  });
+
   it("should display all event information correctly", () => {
-    // First navigate to events page
+    // Navigate to events page first
     cy.visit("/events");
+    cy.wait("@getEvents");
 
-    // Check if there are events to test
-    cy.get("body").then(($body) => {
-      const eventLinks = $body.find('a[href*="/events/"]');
+    // Click on the first event to test the real Next.js page
+    cy.get('a[href*="/events/"]').first().click();
 
-      if (eventLinks.length > 0) {
-        // Click on the first event
-        cy.get('a[href*="/events/"]').first().click();
+    // Check that all expected sections are present in the real application
+    cy.get("h1").should("be.visible").and("contain", "Yoga Workshop für Anfänger");
+    cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+    cy.contains("Anna Schmidt").should("be.visible");
+    cy.contains("Datum").should("be.visible");
+    cy.contains("Uhrzeit").should("be.visible");
+    cy.contains("10:00").should("be.visible");
+    cy.contains("Ort").should("be.visible");
+    cy.contains("hamburg").should("be.visible");
+    cy.contains("Preis").should("be.visible");
+    cy.contains("45,00 €").should("be.visible"); // Real app uses German currency formatting
+    cy.contains("Max. Teilnehmer").should("be.visible");
+    cy.contains("15 Teilnehmer").should("be.visible");
+    cy.contains("Beschreibung").should("be.visible");
 
-        // Check that all expected sections are present
-        cy.contains("Trainer*in / Lehrer*in").should("be.visible");
-        cy.contains("Datum").should("be.visible");
-
-        // Check that the back link is present and functional
-        cy.contains("← Zurück zur Event-Übersicht")
-          .should("be.visible")
-          .and("have.attr", "href", "/events");
-
-        // Check for optional sections that might be present
-        cy.get("body").then(($detailBody) => {
-          // Check for time if present
-          if ($detailBody.text().includes("Uhrzeit")) {
-            cy.contains("Uhrzeit").should("be.visible");
-          }
-
-          // Check for location if present
-          if ($detailBody.text().includes("Ort")) {
-            cy.contains("Ort").should("be.visible");
-          }
-
-          // Check for price if present
-          if ($detailBody.text().includes("Preis")) {
-            cy.contains("Preis").should("be.visible");
-          }
-
-          // Check for max participants if present
-          if ($detailBody.text().includes("Max. Teilnehmer")) {
-            cy.contains("Max. Teilnehmer").should("be.visible");
-          }
-
-          // Check for description if present
-          if ($detailBody.text().includes("Beschreibung")) {
-            cy.contains("Beschreibung").should("be.visible");
-          }
-        });
-      } else {
-        cy.log("No events found, skipping event detail test");
-      }
-    });
+    // Check that the back link is present and functional
+    cy.contains("← Zurück zur Event-Übersicht")
+      .should("be.visible")
+      .and("have.attr", "href", "/events");
   });
 
   it("should have correct meta information", () => {
     // Navigate to events page first
     cy.visit("/events");
+    cy.wait("@getEvents");
 
-    // Check if there are events to test
-    cy.get("body").then(($body) => {
-      const eventLinks = $body.find('a[href*="/events/"]');
+    // Click the event link to test real Next.js metadata generation
+    cy.get('a[href*="/events/"]').first().click();
 
-      if (eventLinks.length > 0) {
-        // Get the first event link and extract event name
-        cy.get("div")
-          .contains("Mehr erfahren")
-          .parent()
-          .parent()
-          .within(() => {
-            cy.get("h2")
-              .invoke("text")
-              .then((eventName) => {
-                // Store the event name
-                cy.wrap(eventName).as("eventName");
-              });
-          });
-
-        // Click the event link
-        cy.get('a[href*="/events/"]').first().click();
-
-        // Check that the page title contains the event name
-        cy.get("@eventName").then((eventName) => {
-          cy.title().should("contain", eventName.toString().trim());
-        });
-      } else {
-        cy.log("No events found, skipping meta information test");
-      }
-    });
+    // Check that the page title contains the event name (generated by real app)
+    cy.title().should("contain", "Yoga Workshop für Anfänger");
   });
 
   it("should handle trainer links correctly", () => {
-    // Navigate to an event detail page
+    // Navigate to events page first
     cy.visit("/events");
+    cy.wait("@getEvents");
 
-    cy.get("body").then(($body) => {
-      const eventLinks = $body.find('a[href*="/events/"]');
+    // Click on the event to test real trainer link logic
+    cy.get('a[href*="/events/"]').first().click();
 
-      if (eventLinks.length > 0) {
-        cy.get('a[href*="/events/"]').first().click();
-
-        // Check if trainer has a link (some might not have slugs)
-        cy.get("body").then(($detailBody) => {
-          const trainerLink = $detailBody.find('a[href*="/trainer/"]');
-          if (trainerLink.length > 0) {
-            // Trainer has a link, test it
-            cy.get('a[href*="/trainer/"]').should("be.visible");
-          } else {
-            // Trainer doesn't have a link, just check the name is displayed
-            cy.contains("Trainer*in / Lehrer*in").should("be.visible");
-            // Check that trainer name is displayed somewhere in the section
-            cy.contains("Trainer*in / Lehrer*in")
-              .parent()
-              .should("contain.text", " ");
-          }
-        });
-      } else {
-        cy.log("No events found, skipping trainer link test");
-      }
-    });
+    // Check that trainer name is displayed (real app handles trainer links conditionally)
+    cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+    cy.contains("Anna Schmidt").should("be.visible");
   });
 
   it("should show edit button for event owners when authenticated", () => {
@@ -344,29 +303,14 @@ describe("Event Detail Page", () => {
       role: "teacher",
     });
 
-    // Mock the event detail page to include edit button
-    cy.intercept("GET", "**/events/yoga-workshop-anfaenger", {
-      statusCode: 200,
-      headers: { "content-type": "text/html" },
-      body: `
-        <!DOCTYPE html>
-        <html>
-          <head><title>Yoga Workshop für Anfänger</title></head>
-          <body>
-            <h1>Yoga Workshop für Anfänger</h1>
-            <div>Trainer*in / Lehrer*in: Anna Schmidt</div>
-            <div>Datum: 25. Dezember 2024</div>
-            <a href="/events/yoga-workshop-anfaenger/bearbeiten">Event bearbeiten</a>
-          </body>
-        </html>
-      `,
-    }).as("getEventDetail");
-
-    // Navigate to event detail page
+    // Navigate to events page and click on event to test real authentication logic
+    cy.visit("/events");
+    cy.wait("@getEvents");
     cy.get('a[href*="/events/yoga-workshop-anfaenger"]').first().click();
-    cy.wait("@getEventDetail");
 
-    // Check if edit button exists (only visible to event owners)
+    // Check if edit button exists (real app checks user ownership)
+    // Note: This test may fail if the real app doesn't have the trainer in the database
+    // In a real scenario, you'd need to set up proper test data in the database
     cy.get('a[href*="/bearbeiten"]')
       .should("be.visible")
       .and("contain", "Event bearbeiten");
@@ -379,27 +323,28 @@ describe("Event Navigation Flow", () => {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 30);
 
+    const eventData = {
+      event_id: 1,
+      event_name: "Yoga Workshop für Anfänger",
+      description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
+      start_date: futureDate.toISOString().split('T')[0],
+      start_time: "10:00",
+      city_slug: "hamburg",
+      slug: "yoga-workshop-anfaenger",
+      max_participants: 15,
+      price: 45.0,
+      first_name: "Anna",
+      last_name: "Schmidt",
+      trainer_bio: "Erfahrene Yoga-Lehrerin",
+    };
+
     cy.intercept("GET", "**/api/events", {
       statusCode: 200,
-      body: {
-        events: [
-          {
-            event_id: 1,
-            event_name: "Yoga Workshop für Anfänger",
-            description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
-            start_date: futureDate.toISOString().split('T')[0],
-            start_time: "10:00",
-            city_slug: "hamburg",
-            slug: "yoga-workshop-anfaenger",
-            max_participants: 15,
-            price: 45.0,
-            first_name: "Anna",
-            last_name: "Schmidt",
-            trainer_bio: "Erfahrene Yoga-Lehrerin",
-          },
-        ],
-      },
+      body: { events: [eventData] },
     }).as("getEvents");
+
+    // Mock event detail page
+    // No longer mocking event detail pages - test the real Next.js application
   });
 
   it("should complete a full navigation flow from events list to event detail and back", () => {
@@ -413,53 +358,51 @@ describe("Event Navigation Flow", () => {
 
     // Click on an event
     cy.get('a[href*="/events/"]').first().click();
+    cy.wait("@getEventDetail");
 
     // Verify we're on event detail page
     cy.url().should("match", /\/events\/[^\/]+$/);
+    cy.get("h1").should("be.visible").and("contain", "Yoga Workshop für Anfänger");
 
-    // Go back to events page manually (since we don't have full event detail page mocked)
-    cy.visit("/events");
+    // Use the back link to return to events page
+    cy.contains("← Zurück zur Event-Übersicht").click();
     cy.url().should("match", /\/events\/?$/);
     cy.contains("Yoga Events & Workshops").should("be.visible");
   });
 
   it("should handle direct navigation to event slugs", () => {
-    // Mock a specific event detail page
-    cy.intercept("GET", "**/events/yoga-workshop-anfaenger", {
-      statusCode: 200,
-      headers: { "content-type": "text/html" },
-      body: `
-        <!DOCTYPE html>
-        <html>
-          <head><title>Yoga Workshop für Anfänger</title></head>
-          <body>
-            <h1>Yoga Workshop für Anfänger</h1>
-            <div>Trainer*in / Lehrer*in: Anna Schmidt</div>
-            <div>Datum: 25. Dezember 2024</div>
-          </body>
-        </html>
-      `,
-    }).as("getEventDetail");
-
     // Test direct navigation to the event slug
     cy.visit("/events/yoga-workshop-anfaenger");
     cy.wait("@getEventDetail");
     cy.get("h1").should("be.visible").and("contain", "Yoga Workshop für Anfänger");
     cy.contains("Trainer*in / Lehrer*in").should("be.visible");
+    cy.contains("Anna Schmidt").should("be.visible");
   });
 
   it("should handle invalid event slugs gracefully", () => {
-    // Mock 404 response for non-existent event
+    // Mock 404 response for non-existent event with proper HTML content-type
     cy.intercept("GET", "**/events/non-existent-event", {
       statusCode: 404,
+      headers: { "content-type": "text/html" },
+      body: `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Event nicht gefunden</title></head>
+          <body>
+            <h1>404 - Event nicht gefunden</h1>
+            <p>Das angeforderte Event wurde nicht gefunden.</p>
+          </body>
+        </html>
+      `,
     }).as("get404Event");
 
     // Test navigation to a non-existent event slug
     cy.visit("/events/non-existent-event", { failOnStatusCode: false });
     cy.wait("@get404Event");
     
-    // Should handle 404 gracefully (exact behavior depends on your 404 page implementation)
+    // Should handle 404 gracefully with proper content
     cy.url().should("include", "/events/non-existent-event");
+    cy.get("body").should("be.visible");
   });
 });
 
@@ -471,41 +414,43 @@ describe("Event Slug Functionality", () => {
     const futureDate2 = new Date();
     futureDate2.setDate(futureDate2.getDate() + 45);
 
+    const eventData = [
+      {
+        event_id: 1,
+        event_name: "Yoga Workshop für Anfänger",
+        description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
+        start_date: futureDate1.toISOString().split('T')[0],
+        start_time: "10:00",
+        city_slug: "hamburg",
+        slug: "yoga-workshop-anfaenger",
+        max_participants: 15,
+        price: 45.0,
+        first_name: "Anna",
+        last_name: "Schmidt",
+        trainer_bio: "Erfahrene Yoga-Lehrerin",
+      },
+      {
+        event_id: 2,
+        event_name: "Fortgeschrittenes Vinyasa",
+        description: "Dynamisches Yoga für erfahrene Praktizierende.",
+        start_date: futureDate2.toISOString().split('T')[0],
+        start_time: "18:00",
+        city_slug: "berlin",
+        slug: "fortgeschrittenes-vinyasa",
+        max_participants: 12,
+        price: 65.0,
+        first_name: "Michael",
+        last_name: "Weber",
+        trainer_bio: "Yoga-Experte mit 10 Jahren Erfahrung",
+      },
+    ];
+
     cy.intercept("GET", "**/api/events", {
       statusCode: 200,
-      body: {
-        events: [
-          {
-            event_id: 1,
-            event_name: "Yoga Workshop für Anfänger",
-            description: "Ein entspannender Workshop für alle, die neu im Yoga sind.",
-            start_date: futureDate1.toISOString().split('T')[0],
-            start_time: "10:00",
-            city_slug: "hamburg",
-            slug: "yoga-workshop-anfaenger",
-            max_participants: 15,
-            price: 45.0,
-            first_name: "Anna",
-            last_name: "Schmidt",
-            trainer_bio: "Erfahrene Yoga-Lehrerin",
-          },
-          {
-            event_id: 2,
-            event_name: "Fortgeschrittenes Vinyasa",
-            description: "Dynamisches Yoga für erfahrene Praktizierende.",
-            start_date: futureDate2.toISOString().split('T')[0],
-            start_time: "18:00",
-            city_slug: "berlin",
-            slug: "fortgeschrittenes-vinyasa",
-            max_participants: 12,
-            price: 65.0,
-            first_name: "Michael",
-            last_name: "Weber",
-            trainer_bio: "Yoga-Experte mit 10 Jahren Erfahrung",
-          },
-        ],
-      },
+      body: { events: eventData },
     }).as("getEvents");
+
+    // No longer mocking event detail pages - test the real Next.js application
 
     cy.visit("/events");
     cy.wait("@getEvents");

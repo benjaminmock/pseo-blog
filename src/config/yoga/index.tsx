@@ -1,7 +1,6 @@
 export const metadata = {
-  titleTag: "YogaPilates24.de - Yoga- und Pilates-Kurse in Deiner Nähe",
-  title: "YogaPilates24.de", // header & footer
-  // indexPageH1: "Solarteuere in Deiner Nähe",
+  titleTag: "kursio.de - Yoga- und Pilates-Kurse in Deiner Nähe",
+  title: "kursio.de", // header & footer
   indexPageTopicsHeadline: "Yoga und Pilates Themen",
   indexPageNearYouHeadline:
     "Yoga- & Pilates-Kurse und Workshops in Deiner Nähe",
@@ -69,22 +68,10 @@ export const faqs = [
   },
 ];
 
-export const icon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="feather feather-flower"
-    width={20}
-  >
-    <path d="M12 22s8-4 8-10S12 2 12 2 4 8 4 12s8 10 8 10z"></path>
-    <circle cx="12" cy="12" r="3"></circle>
-  </svg>
-);
+export const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-flower" width={20}>
+  <path d="M12 22s8-4 8-10S12 2 12 2 4 8 4 12s8 10 8 10z"></path>
+  <circle cx="12" cy="12" r="3"></circle>
+</svg>`;
 
 export const favicon = `data:image/svg+xml,${encodeURIComponent(`
   <svg

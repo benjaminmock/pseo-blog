@@ -1,7 +1,9 @@
-import { db } from "@/config";
 import { notFound } from "next/navigation";
 import EditTrainerForm from "./_components/EditTrainerForm";
 import Link from "next/link";
+import Image from "next/image";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 type TrainerPageProps = {
   params: {
@@ -9,82 +11,27 @@ type TrainerPageProps = {
   };
 };
 
-type Trainer = {
-  trainer_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string | null;
-  bio: string | null;
-  link: string | null;
-};
-
-type Event = {
-  event_id: number;
-  event_name: string;
-  description: string | null;
-  start_date: string;
-  end_date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  city_name: string | null;
-  city_slug: string | null;
-  slug: string | null;
-  price: number | null;
-  max_participants: number | null;
-};
-
-type Course = {
-  course_id: number;
-  course_name: string;
-  description: string | null;
-  start_date: string;
-  end_date: string | null;
-  city_name: string | null;
-  city_slug: string | null;
-  slug: string | null;
-  price: number | null;
-  capacity: number | null;
-  language: string | null;
-  duration: number | null;
-  location: string | null;
-  style: string | null;
-  level: string | null;
-};
-
-async function getTrainerBySlug(slug: string): Promise<Trainer | undefined> {
-  const stmt = db.prepare(`
-    SELECT *
-    FROM Trainers
-    WHERE slug = ?
-  `);
-  return stmt.get(slug) as Trainer | undefined;
-}
-
-async function getTrainerEvents(trainerId: number): Promise<Event[]> {
-  const stmt = db.prepare(`
-    SELECT
-      e.*,
-      c.city as city_name
-    FROM Events e
-    LEFT JOIN cities c ON e.city_id = c.id
-    WHERE e.trainer_id = ? AND e.active = 1
-    ORDER BY e.start_date ASC
-  `);
-  return stmt.all(trainerId) as Event[];
-}
-
-async function getTrainerCourses(trainerId: number): Promise<Course[]> {
-  const stmt = db.prepare(`
-    SELECT
-      co.*,
-      c.city as city_name
-    FROM Courses co
-    LEFT JOIN cities c ON co.city_id = c.id
-    WHERE co.trainer_id = ? AND co.active = 1
-    ORDER BY co.start_date ASC
-  `);
-  return stmt.all(trainerId) as Course[];
+async function getTrainerBySlug(slug: string) {
+  return await prisma.trainer.findUnique({
+    where: { slug },
+    include: {
+      avatarFile: true,
+      events: {
+        where: { active: 1 },
+        include: {
+          city: true,
+        },
+        orderBy: { startDate: "asc" },
+      },
+      courses: {
+        where: { active: 1 },
+        include: {
+          city: true,
+        },
+        orderBy: { startDate: "asc" },
+      },
+    },
+  });
 }
 
 export async function generateMetadata({ params }: TrainerPageProps) {
@@ -99,10 +46,10 @@ export async function generateMetadata({ params }: TrainerPageProps) {
   }
 
   return {
-    title: `${trainer.first_name} ${trainer.last_name}`,
+    title: `${trainer.firstName} ${trainer.lastName}`,
     description:
       trainer.bio ||
-      `Trainer Profil von ${trainer.first_name} ${trainer.last_name}`,
+      `Trainer Profil von ${trainer.firstName} ${trainer.lastName}`,
   };
 }
 
@@ -114,13 +61,12 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
     notFound();
   }
 
-  const isOwnProfile = true; // TODO: Implement user authentication check
+  // Check if this is the user's own profile
+  const currentUser = await getCurrentUser();
+  const isOwnProfile = currentUser?.email === trainer.email;
 
-  // Fetch events and courses for this trainer
-  const [events, courses] = await Promise.all([
-    getTrainerEvents(trainer.trainer_id),
-    getTrainerCourses(trainer.trainer_id),
-  ]);
+  const events = trainer.events;
+  const courses = trainer.courses;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("de-DE", {
@@ -152,21 +98,34 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
           </li>
           <li className="mx-1">/</li>
           <li className="text-gray-800 font-semibold">
-            {trainer.first_name} {trainer.last_name}
+            {trainer.firstName} {trainer.lastName}
           </li>
         </ol>
       </nav>
       <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl w-full flex bg-white shadow-md rounded-lg overflow-hidden">
           <div className="w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {trainer.first_name} {trainer.last_name}
+            {/* Avatar Display */}
+            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center mb-4">
+              {trainer.avatarFile?.url ? (
+                <Image
+                  src={trainer.avatarFile.url}
+                  alt={`${trainer.firstName} ${trainer.lastName}`}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-400 text-5xl">👤</span>
+              )}
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 text-center">
+              {trainer.firstName} {trainer.lastName}
             </h2>
-            <div className="text-6xl mt-4">🧘‍♂️</div>
           </div>
           <div className="w-1/2 p-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {trainer.first_name} {trainer.last_name}
+              {trainer.firstName} {trainer.lastName}
             </h2>
             {isOwnProfile && (
               <p className="text-sm text-gray-500 mb-4">
@@ -203,15 +162,15 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                         </a>
                       </dd>
                     </div>
-                    {trainer.phone_number && (
+                    {trainer.phoneNumber && (
                       <div>
                         <dt className="text-gray-600">Telefon</dt>
                         <dd className="font-medium">
                           <a
-                            href={`tel:${trainer.phone_number}`}
+                            href={`tel:${trainer.phoneNumber}`}
                             className="text-blue-600 hover:underline"
                           >
-                            {trainer.phone_number}
+                            {trainer.phoneNumber}
                           </a>
                         </dd>
                       </div>
@@ -251,7 +210,7 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
               <div className="space-y-4">
                 {events.map((event) => (
                   <div
-                    key={event.event_id}
+                    key={event.eventId}
                     className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
@@ -261,10 +220,10 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                             href={`/events/${event.slug}`}
                             className="hover:text-blue-600 transition-colors"
                           >
-                            {event.event_name}
+                            {event.eventName}
                           </Link>
                         ) : (
-                          event.event_name
+                          event.eventName
                         )}
                       </h4>
                       {event.price && (
@@ -283,32 +242,31 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <div className="flex items-center">
                         <span className="mr-1">📅</span>
-                        {formatDate(event.start_date)}
-                        {event.end_date &&
-                          event.end_date !== event.start_date && (
-                            <span> - {formatDate(event.end_date)}</span>
-                          )}
+                        {formatDate(event.startDate)}
+                        {event.endDate && event.endDate !== event.startDate && (
+                          <span> - {formatDate(event.endDate)}</span>
+                        )}
                       </div>
 
-                      {event.start_time && (
+                      {event.startTime && (
                         <div className="flex items-center">
                           <span className="mr-1">🕐</span>
-                          {event.start_time}
-                          {event.end_time && <span> - {event.end_time}</span>}
+                          {event.startTime}
+                          {event.endTime && <span> - {event.endTime}</span>}
                         </div>
                       )}
 
-                      {event.city_name && (
+                      {event.city?.city && (
                         <div className="flex items-center">
                           <span className="mr-1">📍</span>
-                          {event.city_name}
+                          {event.city.city}
                         </div>
                       )}
 
-                      {event.max_participants && (
+                      {event.maxParticipants && (
                         <div className="flex items-center">
                           <span className="mr-1">👥</span>
-                          max. {event.max_participants} Teilnehmer
+                          max. {event.maxParticipants} Teilnehmer
                         </div>
                       )}
                     </div>
@@ -329,7 +287,7 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
               <div className="space-y-4">
                 {courses.map((course) => (
                   <div
-                    key={course.course_id}
+                    key={course.courseId}
                     className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
@@ -339,10 +297,10 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                             href={`/kurse/${course.slug}`}
                             className="hover:text-blue-600 transition-colors"
                           >
-                            {course.course_name}
+                            {course.courseName}
                           </Link>
                         ) : (
-                          course.course_name
+                          course.courseName
                         )}
                       </h4>
                       {course.price && (
@@ -361,17 +319,17 @@ export default async function TrainerPage({ params }: TrainerPageProps) {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
                       <div className="flex items-center">
                         <span className="mr-1">📅</span>
-                        {formatDate(course.start_date)}
-                        {course.end_date &&
-                          course.end_date !== course.start_date && (
-                            <span> - {formatDate(course.end_date)}</span>
+                        {formatDate(course.startDate)}
+                        {course.endDate &&
+                          course.endDate !== course.startDate && (
+                            <span> - {formatDate(course.endDate)}</span>
                           )}
                       </div>
 
-                      {course.city_name && (
+                      {course.city?.city && (
                         <div className="flex items-center">
                           <span className="mr-1">📍</span>
-                          {course.city_name}
+                          {course.city.city}
                         </div>
                       )}
 

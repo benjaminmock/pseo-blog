@@ -81,9 +81,8 @@ export const authOptions: AuthOptions = {
           where: { id: user.id },
         });
 
-        // TODO does not work yet - role is always student
-        // const userRole = dbUser?.role || "student";
-        const userRole = "teacher";
+        // Get the user's role from localStorage or default to student
+        const userRole = dbUser?.role || "student";
 
         // If user is a teacher, automatically create a trainer profile
         if (userRole === "teacher" && user.email) {
@@ -172,11 +171,26 @@ export const authOptions: AuthOptions = {
       // Include user ID in token for session callback
       if (user) {
         token.sub = user.id;
+        token.role = user.role; // Include role in JWT token
+      }
+
+      // If we don't have a role in the token yet, fetch it from database
+      if (token.sub && !token.role) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { role: true }
+          });
+          token.role = dbUser?.role || "student";
+        } catch (error) {
+          console.error("Error fetching user role for JWT:", error);
+          token.role = "student"; // Default fallback
+        }
       }
 
       return token;
     },
-    async signIn({ user, account, email, credentials }) {
+    async signIn({ user, account, email, credentials, profile }) {
       try {
         // Get the role from the appropriate source based on the provider
         let role: string | undefined;
@@ -189,9 +203,18 @@ export const authOptions: AuthOptions = {
           account?.provider === "google" ||
           account?.provider === "linkedin"
         ) {
-          // For OAuth providers, the role is passed in the callbackUrl's state parameter
-          // Extract it from the account state if available
-          if (account.state && typeof account.state === "string") {
+          // Try to get role from localStorage (stored before OAuth flow)
+          if (typeof window !== "undefined") {
+            const storedRole = localStorage.getItem("selectedUserRole");
+            if (storedRole && ["student", "teacher"].includes(storedRole)) {
+              role = storedRole;
+              // Clean up localStorage
+              localStorage.removeItem("selectedUserRole");
+            }
+          }
+
+          // Fallback: Extract role from account state if available
+          if (!role && account.state && typeof account.state === "string") {
             try {
               // The state might be a JSON string or have the role as a URL parameter
               if (account.state.includes("role=")) {

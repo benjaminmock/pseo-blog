@@ -153,12 +153,23 @@ export default function CoursesPage() {
     }
   }, [session, status]);
 
+  // Debug logging
+  console.log("🔍 Kurse page - Session status:", status);
+  console.log("🔍 Kurse page - Session data:", session);
+  console.log("🔍 Kurse page - User role:", session?.user?.role);
+
   // Redirect if not authenticated or not a teacher
   if (status === "loading") {
     return <div className="max-w-6xl mx-auto p-6">Loading...</div>;
   }
 
-  if (status === "unauthenticated" || session?.user?.role !== "teacher") {
+  if (status === "unauthenticated") {
+    console.log("❌ Kurse page - User not authenticated, redirecting to login");
+    redirect("/login");
+  }
+
+  if (session?.user?.role !== "teacher") {
+    console.log(`❌ Kurse page - User role '${session?.user?.role}' is not teacher, redirecting to login`);
     redirect("/login");
   }
 

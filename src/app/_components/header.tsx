@@ -247,7 +247,7 @@ const Header = () => {
                     <span>Event erstellen</span>
                   </a>
                   <a
-                    href="/intern"
+                    href={session.user.role === "teacher" ? "/teacher-dashboard" : "/student-dashboard"}
                     className="block text-gray-700 hover:text-gray-900 transition flex items-center space-x-2 mt-3"
                   >
                     <svg
@@ -275,7 +275,7 @@ const Header = () => {
                         d="M16 1v6"
                       />
                     </svg>
-                    <span>Interner Bereich</span>
+                    <span>Dashboard</span>
                   </a>
                 </div>
               </>

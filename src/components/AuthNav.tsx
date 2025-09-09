@@ -13,12 +13,21 @@ export default function AuthNav() {
     router.refresh();
   };
 
+  const getDashboardLink = () => {
+    if (session?.user?.role === "teacher") {
+      return "/teacher-dashboard";
+    } else if (session?.user?.role === "student") {
+      return "/student-dashboard";
+    }
+    return "/intern"; // fallback
+  };
+
   return (
     <div className="flex items-center space-x-4">
       {session?.user ? (
         <>
           <Link
-            href="/intern"
+            href={getDashboardLink()}
             className="text-gray-700 hover:text-gray-900 text-sm transition-colors duration-200"
           >
             Willkommen, {session.user.name}

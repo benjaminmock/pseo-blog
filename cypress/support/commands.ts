@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
 
+// Import additional auth commands
+import './auth-commands';
+
 interface UserOptions {
   id?: string;
   name?: string;

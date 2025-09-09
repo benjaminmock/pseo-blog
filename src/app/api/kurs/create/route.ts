@@ -1,13 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { withTeacher } from "@/lib/api-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-  }
+export const POST = withTeacher(async (user, request: NextRequest) => {
 
   try {
     const data = await request.json();
@@ -119,4 +114,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
