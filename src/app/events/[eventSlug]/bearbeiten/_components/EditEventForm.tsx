@@ -1,8 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CityCombobox from "@/components/CityCombobox";
+import MultiImageUpload from "@/components/MultiImageUpload";
+
+interface UploadedImage {
+  id: string;
+  url: string;
+  file?: File;
+  isUploading?: boolean;
+  isMain?: boolean;
+  sortOrder?: number;
+}
 
 type Event = {
   event_id: number;
@@ -27,6 +37,41 @@ export default function EditEventForm({ event }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentImages, setCurrentImages] = useState<UploadedImage[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
+
+  // Fetch existing images when component mounts
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(`/api/events/${event.event_id}/images`);
+        if (response.ok) {
+          const data = await response.json();
+          const images: UploadedImage[] = data.images.map((img: any) => ({
+            id: img.file.id,
+            url: img.file.url,
+            isMain: img.isMain,
+            sortOrder: img.sortOrder,
+          }));
+          setCurrentImages(images);
+        }
+      } catch (error) {
+        console.error("Failed to fetch images:", error);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, [event.event_id]);
+
+  const handleImageUploadComplete = (images: UploadedImage[]) => {
+    setCurrentImages(images);
+  };
+
+  const handleImageUploadError = (error: string) => {
+    setError(`Bild-Upload Fehler: ${error}`);
+  };
 
   async function handleSubmit(event_form: React.FormEvent<HTMLFormElement>) {
     event_form.preventDefault();
@@ -204,6 +249,24 @@ export default function EditEventForm({ event }: Props) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
+      </div>
+
+      {/* Event Images Section */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Event-Bilder
+        </label>
+        {imagesLoading ? (
+          <div className="text-sm text-gray-500">Lade Bilder...</div>
+        ) : (
+          <MultiImageUpload
+            eventId={event.event_id}
+            currentImages={currentImages}
+            onUploadComplete={handleImageUploadComplete}
+            onUploadError={handleImageUploadError}
+            maxImages={5}
+          />
+        )}
       </div>
 
       <div className="flex gap-4 pt-4">

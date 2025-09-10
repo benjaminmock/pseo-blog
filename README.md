@@ -236,3 +236,15 @@ Waitlist & Registrations
 Trainer Management
 /api/trainer/create - Create new trainer
 /api/trainer/update - Update trainer information
+
+## How to run it locally
+
+### File Upload
+
+minIO is used as a local S3 replacement. It can be started with `docker-compose up -d minio` and access via http://localhost:9001/browser/yoga-platform
+
+On production cloudflare R2 object storage is used for file uploads.
+
+### Resend
+
+transactional emails will be send via Resend

@@ -195,6 +195,7 @@ model Event {
   registrations        EventRegistration[]
   waitlistEntries      ParticipantWaitlist[]
   payments             Payment[]
+  images               EventImage[]
 
   @@map("Events")
 }
@@ -377,16 +378,32 @@ model ParticipantWaitlist {
 }
 
 model File {
-  id        String    @id @default(cuid())
-  key       String    @unique
-  url       String
-  mimeType  String    @map("mime_type")
-  sizeBytes Int       @map("size_bytes")
-  width     Int?
-  height    Int?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  trainers  Trainer[]
+  id          String       @id @default(cuid())
+  key         String       @unique
+  url         String
+  mimeType    String       @map("mime_type")
+  sizeBytes   Int          @map("size_bytes")
+  width       Int?
+  height      Int?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  trainers    Trainer[]
+  eventImages EventImage[]
 
   @@map("files")
+}
+
+model EventImage {
+  id        String   @id @default(cuid())
+  eventId   Int      @map("event_id")
+  fileId    String   @map("file_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  isMain    Boolean  @default(false) @map("is_main")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
+  file  File  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  
+  @@map("event_images")
+  @@unique([eventId, fileId])
 }

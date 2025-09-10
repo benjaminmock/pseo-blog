@@ -15,7 +15,7 @@ export default function AuthNav() {
 
   const getDashboardLink = () => {
     if (session?.user?.role === "teacher") {
-      return "/teacher-dashboard";
+      return "/anbieter-dashboard";
     } else if (session?.user?.role === "student") {
       return "/student-dashboard";
     }

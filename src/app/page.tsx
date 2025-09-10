@@ -54,7 +54,7 @@ export default function HomePage() {
 
       // Redirect users to their role-specific dashboard
       if (session.user.role === "teacher") {
-        window.location.href = "/teacher-dashboard";
+        window.location.href = "/anbieter-dashboard";
       } else if (session.user.role === "student") {
         window.location.href = "/student-dashboard";
       }
@@ -75,7 +75,7 @@ export default function HomePage() {
       if (response.ok) {
         // After updating role, redirect to appropriate dashboard
         if (role === "teacher") {
-          window.location.href = "/teacher-dashboard";
+          window.location.href = "/anbieter-dashboard";
         } else if (role === "student") {
           window.location.href = "/student-dashboard";
         }

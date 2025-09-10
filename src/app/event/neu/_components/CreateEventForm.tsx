@@ -3,6 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CityCombobox from "@/components/CityCombobox";
+import MultiImageUpload from "@/components/MultiImageUpload";
+
+interface UploadedImage {
+  id: string;
+  url: string;
+  file?: File;
+  isUploading?: boolean;
+  isMain?: boolean;
+  sortOrder?: number;
+}
 
 type Props = {
   trainerId: number | undefined;
@@ -14,6 +24,189 @@ export default function CreateEventForm({ trainerId }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   const [isInPerson, setIsInPerson] = useState(true);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [createdEventId, setCreatedEventId] = useState<number | null>(null);
+  const [createdEventSlug, setCreatedEventSlug] = useState<string | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  const uploadSelectedImages = async (eventId: number) => {
+    const imagesToUpload = uploadedImages.filter((img) => img.file);
+    console.log(
+      `Starting upload for ${imagesToUpload.length} images to event ${eventId}`
+    );
+
+    if (imagesToUpload.length === 0) return;
+
+    const uploadPromises = imagesToUpload.map(async (image, index) => {
+      if (!image.file) return null;
+
+      console.log(
+        `Uploading image ${index + 1}/${imagesToUpload.length}: ${
+          image.file.name
+        }`
+      );
+
+      // Get image dimensions
+      const validation = await validateFile(image.file);
+      const dimensions = validation.dimensions;
+
+      // Step 1: Get presigned URL
+      console.log(`Step 1: Getting presigned URL for ${image.file.name}`);
+      const presignResponse = await fetch("/api/upload/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: image.file.name,
+          contentType: image.file.type,
+          fileSize: image.file.size,
+          scope: "events",
+          entityId: eventId.toString(),
+        }),
+      });
+
+      if (!presignResponse.ok) {
+        const error = await presignResponse.json();
+        console.error(`Presign failed for ${image.file.name}:`, error);
+        throw new Error(error.error || "Failed to get upload URL");
+      }
+
+      const { presignedPost, objectKey } = await presignResponse.json();
+      console.log(
+        `Step 1 complete: Got presigned URL and objectKey: ${objectKey}`
+      );
+
+      // Step 2: Upload to S3
+      console.log(`Step 2: Uploading ${image.file.name} to S3`);
+      const formData = new FormData();
+      Object.entries(presignedPost.fields).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
+      formData.append("file", image.file);
+
+      const uploadResponse = await fetch(presignedPost.url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        console.error(
+          `S3 upload failed for ${image.file.name}:`,
+          uploadResponse.status,
+          uploadResponse.statusText
+        );
+        throw new Error("Upload to storage failed");
+      }
+
+      console.log(
+        `Step 2 complete: Successfully uploaded ${image.file.name} to S3`
+      );
+
+      // Step 3: Complete upload
+      console.log(`Step 3: Completing upload for ${image.file.name}`);
+      const completeResponse = await fetch("/api/upload/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objectKey,
+          mimeType: image.file.type,
+          sizeBytes: image.file.size,
+          width: dimensions?.width,
+          height: dimensions?.height,
+          scope: "events",
+          entityId: eventId.toString(),
+        }),
+      });
+
+      if (!completeResponse.ok) {
+        const error = await completeResponse.json();
+        console.error(`Complete upload failed for ${image.file.name}:`, error);
+        throw new Error(error.error || "Failed to save file metadata");
+      }
+
+      const result = await completeResponse.json();
+      console.log(
+        `Step 3 complete: Upload completed for ${image.file.name}`,
+        result
+      );
+      return result;
+    });
+
+    const results = await Promise.all(uploadPromises);
+    console.log(`All uploads completed successfully:`, results);
+
+    // Update state to remove file references from uploaded images
+    setUploadedImages((prev) =>
+      prev.map((img) => ({
+        ...img,
+        file: undefined, // Remove file reference for uploaded images
+      }))
+    );
+
+    // Call completion callback to trigger redirect
+    handleImageUploadComplete([]);
+  };
+
+  const validateFile = (
+    file: File
+  ): Promise<{
+    valid: boolean;
+    error?: string;
+    warning?: string;
+    dimensions?: { width: number; height: number };
+  }> => {
+    return new Promise((resolve) => {
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      const MIN_DIMENSIONS = { width: 256, height: 256 };
+
+      // Check file type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        resolve({
+          valid: false,
+          error: `Ungültiger Dateityp. Erlaubt: ${ALLOWED_TYPES.join(", ")}`,
+        });
+        return;
+      }
+
+      // Check file size
+      if (file.size > MAX_SIZE) {
+        resolve({
+          valid: false,
+          error: `Datei zu groß. Maximum: ${MAX_SIZE / (1024 * 1024)}MB`,
+        });
+        return;
+      }
+
+      // Check image dimensions
+      const img = new window.Image();
+      img.onload = () => {
+        const dimensions = { width: img.width, height: img.height };
+        let warning;
+
+        if (
+          img.width < MIN_DIMENSIONS.width ||
+          img.height < MIN_DIMENSIONS.height
+        ) {
+          warning = `Bild ist kleiner als empfohlen (${MIN_DIMENSIONS.width}x${MIN_DIMENSIONS.height}px). Qualität könnte reduziert sein.`;
+        }
+
+        resolve({
+          valid: true,
+          warning,
+          dimensions,
+        });
+      };
+
+      img.onerror = () => {
+        resolve({
+          valid: false,
+          error: "Ungültiges Bildformat",
+        });
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,13 +215,15 @@ export default function CreateEventForm({ trainerId }: Props) {
 
     // Client-side validation
     if (!isOnline && !isInPerson) {
-      setError("Event muss mindestens eine Veranstaltungsart unterstützen (Online oder Präsenz)");
+      setError(
+        "Event muss mindestens eine Veranstaltungsart unterstützen (Online oder Präsenz)"
+      );
       setIsSubmitting(false);
       return;
     }
 
     const formData = new FormData(event.currentTarget);
-    
+
     // Validate online URL if online is selected
     const onlineUrl = formData.get("online_url") as string;
     if (isOnline && (!onlineUrl || onlineUrl.trim() === "")) {
@@ -62,9 +257,13 @@ export default function CreateEventForm({ trainerId }: Props) {
         : null,
       is_online: isOnline ? 1 : 0,
       is_in_person: isInPerson ? 1 : 0,
-      online_url: isOnline ? (formData.get("online_url") || null) : null,
-      online_platform: isOnline ? (formData.get("online_platform") || null) : null,
-      online_instructions: isOnline ? (formData.get("online_instructions") || null) : null,
+      online_url: isOnline ? formData.get("online_url") || null : null,
+      online_platform: isOnline
+        ? formData.get("online_platform") || null
+        : null,
+      online_instructions: isOnline
+        ? formData.get("online_instructions") || null
+        : null,
     };
 
     try {
@@ -82,13 +281,51 @@ export default function CreateEventForm({ trainerId }: Props) {
       }
 
       const result = await response.json();
-      // Redirect to the new event page using the slug if available
-      if (result.slug) {
-        router.push(`/events/${result.slug}`);
+
+      // Store the created event ID and slug for image uploads and redirects
+      setCreatedEventId(result.event_id);
+      setCreatedEventSlug(result.slug);
+      const eventSlug = result.slug;
+
+      console.log(uploadedImages);
+
+      // If there are no images to upload, redirect immediately
+      if (
+        uploadedImages.length === 0 ||
+        uploadedImages.every((img) => !img.file)
+      ) {
+        if (eventSlug) {
+          router.push(`/events/${eventSlug}`);
+        } else {
+          router.push("/events");
+        }
+        router.refresh();
       } else {
-        router.push("/events");
+        // Automatically trigger image upload for selected files
+        setIsUploadingImages(true);
+        try {
+          await uploadSelectedImages(result.event_id);
+          // The redirect will be handled by handleImageUploadComplete after successful upload
+        } catch (uploadError) {
+          setError(
+            `Event wurde erstellt, aber Bild-Upload fehlgeschlagen: ${
+              uploadError instanceof Error
+                ? uploadError.message
+                : "Unbekannter Fehler"
+            }`
+          );
+          setIsUploadingImages(false);
+          setIsSubmitting(false);
+
+          // Reset upload state to allow retry - remove file references from failed uploads
+          setUploadedImages((prev) =>
+            prev.map((img) => ({
+              ...img,
+              file: undefined,
+            }))
+          );
+        }
       }
-      router.refresh();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ein Fehler ist aufgetreten"
@@ -97,6 +334,30 @@ export default function CreateEventForm({ trainerId }: Props) {
       setIsSubmitting(false);
     }
   }
+
+  const handleImageUploadComplete = (images: UploadedImage[]) => {
+    console.log("handleImageUploadComplete called with:", images);
+    setUploadedImages(images);
+    setIsUploadingImages(false);
+    setIsSubmitting(false);
+    
+    // Redirect after successful upload
+    if (createdEventSlug) {
+      router.push(`/events/${createdEventSlug}`);
+    } else {
+      router.push("/events");
+    }
+    router.refresh();
+  };
+
+  const handleImageSelectionChange = (images: UploadedImage[]) => {
+    console.log("handleImageSelectionChange called with:", images);
+    setUploadedImages(images);
+  };
+
+  const handleImageUploadError = (error: string) => {
+    setError(`Bild-Upload Fehler: ${error}`);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -196,7 +457,10 @@ export default function CreateEventForm({ trainerId }: Props) {
               onChange={(e) => setIsInPerson(e.target.checked)}
               className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
             />
-            <label htmlFor="is_in_person" className="ml-2 text-sm text-gray-700">
+            <label
+              htmlFor="is_in_person"
+              className="ml-2 text-sm text-gray-700"
+            >
               Präsenz-Event
             </label>
           </div>
@@ -206,8 +470,10 @@ export default function CreateEventForm({ trainerId }: Props) {
       {/* Online Event Fields */}
       {isOnline && (
         <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700">Online-Event Details</h3>
-          
+          <h3 className="text-sm font-medium text-gray-700">
+            Online-Event Details
+          </h3>
+
           <div>
             <label
               htmlFor="online_url"
@@ -314,14 +580,53 @@ export default function CreateEventForm({ trainerId }: Props) {
         </div>
       </div>
 
+      {/* Event Images Section */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Event-Bilder
+        </label>
+        <div className="text-sm text-gray-500 mb-4">
+          Fügen Sie Bilder zu Ihrem Event hinzu. Diese werden nach der
+          Event-Erstellung hochgeladen.
+        </div>
+        <MultiImageUpload
+          eventId={createdEventId || undefined}
+          currentImages={uploadedImages}
+          onUploadComplete={handleImageSelectionChange}
+          onUploadError={handleImageUploadError}
+          maxImages={5}
+          autoUpload={true}
+        />
+      </div>
+
       <div className="pt-4">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploadingImages}
           className="w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white rounded-lg hover:bg-gray-900"
         >
-          {isSubmitting ? "Wird erstellt..." : "Event erstellen"}
+          {isUploadingImages
+            ? "Lade Bilder hoch..."
+            : isSubmitting
+            ? "Wird erstellt..."
+            : "Event erstellen"}
         </button>
+
+        {createdEventId && !isUploadingImages && (
+          <div className="mt-4 p-4 bg-green-50 rounded-lg">
+            <p className="text-sm text-green-700">
+              Event wurde erfolgreich erstellt!
+            </p>
+          </div>
+        )}
+
+        {isUploadingImages && (
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-700">
+              Event wurde erstellt! Bilder werden hochgeladen...
+            </p>
+          </div>
+        )}
       </div>
     </form>
   );

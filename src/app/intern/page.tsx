@@ -34,7 +34,10 @@ export default function InternPage() {
           </h2>
           <p className="text-gray-600 mb-1">
             <span className="inline-block px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-sm">
-              Rolle: {session?.user?.role === "teacher" ? "Lehrer*in/Trainer*in" : "Teilnehmer*in"}
+              Rolle:{" "}
+              {session?.user?.role === "teacher"
+                ? "Lehrer*in/Trainer*in"
+                : "Teilnehmer*in"}
             </span>
           </p>
         </div>
@@ -51,9 +54,7 @@ export default function InternPage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-lg font-medium text-gray-900">
-                      Kurse
-                    </h4>
+                    <h4 className="text-lg font-medium text-gray-900">Kurse</h4>
                     <p className="text-sm text-gray-600">
                       Kurse verwalten und erstellen
                     </p>
@@ -122,9 +123,7 @@ export default function InternPage() {
                     <h4 className="text-lg font-medium text-gray-900">
                       Anwesenheit
                     </h4>
-                    <p className="text-sm text-gray-600">
-                      Teilnahme erfassen
-                    </p>
+                    <p className="text-sm text-gray-600">Teilnahme erfassen</p>
                   </div>
                   <span className="text-indigo-900">→</span>
                 </div>
@@ -154,7 +153,7 @@ export default function InternPage() {
               </h3>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href="/teacher-dashboard"
+                  href="/anbieter-dashboard"
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   Teacher Dashboard

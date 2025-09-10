@@ -147,7 +147,7 @@ export default function UserSubNav() {
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-center space-x-6">
           <Link
-            href="/teacher-dashboard"
+            href="/anbieter-dashboard"
             className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 flex items-center space-x-1"
           >
             <svg
