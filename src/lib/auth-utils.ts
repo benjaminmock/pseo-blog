@@ -15,48 +15,12 @@ export interface AuthUser {
  */
 export async function getUserFromRequest(request: NextRequest): Promise<AuthUser | null> {
   try {
-    console.log("🔍 getUserFromRequest: Starting user lookup");
-    
-    // Check for Cypress test environment and mock tokens
-    const sessionCookie = request.cookies.get("next-auth.session-token");
-    const userAgent = request.headers.get("user-agent") || "";
-    const isCypress = userAgent.includes("Cypress") ||
-                     process.env.NODE_ENV === "test" ||
-                     process.env.CYPRESS === "true" ||
-                     sessionCookie?.value?.startsWith("mock-");
-    
-    if (isCypress && sessionCookie?.value?.startsWith("mock-")) {
-      console.log("🧪 Detected Cypress mock token:", sessionCookie.value);
-      
-      // Return mock user based on token type
-      if (sessionCookie.value === "mock-teacher-token") {
-        const mockUser = {
-          id: "mock-teacher-id",
-          email: "teacher@test.com",
-          role: "teacher" as UserRole
-        };
-        console.log("✅ Returning mock teacher user:", mockUser);
-        return mockUser;
-      } else if (sessionCookie.value === "mock-student-token") {
-        const mockUser = {
-          id: "mock-student-id",
-          email: "student@test.com",
-          role: "student" as UserRole
-        };
-        console.log("✅ Returning mock student user:", mockUser);
-        return mockUser;
-      }
-    }
-    
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET
     });
     
-    console.log("🔍 JWT Token:", token ? { sub: token.sub, email: token.email, role: (token as any).role } : "No token");
-    
     if (!token?.sub || !token?.email) {
-      console.log("❌ No token.sub or email found");
       return null;
     }
 
@@ -70,10 +34,9 @@ export async function getUserFromRequest(request: NextRequest): Promise<AuthUser
       role: role as UserRole
     };
 
-    console.log("✅ Returning auth user from JWT:", authUser);
     return authUser;
   } catch (error) {
-    console.error("❌ Error getting user from request:", error);
+    console.error("Error getting user from request:", error);
     return null;
   }
 }

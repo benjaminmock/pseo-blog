@@ -64,34 +64,6 @@ async function getEventImages(eventId: number): Promise<EventImage[]> {
 }
 
 async function getEventBySlug(slug: string): Promise<Event | undefined> {
-  // Handle Cypress mock events
-  if (slug === "test-yoga-workshop") {
-    console.log("🧪 Returning mock event for Cypress test");
-    return {
-      event_id: 123,
-      event_name: "Test Yoga Workshop",
-      trainer_id: 999,
-      description: "A wonderful yoga workshop",
-      start_date: "2025-12-15",
-      end_date: null,
-      start_time: "10:00:00",
-      end_time: null,
-      city_slug: null,
-      city_name: null,
-      slug: "test-yoga-workshop",
-      max_participants: null,
-      price: null,
-      images: [],
-      trainer: {
-        first_name: "Test",
-        last_name: "Teacher",
-        bio: "A test teacher for Cypress tests",
-        link: null,
-        slug: "test-teacher",
-      },
-    };
-  }
-
   const stmt = db.prepare(`
     SELECT
       e.*,

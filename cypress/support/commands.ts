@@ -10,72 +10,43 @@ declare namespace Cypress {
 }
 
 Cypress.Commands.add('loginAsTeacher', () => {
-  // Set a simple session cookie
-  cy.setCookie('next-auth.session-token', 'mock-teacher-token');
-  
-  // Mock all possible NextAuth endpoints
-  cy.intercept('GET', '/api/auth/session', {
-    statusCode: 200,
+  // Create a real session by calling our custom API endpoint
+  cy.request({
+    method: 'POST',
+    url: '/api/test/auth',
     body: {
-      user: {
-        id: 'mock-teacher-id',
-        email: 'teacher@test.com',
-        name: 'Test Teacher',
-        role: 'teacher',
-        image: null
-      },
-      expires: '2025-12-31T23:59:59.999Z'
+      email: 'teacher@test.com',
+      role: 'teacher'
     }
-  }).as('getSession');
-  
-  cy.intercept('GET', '/api/auth/csrf', {
-    statusCode: 200,
-    body: { csrfToken: 'mock-csrf-token' }
-  });
-  
-  cy.intercept('GET', '/api/auth/providers', {
-    statusCode: 200,
-    body: {}
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    // The session cookie should be set automatically by the response
   });
 });
 
 Cypress.Commands.add('loginAsStudent', () => {
-  // Set a simple session cookie
-  cy.setCookie('next-auth.session-token', 'mock-student-token');
-  
-  // Mock all possible NextAuth endpoints
-  cy.intercept('GET', '/api/auth/session', {
-    statusCode: 200,
+  // Create a real session by calling our custom API endpoint
+  cy.request({
+    method: 'POST',
+    url: '/api/test/auth',
     body: {
-      user: {
-        id: 'mock-student-id',
-        email: 'student@test.com',
-        name: 'Test Student',
-        role: 'student',
-        image: null
-      },
-      expires: '2025-12-31T23:59:59.999Z'
+      email: 'student@test.com',
+      role: 'student'
     }
-  }).as('getSession');
-  
-  cy.intercept('GET', '/api/auth/csrf', {
-    statusCode: 200,
-    body: { csrfToken: 'mock-csrf-token' }
-  });
-  
-  cy.intercept('GET', '/api/auth/providers', {
-    statusCode: 200,
-    body: {}
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    // The session cookie should be set automatically by the response
   });
 });
 
 Cypress.Commands.add('logout', () => {
-  // Clear all auth-related cookies
-  cy.clearCookies();
-  
-  // Mock empty session response
-  cy.intercept('GET', '/api/auth/session', {
-    statusCode: 200,
-    body: {}
+  // Call the real logout endpoint
+  cy.request({
+    method: 'POST',
+    url: '/api/auth/signout',
+    failOnStatusCode: false
   });
+  
+  // Clear all cookies to ensure clean state
+  cy.clearCookies();
 });
