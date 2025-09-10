@@ -61,10 +61,58 @@ export function seedE2ETestData() {
     );
     console.log(`   Trainer inserted: ${trainerResult.changes} rows`);
     
+    // Create test events
+    console.log('📅 Creating test events...');
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30); // 30 days from now
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 30); // 30 days ago
+    
+    const futureEventResult = db.prepare(`
+      INSERT INTO Events (
+        event_name, trainer_id, description, start_date, start_time, end_time,
+        city_slug, slug, max_participants, price, active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      'Future Yoga Workshop',
+      TEST_USER.trainerId,
+      'A wonderful yoga workshop for all levels',
+      futureDate.toISOString().split('T')[0],
+      '10:00:00',
+      '11:30:00',
+      'hamburg',
+      'future-yoga-workshop',
+      20,
+      49.99,
+      1
+    );
+    console.log(`   Future event inserted: ${futureEventResult.changes} rows`);
+    
+    const pastEventResult = db.prepare(`
+      INSERT INTO Events (
+        event_name, trainer_id, description, start_date, start_time, end_time,
+        city_slug, slug, max_participants, price, active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      'Past Yoga Workshop',
+      TEST_USER.trainerId,
+      'A past yoga workshop',
+      pastDate.toISOString().split('T')[0],
+      '10:00:00',
+      '11:30:00',
+      'berlin',
+      'past-yoga-workshop',
+      15,
+      39.99,
+      1
+    );
+    console.log(`   Past event inserted: ${pastEventResult.changes} rows`);
+    
     console.log('✅ E2E test data seeded successfully');
     console.log(`   User: ${TEST_USER.email}`);
     console.log(`   Trainer ID: ${TEST_USER.trainerId}`);
     console.log(`   Cities: Hamburg, Berlin, München, Köln, Frankfurt`);
+    console.log(`   Events: Future Yoga Workshop, Past Yoga Workshop`);
     
   } catch (error) {
     console.error('❌ Error seeding E2E test data:', error);

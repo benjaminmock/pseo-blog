@@ -377,6 +377,7 @@ export default function CreateEventForm({ trainerId }: Props) {
           id="event_name"
           name="event_name"
           required
+          data-testid="event-name-input"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           placeholder="z.B. Yoga Workshop: Achtsamkeit & Entspannung"
         />
@@ -393,6 +394,7 @@ export default function CreateEventForm({ trainerId }: Props) {
           id="description"
           name="description"
           rows={4}
+          data-testid="description-textarea"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           placeholder="Beschreiben Sie Ihr Event..."
         />
@@ -411,6 +413,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             id="start_date"
             name="start_date"
             required
+            data-testid="start-date-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -426,6 +429,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             type="time"
             id="start_time"
             name="start_time"
+            data-testid="start-time-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -556,6 +560,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             id="max_participants"
             name="max_participants"
             min="1"
+            data-testid="max-participants-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             placeholder="z.B. 20"
           />
@@ -574,6 +579,7 @@ export default function CreateEventForm({ trainerId }: Props) {
             name="price"
             min="0"
             step="0.01"
+            data-testid="price-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             placeholder="z.B. 89.00"
           />
@@ -603,6 +609,7 @@ export default function CreateEventForm({ trainerId }: Props) {
         <button
           type="submit"
           disabled={isSubmitting || isUploadingImages}
+          data-testid="submit-button"
           className="w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white rounded-lg hover:bg-gray-900"
         >
           {isUploadingImages

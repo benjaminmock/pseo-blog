@@ -70,7 +70,7 @@ export default function EventsPage() {
   if (isLoading) {
     return (
       <main className="max-w-6xl mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="loading-spinner">
           <p className="text-gray-600">Events werden geladen...</p>
         </div>
       </main>
@@ -80,7 +80,7 @@ export default function EventsPage() {
   if (error) {
     return (
       <main className="max-w-6xl mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="error-message">
           <p className="text-red-600">{error}</p>
         </div>
       </main>
@@ -100,7 +100,7 @@ export default function EventsPage() {
       </div>
 
       {events.length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
+        <div className="bg-gray-50 rounded-lg p-8 text-center" data-testid="no-events-message">
           <h2 className="text-xl font-medium text-gray-900 mb-2">
             Keine Events verfügbar
           </h2>
@@ -113,6 +113,7 @@ export default function EventsPage() {
           {events.map((event) => (
             <div
               key={event.event_id}
+              data-testid="event-card"
               className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="p-6">
@@ -227,6 +228,7 @@ export default function EventsPage() {
                   {event.slug ? (
                     <a
                       href={`/events/${event.slug}`}
+                      data-testid="register-button"
                       className="block w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-center"
                     >
                       Mehr erfahren
@@ -234,6 +236,7 @@ export default function EventsPage() {
                   ) : (
                     <button
                       disabled
+                      data-testid="register-button-disabled"
                       className="w-full bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
                     >
                       Mehr erfahren

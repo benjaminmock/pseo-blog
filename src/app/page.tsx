@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import HeroSection from "@/components/home/HeroSection";
 import SearchSection from "@/components/home/SearchSection";
@@ -38,8 +39,13 @@ interface Event {
 
 export default function HomePage() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
 
+  // TODO check this
   useEffect(() => {
+    // Only redirect if we're actually on the homepage
+    if (pathname !== "/") return;
+
     if (status === "authenticated" && session?.user) {
       // Check if there's a stored role in localStorage
       const storedRole = localStorage.getItem("selectedUserRole");
@@ -59,7 +65,7 @@ export default function HomePage() {
         window.location.href = "/student-dashboard";
       }
     }
-  }, [status, session]);
+  }, [status, session, pathname]);
 
   const updateUserRole = async (role: string) => {
     try {

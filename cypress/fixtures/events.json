@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "event_id": 1,
+      "event_name": "Future Yoga Workshop",
+      "description": "A wonderful yoga workshop",
+      "start_date": "2025-12-15",
+      "start_time": "10:00:00",
+      "city_slug": "hamburg",
+      "slug": "future-yoga-workshop",
+      "max_participants": 20,
+      "price": 49.99,
+      "first_name": "Anna",
+      "last_name": "Müller",
+      "trainer_bio": "Experienced yoga teacher"
+    },
+    {
+      "event_id": 2,
+      "event_name": "Past Yoga Workshop",
+      "description": "A past yoga workshop",
+      "start_date": "2024-01-15",
+      "start_time": "10:00:00",
+      "city_slug": "berlin",
+      "slug": "past-yoga-workshop",
+      "max_participants": 15,
+      "price": 39.99,
+      "first_name": "Tom",
+      "last_name": "Schmidt",
+      "trainer_bio": "Yoga enthusiast"
+    }
+  ]
+}

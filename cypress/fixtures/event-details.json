@@ -1,0 +1,26 @@
+{
+  "event_id": 1,
+  "event_name": "Future Yoga Workshop",
+  "description": "A wonderful yoga workshop for all levels. Join us for a relaxing and energizing session that will help you connect with your body and mind.",
+  "start_date": "2025-12-15",
+  "start_time": "10:00:00",
+  "end_time": "11:30:00",
+  "city_slug": "hamburg",
+  "city": "Hamburg",
+  "slug": "future-yoga-workshop",
+  "max_participants": 20,
+  "current_participants": 5,
+  "price": 49.99,
+  "trainer": {
+    "first_name": "Anna",
+    "last_name": "Müller",
+    "trainer_bio": "Experienced yoga teacher with over 10 years of practice",
+    "email": "anna.mueller@example.com",
+    "slug": "anna-mueller"
+  },
+  "location": "Yoga Studio Hamburg",
+  "address": "Musterstraße 123, 20095 Hamburg",
+  "active": true,
+  "created_at": "2025-01-01T10:00:00.000Z",
+  "updated_at": "2025-01-01T10:00:00.000Z"
+}

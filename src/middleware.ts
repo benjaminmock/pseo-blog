@@ -39,9 +39,15 @@ export async function middleware(request: NextRequest) {
     request.cookies.get("next-auth.session-token") || // Development
     request.cookies.get("__Secure-next-auth.session-token"); // Production
 
-  // Debug logging for intern routes
-  if (pathname.startsWith("/intern")) {
+  // Debug logging for protected routes and Cypress detection
+  if (pathname.startsWith("/intern") || pathname.startsWith("/event")) {
+    const userAgent = request.headers.get("user-agent") || "";
     console.log(`🔍 Session token present: ${!!sessionToken}`);
+    console.log(`🔍 Session token value: ${sessionToken?.value}`);
+    console.log(`🔍 User agent: ${userAgent}`);
+    console.log(`🔍 Is Cypress: ${userAgent.includes("Cypress")}`);
+    console.log(`🔍 NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`🔍 CYPRESS env: ${process.env.CYPRESS}`);
   }
 
   // If user is logged in and tries to access auth routes, redirect based on role
