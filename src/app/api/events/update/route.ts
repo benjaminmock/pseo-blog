@@ -140,7 +140,7 @@ export async function PUT(request: NextRequest) {
       event_id
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, slug: slug });
   } catch (error) {
     console.error("Error updating event:", error);
     return NextResponse.json(
