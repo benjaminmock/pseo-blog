@@ -17,7 +17,7 @@
     "test:e2e:open": "cypress open",
     "seed:e2e": "tsx prisma/seed-e2e-server.ts",
     "cleanup:e2e": "tsx -e \"import { cleanupTestData } from './prisma/seed-e2e-server'; cleanupTestData();\"",
-    "test:e2e:full": "npm run seed:e2e && cypress run $@ && npm run cleanup:e2e",
+    "test:e2e:full": "bash -c 'npm run seed:e2e && cypress run \"$@\" && npm run cleanup:e2e' --",
     "prepare": "husky"
   },
   "dependencies": {
@@ -36,6 +36,7 @@
     "downshift": "^9.0.9",
     "fs": "^0.0.1-security",
     "gray-matter": "^4.0.3",
+    "lucide-react": "^0.544.0",
     "next": "14.2.14",
     "next-auth": "^4.24.11",
     "path": "^0.12.7",
