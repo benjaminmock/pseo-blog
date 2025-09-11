@@ -9,6 +9,7 @@ You now have a complete real end-to-end testing setup! Here's how to use it effe
 - **`npm run test:e2e`** - Runs Cypress tests in headless mode
 - **`npm run test:e2e:open`** - Opens Cypress UI for interactive testing
 - **`npm run test:e2e:full`** - **Recommended**: Full automated workflow (seed → run tests → cleanup)
+- **`npm run test:e2e:full -- --spec "cypress/e2e/events/event-editing.cy.ts"`** - for one specific spec
 
 ### Recommended Usage:
 
