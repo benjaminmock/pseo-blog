@@ -51,8 +51,9 @@ describe("Event Creation Flow", () => {
   it("shows permission error for non-teacher users", () => {
     cy.loginAsStudent();
     cy.visit("/event/neu");
-    // Wait for page to load and check for permission message
-    cy.get('body', { timeout: 10000 }).should('contain.text', 'Sie haben nicht die Berechtigung');
+    // The user gets redirected to /unauthorized page, so check for that
+    cy.url().should('include', '/unauthorized');
+    cy.contains('Zugriff verweigert').should('be.visible');
   });
 
   it("redirects unauthenticated users to login", () => {

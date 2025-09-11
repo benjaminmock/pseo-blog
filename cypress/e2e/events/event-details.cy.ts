@@ -78,7 +78,10 @@ describe('Event Details Page', () => {
   it('handles event not found error', () => {
     // Test 404 handling with failOnStatusCode: false
     cy.visit('/events/non-existent-event', { failOnStatusCode: false });
-    cy.get('body').should('contain.text', '404').or('contain.text', 'Not Found').or('contain.text', 'Event nicht gefunden');
+    cy.get('body').should('satisfy', ($body) => {
+      const text = $body.text();
+      return text.includes('404') || text.includes('Not Found') || text.includes('Event nicht gefunden');
+    });
   });
 
   it('shows waitlist option when event is full', () => {
