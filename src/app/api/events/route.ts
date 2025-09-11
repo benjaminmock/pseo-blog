@@ -1,5 +1,34 @@
 import { db } from "@/config";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+async function getMainEventImage(eventId: number): Promise<string | null> {
+  try {
+    const mainImage = await prisma.eventImage.findFirst({
+      where: {
+        eventId,
+        isMain: true
+      },
+      include: { file: true },
+    });
+
+    if (mainImage) {
+      return mainImage.file.url;
+    }
+
+    // If no main image, get the first image
+    const firstImage = await prisma.eventImage.findFirst({
+      where: { eventId },
+      include: { file: true },
+      orderBy: { sortOrder: "asc" },
+    });
+
+    return firstImage?.file.url || null;
+  } catch (error) {
+    console.error("Failed to fetch main event image:", error);
+    return null;
+  }
+}
 
 export async function GET() {
   try {
@@ -24,9 +53,20 @@ export async function GET() {
       ORDER BY e.start_date ASC
     `);
 
-    const events = eventsStmt.all();
+    const events = eventsStmt.all() as any[];
 
-    return NextResponse.json({ events });
+    // Fetch main image for each event
+    const eventsWithImages = await Promise.all(
+      events.map(async (event) => {
+        const mainImageUrl = await getMainEventImage(event.event_id);
+        return {
+          ...event,
+          mainImageUrl,
+        };
+      })
+    );
+
+    return NextResponse.json({ events: eventsWithImages });
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(

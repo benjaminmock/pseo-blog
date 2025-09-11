@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Event {
   event_id: number;
@@ -15,6 +16,7 @@ interface Event {
   first_name: string;
   last_name: string;
   trainer_bio: string | null;
+  mainImageUrl: string | null;
 }
 
 export default function EventsPage() {
@@ -116,6 +118,19 @@ export default function EventsPage() {
               data-testid="event-card"
               className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
+              {/* Event Image */}
+              {event.mainImageUrl && (
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={event.mainImageUrl}
+                    alt={event.event_name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+              )}
+              
               <div className="p-6">
                 <div className="mb-4">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
