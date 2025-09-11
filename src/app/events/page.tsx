@@ -102,7 +102,7 @@ export default function EventsPage() {
       {events.length === 0 ? (
         <div className="bg-gray-50 rounded-lg p-8 text-center" data-testid="no-events-message">
           <h2 className="text-xl font-medium text-gray-900 mb-2">
-            Keine Events verfügbar
+            Keine Events gefunden
           </h2>
           <p className="text-gray-600">
             Derzeit sind keine Events geplant. Schauen Sie bald wieder vorbei!
@@ -186,7 +186,7 @@ export default function EventsPage() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      <span>{event.city_slug}</span>
+                      <span>{event.city_slug.charAt(0).toUpperCase() + event.city_slug.slice(1)}</span>
                     </div>
                   )}
 
@@ -208,6 +208,12 @@ export default function EventsPage() {
                       {event.first_name} {event.last_name}
                     </span>
                   </div>
+                  
+                  {event.trainer_bio && (
+                    <div className="text-xs text-gray-400 mt-1">
+                      {event.trainer_bio}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -231,7 +237,7 @@ export default function EventsPage() {
                       data-testid="register-button"
                       className="block w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-center"
                     >
-                      Mehr erfahren
+                      Anmelden
                     </a>
                   ) : (
                     <button
@@ -239,7 +245,7 @@ export default function EventsPage() {
                       data-testid="register-button-disabled"
                       className="w-full bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
                     >
-                      Mehr erfahren
+                      Anmelden
                     </button>
                   )}
                 </div>

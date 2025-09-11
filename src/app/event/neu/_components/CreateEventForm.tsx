@@ -213,6 +213,22 @@ export default function CreateEventForm({ trainerId }: Props) {
     setError(null);
     setIsSubmitting(true);
 
+    const formData = new FormData(event.currentTarget);
+    
+    // Validate date is in the future
+    const startDate = formData.get("start_date") as string;
+    if (startDate) {
+      const selectedDate = new Date(startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        setError("Das Startdatum muss in der Zukunft liegen");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     // Client-side validation
     if (!isOnline && !isInPerson) {
       setError(
@@ -221,8 +237,6 @@ export default function CreateEventForm({ trainerId }: Props) {
       setIsSubmitting(false);
       return;
     }
-
-    const formData = new FormData(event.currentTarget);
 
     // Validate online URL if online is selected
     const onlineUrl = formData.get("online_url") as string;

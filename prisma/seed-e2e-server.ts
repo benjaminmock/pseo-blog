@@ -1,8 +1,8 @@
 import { db } from '@/config';
 import bcrypt from 'bcryptjs';
-import { TEST_USER } from '../cypress/fixtures/test-user';
+import { TEST_USER, TEST_STUDENT } from '../cypress/fixtures/test-user';
 
-export { TEST_USER };
+export { TEST_USER, TEST_STUDENT };
 
 export function seedE2ETestData() {
   console.log('🌱 Seeding E2E test data...');
@@ -24,10 +24,11 @@ export function seedE2ETestData() {
     `).run();
     console.log(`   Cities inserted: ${citiesResult.changes} rows`);
     
-    // Create test user
-    console.log('👤 Creating test user...');
+    // Create test users
+    console.log('👤 Creating test users...');
     const hashedPassword = bcrypt.hashSync('testpassword123', 10);
     
+    // Create teacher user
     const userResult = db.prepare(`
       INSERT INTO User (id, name, email, role, password_hash)
       VALUES (?, ?, ?, ?, ?)
@@ -38,14 +39,29 @@ export function seedE2ETestData() {
       TEST_USER.role,
       hashedPassword
     );
-    console.log(`   User inserted: ${userResult.changes} rows`);
+    console.log(`   Teacher user inserted: ${userResult.changes} rows`);
     
-    // Verify user was created
-    const createdUser = db.prepare('SELECT id, email, name, role FROM User WHERE email = ?').get(TEST_USER.email);
-    if (!createdUser) {
-      throw new Error('User was not created successfully');
+    // Create student user
+    const studentResult = db.prepare(`
+      INSERT INTO User (id, name, email, role, password_hash)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(
+      TEST_STUDENT.id,
+      TEST_STUDENT.name,
+      TEST_STUDENT.email,
+      TEST_STUDENT.role,
+      hashedPassword
+    );
+    console.log(`   Student user inserted: ${studentResult.changes} rows`);
+    
+    // Verify users were created
+    const createdUser = db.prepare('SELECT id, email, name, role FROM User WHERE email = ?').get(TEST_USER.email) as any;
+    const createdStudent = db.prepare('SELECT id, email, name, role FROM User WHERE email = ?').get(TEST_STUDENT.email) as any;
+    if (!createdUser || !createdStudent) {
+      throw new Error('Users were not created successfully');
     }
-    console.log(`   User verified: ${createdUser.email}`);
+    console.log(`   Teacher verified: ${createdUser.email}`);
+    console.log(`   Student verified: ${createdStudent.email}`);
     
     // Create trainer profile for the test user
     console.log('🏃 Creating trainer profile...');
@@ -116,7 +132,7 @@ export function seedE2ETestData() {
     
   } catch (error) {
     console.error('❌ Error seeding E2E test data:', error);
-    console.error('Error details:', error.message);
+    console.error('Error details:', error instanceof Error ? error.message : String(error));
     throw error;
   }
 }
@@ -135,12 +151,15 @@ export function cleanupTestData() {
     
     // Delete test user sessions
     db.prepare('DELETE FROM Session WHERE userId = ?').run(TEST_USER.id);
+    db.prepare('DELETE FROM Session WHERE userId = ?').run(TEST_STUDENT.id);
     
     // Delete test user accounts
     db.prepare('DELETE FROM Account WHERE userId = ?').run(TEST_USER.id);
+    db.prepare('DELETE FROM Account WHERE userId = ?').run(TEST_STUDENT.id);
     
-    // Delete test user
+    // Delete test users
     db.prepare('DELETE FROM User WHERE id = ?').run(TEST_USER.id);
+    db.prepare('DELETE FROM User WHERE id = ?').run(TEST_STUDENT.id);
     
     console.log('✅ Test data cleaned up successfully');
     
