@@ -76,6 +76,15 @@ describe('Event Details Page', () => {
   });
 
   it('handles event not found error', () => {
+    // Handle Next.js not found exception
+    cy.on('uncaught:exception', (err, runnable) => {
+      // Expect NEXT_NOT_FOUND error and don't fail the test
+      if (err.message.includes('NEXT_NOT_FOUND')) {
+        return false;
+      }
+      return true;
+    });
+    
     // Test 404 handling with failOnStatusCode: false
     cy.visit('/events/non-existent-event', { failOnStatusCode: false });
     cy.get('body').should('satisfy', ($body) => {

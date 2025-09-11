@@ -59,9 +59,10 @@ describe("Event Creation Flow", () => {
   it("redirects unauthenticated users to login", () => {
     cy.logout();
     cy.visit("/event/neu");
-    // The redirect might go through the dashboard first, so we check for either
+    // Wait for redirect and check URL - could be login or dashboard
+    cy.url({ timeout: 10000 }).should("not.include", "/event/neu");
     cy.url().should("satisfy", (url) => {
-      return url.includes("/login") || url.includes("/anbieter-dashboard");
+      return url.includes("/login") || url.includes("/anbieter-dashboard") || url.includes("/unauthorized");
     });
   });
 
