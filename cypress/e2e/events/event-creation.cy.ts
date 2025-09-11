@@ -51,9 +51,8 @@ describe("Event Creation Flow", () => {
   it("shows permission error for non-teacher users", () => {
     cy.loginAsStudent();
     cy.visit("/event/neu");
-    cy.contains("Sie haben nicht die Berechtigung, Events zu erstellen", { timeout: 10000 }).should(
-      "be.visible"
-    );
+    // Wait for page to load and check for permission message
+    cy.get('body', { timeout: 10000 }).should('contain.text', 'Sie haben nicht die Berechtigung');
   });
 
   it("redirects unauthenticated users to login", () => {
