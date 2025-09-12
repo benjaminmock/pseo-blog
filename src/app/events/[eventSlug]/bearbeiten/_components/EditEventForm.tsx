@@ -46,6 +46,8 @@ export default function EditEventForm({ event }: Props) {
   const [imagesLoading, setImagesLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(event.is_online === 1);
   const [isInPerson, setIsInPerson] = useState(event.is_in_person === 1);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch existing images when component mounts
   useEffect(() => {
@@ -183,6 +185,37 @@ export default function EditEventForm({ event }: Props) {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/events/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event_id: event.event_id }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Fehler beim Löschen des Events");
+      }
+
+      // Redirect to events list after successful deletion
+      router.push("/events");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Fehler beim Löschen des Events"
+      );
+      setShowDeleteDialog(false);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -441,6 +474,16 @@ export default function EditEventForm({ event }: Props) {
 
         <button
           type="button"
+          onClick={() => setShowDeleteDialog(true)}
+          disabled={isSubmitting || isDeleting}
+          data-testid="delete-event-button"
+          className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Löschen
+        </button>
+
+        <button
+          type="button"
           onClick={() => {
             if (event.slug) {
               router.push(`/events/${event.slug}`);
@@ -453,6 +496,41 @@ export default function EditEventForm({ event }: Props) {
           Abbrechen
         </button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="delete-confirmation-dialog">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Event löschen
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Sind Sie sicher, dass Sie das Event "{event.event_name}" löschen möchten?
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={isDeleting}
+                data-testid="cancel-delete-button"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                data-testid="confirm-delete-button"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Wird gelöscht..." : "Löschen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
