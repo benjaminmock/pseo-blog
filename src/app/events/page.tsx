@@ -27,6 +27,10 @@ export default function EventsPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
+        // Get city filter from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const cityFilter = urlParams.get('city');
+        
         const response = await fetch("/api/events");
         if (response.ok) {
           const data = await response.json();
@@ -35,12 +39,20 @@ export default function EventsPage() {
           const todayUTC = new Date();
           todayUTC.setUTCHours(0, 0, 0, 0);
 
-          const futureEvents = data.events.filter((event: Event) => {
+          let filteredEvents = data.events.filter((event: Event) => {
             const eventDate = new Date(event.start_date);
             eventDate.setUTCHours(0, 0, 0, 0); // Normalize to UTC
             return eventDate >= todayUTC;
           });
-          setEvents(futureEvents);
+
+          // Apply city filter if provided
+          if (cityFilter) {
+            filteredEvents = filteredEvents.filter((event: Event) =>
+              event.city_slug?.toLowerCase() === cityFilter.toLowerCase()
+            );
+          }
+
+          setEvents(filteredEvents);
         } else {
           setError("Fehler beim Laden der Events");
         }

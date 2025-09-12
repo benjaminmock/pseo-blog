@@ -66,14 +66,15 @@ export function seedE2ETestData() {
     // Create trainer profile for the test user
     console.log('🏃 Creating trainer profile...');
     const trainerResult = db.prepare(`
-      INSERT INTO Trainers (trainer_id, first_name, last_name, email, slug)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO Trainers (trainer_id, first_name, last_name, email, slug, bio)
+      VALUES (?, ?, ?, ?, ?, ?)
     `).run(
       TEST_USER.trainerId,
       'Test',
       'Teacher',
       TEST_USER.email,
-      'test-teacher'
+      'test-teacher',
+      'Experienced yoga teacher for E2E testing'
     );
     console.log(`   Trainer inserted: ${trainerResult.changes} rows`);
     
@@ -143,11 +144,15 @@ export function cleanupTestData() {
   try {
     // Delete in correct order to respect foreign key constraints
     
-    // Delete events created by test trainer
-    db.prepare('DELETE FROM Events WHERE trainer_id = ?').run(TEST_USER.trainerId);
+    // For E2E testing, we need a clean slate - delete ALL events and trainers
+    // This ensures tests run in isolation without interference from existing data
+    console.log('   Deleting all events...');
+    const eventsDeleted = db.prepare('DELETE FROM Events').run();
+    console.log(`   Events deleted: ${eventsDeleted.changes} rows`);
     
-    // Delete test trainer
-    db.prepare('DELETE FROM Trainers WHERE trainer_id = ?').run(TEST_USER.trainerId);
+    console.log('   Deleting all trainers...');
+    const trainersDeleted = db.prepare('DELETE FROM Trainers').run();
+    console.log(`   Trainers deleted: ${trainersDeleted.changes} rows`);
     
     // Delete test user sessions
     db.prepare('DELETE FROM Session WHERE userId = ?').run(TEST_USER.id);

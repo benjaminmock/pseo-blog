@@ -1,29 +1,34 @@
 import { db } from "@/config";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
-async function getMainEventImage(eventId: number): Promise<string | null> {
+function getMainEventImage(eventId: number): string | null {
   try {
-    const mainImage = await prisma.eventImage.findFirst({
-      where: {
-        eventId,
-        isMain: true
-      },
-      include: { file: true },
-    });
-
+    // Try to get main image first
+    const mainImageStmt = db.prepare(`
+      SELECT f.url
+      FROM event_images ei
+      JOIN files f ON ei.file_id = f.id
+      WHERE ei.event_id = ? AND ei.is_main = 1
+      LIMIT 1
+    `);
+    
+    const mainImage = mainImageStmt.get(eventId) as any;
     if (mainImage) {
-      return mainImage.file.url;
+      return mainImage.url;
     }
 
     // If no main image, get the first image
-    const firstImage = await prisma.eventImage.findFirst({
-      where: { eventId },
-      include: { file: true },
-      orderBy: { sortOrder: "asc" },
-    });
-
-    return firstImage?.file.url || null;
+    const firstImageStmt = db.prepare(`
+      SELECT f.url
+      FROM event_images ei
+      JOIN files f ON ei.file_id = f.id
+      WHERE ei.event_id = ?
+      ORDER BY ei.sort_order ASC
+      LIMIT 1
+    `);
+    
+    const firstImage = firstImageStmt.get(eventId) as any;
+    return firstImage?.url || null;
   } catch (error) {
     console.error("Failed to fetch main event image:", error);
     return null;
@@ -55,16 +60,14 @@ export async function GET() {
 
     const events = eventsStmt.all() as any[];
 
-    // Fetch main image for each event
-    const eventsWithImages = await Promise.all(
-      events.map(async (event) => {
-        const mainImageUrl = await getMainEventImage(event.event_id);
-        return {
-          ...event,
-          mainImageUrl,
-        };
-      })
-    );
+    // Add main image for each event
+    const eventsWithImages = events.map((event) => {
+      const mainImageUrl = getMainEventImage(event.event_id);
+      return {
+        ...event,
+        mainImageUrl,
+      };
+    });
 
     return NextResponse.json({ events: eventsWithImages });
   } catch (error) {
